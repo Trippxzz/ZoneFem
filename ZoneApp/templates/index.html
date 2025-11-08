@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZONFEM - Control Prenatal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    nav ul li {
+      margin-left: 20px;
+    }
+
+    nav ul li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #4CAF50;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .icon {
+      font-size: 20px;
+      cursor: pointer;
+      color: #333;
+    }
+
+    /* Carrusel */
+    .carousel-container {
+      position: relative;
+      max-width: 100%;
+      overflow: hidden;
+      margin: 20px auto;
+      background: #fff8e1;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .carousel {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+    }
+
+    .carousel-item {
+      min-width: 100%;
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .carousel-image {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .carousel-text {
+      flex: 1;
+    }
+
+    .carousel-text h2 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .carousel-text p {
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .btn-primary {
+      background: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .btn-primary:hover {
+      background: #45a049;
+    }
+
+    .carousel-controls {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .carousel-arrow {
+      background: rgba(255,255,255,0.7);
+      border: none;
+      font-size: 24px;
+      padding: 10px 15px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .carousel-arrow:hover {
+      background: rgba(255,255,255,1);
+    }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: #4CAF50;
+    }
+
+    /* Secciones inferiores */
+    .sections {
+      display: flex;
+      justify-content: space-around;
+      padding: 30px 20px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      flex: 1 1 300px;
+      max-width: 350px;
+    }
+
+    .section h3 {
+      color: #4CAF50;
+      margin-bottom: 15px;
+    }
+
+    .section p {
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* Chat flotante */
+    .chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #ff5722;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+
+    .chat-button:hover {
+      background: #e64a19;
+    }
+
+    /* Modal de login */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1001;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 350px;
+      max-width: 90%;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn-link {
+      background: none;
+      border: none;
+      color: #4CAF50;
+      text-decoration: underline;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    /* Carrito y búsqueda */
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">ZONFEM</div>
+    <nav>
+      <ul>
+        <li><a href="#">Inicio</a></li>
+        <li><a href="#">Consultas</a></li>
+        <li><a href="#">Cursos</a></li>
+        <li><a href="#">Contactos</a></li>
+      </ul>
+    </nav>
+    <div class="header-icons">
+      <div class="icon" onclick="openSearch()">🔍</div>
+      <div class="icon" onclick="openLoginModal()">👤</div>
+      <div class="icon" onclick="openCart()">
+        🛒
+        <span class="cart-count">0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Carrusel -->
+  <div class="carousel-container">
+    <div class="carousel">
+      <div class="carousel-item">
+        <img src="https://placehold.co/300x300?text=Mujer+Embarazada" alt="Mujer embarazada" class="carousel-image">
+        <div class="carousel-text">
+          <h2>Control prenatal</h2>
+          <p>Seguimiento y cuidados durante el embarazo</p>
+          <button class="btn-primary" onclick="alert('¡Gracias por agendar tu consulta!')">Agendar una consulta</button>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="https://placehold.co/300x300?text=Matrona" alt="Matrona" class="carousel-image">
+        <div class="carousel-text">
+          <h2>Atención especializada</h2>
+          <p>Con nuestras matronas experimentadas</p>
+          <button class="btn-primary" onclick="alert('¡Gracias por agendar tu consulta!')">Agendar una consulta</button>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="https://placehold.co/300x300?text=Parto" alt="Preparación al parto" class="carousel-image">
+        <div class="carousel-text">
+          <h2>Preparación al parto</h2>
+          <p>Clases y talleres para tu proceso</p>
+          <button class="btn-primary" onclick="alert('¡Gracias por agendar tu consulta!')">Agendar una consulta</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="carousel-controls">
+      <button class="carousel-arrow" onclick="moveCarousel(-1)">❮</button>
+      <button class="carousel-arrow" onclick="moveCarousel(1)">❯</button>
+    </div>
+
+    <div class="carousel-dots">
+      <div class="dot active" onclick="goToSlide(0)"></div>
+      <div class="dot" onclick="goToSlide(1)"></div>
+      <div class="dot" onclick="goToSlide(2)"></div>
+    </div>
+  </div>
+
+  <!-- Secciones inferiores -->
+  <div class="sections">
+    <div class="section">
+      <h3>Quien Somos</h3>
+      <p>Somos un equipo de matronas dedicadas, comprometidas con el bienestar y la salud femenina en todas sus etapas.</p>
+    </div>
+    <div class="section">
+      <h3>Matronas</h3>
+      <p>Nuestras matronas cuentan con una formación especializada y brindan atención integral, cercana y respetuosa a mujeres de todas las edades.</p>
+    </div>
+    <div class="section">
+      <h3>Preparación al parto</h3>
+      <p>Ofrecemos cursos y talleres para que vivas tu proceso de parto de forma informada, segura y saludable, acompañada en cada momento.</p>
+    </div>
+  </div>
+
+  <!-- Chat flotante -->
+  <div class="chat-button" onclick="alert('¡Hola! Estamos aquí para ayudarte. ¿En qué podemos servirte?')">
+    Chat
+  </div>
+
+  <!-- Modal de Login -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="btn-close" onclick="closeLoginModal()">×</span>
+      <h2 class="modal-title">Iniciar Sesión</h2>
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••">
+      </div>
+      <div class="form-actions">
+        <button class="btn-link" onclick="alert('Redirigiendo a recuperar contraseña...')">Olvidé mi contraseña</button>
+        <button class="btn-primary" onclick="alert('¡Bienvenido/a!')">Iniciar sesión</button>
+      </div>
+      <div style="margin-top: 15px; text-align: center;">
+        <span>¿No tienes cuenta? </span>
+        <button class="btn-link" onclick="alert('Redirigiendo a registro...')">Crear cuenta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Carrito -->
+  <div id="cartModal" class="modal">
+    <div class="modal-content">
+      <span class="btn-close" onclick="closeCart()">×</span>
+      <h2 class="modal-title">Carrito de Compras</h2>
+      <p>Actualmente no hay productos en tu carrito.</p>
+      <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeCart()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal de Búsqueda -->
+  <div id="searchModal" class="modal">
+    <div class="modal-content">
+      <span class="btn-close" onclick="closeSearch()">×</span>
+      <h2 class="modal-title">Buscar</h2>
+      <div class="form-group">
+        <input type="text" placeholder="Escribe lo que buscas..." style="width: 100%; padding: 10px; margin-bottom: 10px;">
+      </div>
+      <button class="btn-primary" style="width: 100%;" onclick="alert('Buscando...')">Buscar</button>
+    </div>
+  </div>
+
+  <script>
+    // Carrusel
+    let currentSlide = 0;
+    const carousel = document.querySelector('.carousel');
+    const slides = document.querySelectorAll('.carousel-item');
+    const dots = document.querySelectorAll('.dot');
+
+    function updateDots() {
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    }
+
+    function moveCarousel(direction) {
+      currentSlide += direction;
+      if (currentSlide < 0) currentSlide = slides.length - 1;
+      if (currentSlide >= slides.length) currentSlide = 0;
+      updateCarousel();
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateCarousel();
+    }
+
+    function updateCarousel() {
+      carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+      updateDots();
+    }
+
+    // Autoplay every 5 seconds
+    setInterval(() => {
+      moveCarousel(1);
+    }, 5000);
+
+    // Modales
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function closeLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+
+    function openCart() {
+      document.getElementById('cartModal').style.display = 'flex';
+    }
+
+    function closeCart() {
+      document.getElementById('cartModal').style.display = 'none';
+    }
+
+    function openSearch() {
+      document.getElementById('searchModal').style.display = 'flex';
+    }
+
+    function closeSearch() {
+      document.getElementById('searchModal').style.display = 'none';
+    }
+
+    // Simular añadir al carrito
+    document.querySelector('.icon:nth-child(3)').addEventListener('click', () => {
+      const count = parseInt(document.querySelector('.cart-count').textContent);
+      document.querySelector('.cart-count').textContent = count + 1;
+    });
+
+    // Cerrar modales al hacer clic fuera
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    };
+  </script>
+
+</body>
+</html>
