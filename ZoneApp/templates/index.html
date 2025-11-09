@@ -538,7 +538,7 @@
       width: 350px;
       max-width: 90%;
       box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-      border: 1pX solid var(--border-color);
+      border: 1px solid var(--border-color);
       position: relative;
     }
 
@@ -728,6 +728,262 @@
       font-size: 14px;
     }
 
+    /* MEJORAS PARA EL CARRITO */
+    .cart-modal {
+      width: 400px;
+      max-width: 90%;
+    }
+
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .quantity-btn {
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      border: none;
+      background: var(--light-bg);
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .quantity-btn:hover {
+      background: var(--instagram-pink);
+      color: white;
+    }
+
+    .quantity-value {
+      font-weight: bold;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .cart-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-clear {
+      background: var(--text-light);
+      color: white;
+    }
+
+    .btn-clear:hover {
+      background: #666;
+    }
+
+    /* MEJORAS PARA EL LOGIN */
+    .login-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .login-tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .login-tab.active {
+      border-bottom: 2px solid var(--instagram-pink);
+      color: var(--instagram-pink);
+      font-weight: bold;
+    }
+
+    .login-form {
+      display: none;
+    }
+
+    .login-form.active {
+      display: block;
+    }
+
+    .social-login {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .social-login-title {
+      margin-bottom: 15px;
+      color: var(--text-light);
+      font-size: 14px;
+      position: relative;
+    }
+
+    .social-login-title::before,
+    .social-login-title::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 30%;
+      height: 1px;
+      background: var(--border-color);
+    }
+
+    .social-login-title::before {
+      left: 0;
+    }
+
+    .social-login-title::after {
+      right: 0;
+    }
+
+    .social-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .social-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .social-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .social-google {
+      background: #DB4437;
+    }
+
+    .social-facebook {
+      background: #4267B2;
+    }
+
+    /* MEJORA ESPECÍFICA PARA EL MODAL DE BÚSQUEDA */
+    .search-modal-content {
+      width: 600px;
+      max-width: 90%;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+      background: white;
+    }
+
+    .search-modal-title {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 22px;
+      color: #E1306C;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .search-modal-input-container {
+      position: relative;
+      margin: 20px 0;
+    }
+
+    .search-modal-input {
+      width: 100%;
+      padding: 12px 40px 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 25px;
+      font-size: 16px;
+      background: #f8f8f8;
+      transition: all 0.3s ease;
+      outline: none;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .search-modal-input:focus {
+      border-color: var(--instagram-pink);
+      box-shadow: 0 0 10px rgba(225, 48, 108, 0.2);
+      background: white;
+    }
+
+    /* MEJORA ESPECÍFICA PARA EL ICONO DE BÚSQUEDA EN EL MODAL */
+    .search-modal-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      pointer-events: none;
+    }
+
+    .search-modal-clear {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #aaa;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: #f0f0f0;
+    }
+
+    .search-modal-clear:hover {
+      background: #e0e0e0;
+      color: #666;
+    }
+
+    .search-modal-results {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fafafa;
+      border-radius: 10px;
+      display: none;
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+    }
+
+    .search-modal-button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--instagram-gradient);
+      color: white;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .search-modal-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(195, 53, 132, 0.3);
+    }
+
     @media (max-width: 768px) {
       .carousel-item {
         flex-direction: column;
@@ -773,6 +1029,7 @@
       </ul>
     </nav>
     <div class="header-icons">
+      <!-- Icono de búsqueda en el header -->
       <div class="icon" onclick="openSearch()"><i class="fas fa-search"></i></div>
       <div class="icon" onclick="openLoginModal()"><i class="fas fa-user"></i></div>
       <div class="icon" onclick="openCart()">
@@ -1046,7 +1303,7 @@
 
   <!-- Modal de Carrito mejorado -->
   <div id="cartModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content cart-modal">
       <span class="btn-close" onclick="closeCart()">×</span>
       <h2 class="modal-title"><i class="fas fa-shopping-cart"></i> Carrito de Compras</h2>
       <div id="cartItems">
@@ -1056,41 +1313,115 @@
         <span>Total:</span>
         <span id="cartTotal">$0</span>
       </div>
-      <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="confirmPurchase()"><i class="fas fa-check"></i> Confirmar compra</button>
+      <div class="cart-actions">
+        <button class="btn btn-clear" onclick="clearCart()"><i class="fas fa-trash"></i> Vaciar carrito</button>
+        <button class="btn btn-primary" onclick="confirmPurchase()"><i class="fas fa-check"></i> Confirmar compra</button>
+      </div>
     </div>
   </div>
 
-  <!-- Modal de Login y Búsqueda -->
+  <!-- Modal de Login mejorado -->
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <span class="btn-close" onclick="closeModal('loginModal')">×</span>
       <h2 class="modal-title"><i class="fas fa-user"></i> Iniciar Sesión</h2>
-      <div class="form-group-modal">
-        <label><i class="fas fa-envelope"></i> Correo:</label>
-        <input type="email" placeholder="tu@email.com">
+      
+      <div class="login-tabs">
+        <div class="login-tab active" onclick="switchLoginTab('login')">Iniciar Sesión</div>
+        <div class="login-tab" onclick="switchLoginTab('register')">Registrarse</div>
       </div>
-      <div class="form-group-modal">
-        <label><i class="fas fa-lock"></i> Contraseña:</label>
-        <input type="password" placeholder="••••••••">
+      
+      <div id="loginForm" class="login-form active">
+        <div class="form-group-modal">
+          <label><i class="fas fa-envelope"></i> Correo:</label>
+          <input type="email" placeholder="tu@email.com" id="loginEmail">
+        </div>
+        <div class="form-group-modal">
+          <label><i class="fas fa-lock"></i> Contraseña:</label>
+          <input type="password" placeholder="••••••••" id="loginPassword">
+        </div>
+        <div class="form-actions">
+          <button class="btn-link" onclick="forgotPassword()">Olvidé mi contraseña</button>
+          <button class="btn-primary" onclick="login()"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</button>
+        </div>
+        
+        <div class="social-login">
+          <div class="social-login-title">O inicia sesión con</div>
+          <div class="social-buttons">
+            <div class="social-btn social-google" onclick="socialLogin('google')">
+              <i class="fab fa-google"></i>
+            </div>
+            <div class="social-btn social-facebook" onclick="socialLogin('facebook')">
+              <i class="fab fa-facebook-f"></i>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="form-actions">
-        <button class="btn-link" onclick="alert('Redirigiendo a recuperar contraseña...')">Olvidé mi contraseña</button>
-        <button class="btn-primary" onclick="closeModal('loginModal'); alert('¡Bienvenido/a!')"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</button>
+      
+      <div id="registerForm" class="login-form">
+        <div class="form-group-modal">
+          <label><i class="fas fa-user"></i> Nombre completo:</label>
+          <input type="text" placeholder="Tu nombre completo" id="registerName">
+        </div>
+        <div class="form-group-modal">
+          <label><i class="fas fa-envelope"></i> Correo:</label>
+          <input type="email" placeholder="tu@email.com" id="registerEmail">
+        </div>
+        <div class="form-group-modal">
+          <label><i class="fas fa-lock"></i> Contraseña:</label>
+          <input type="password" placeholder="••••••••" id="registerPassword">
+        </div>
+        <div class="form-group-modal">
+          <label><i class="fas fa-lock"></i> Confirmar contraseña:</label>
+          <input type="password" placeholder="••••••••" id="registerConfirmPassword">
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="register()"><i class="fas fa-user-plus"></i> Registrarse</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Modal de Búsqueda Mejorado -->
   <div id="searchModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content search-modal-content">
       <span class="btn-close" onclick="closeModal('searchModal')">×</span>
-      <h2 class="modal-title"><i class="fas fa-search"></i> Buscar</h2>
-      <input type="text" placeholder="Escribe aquí..." style="width:100%; padding:10px; margin:10px 0;">
-      <button class="btn-primary" style="width:100%;" onclick="closeModal('searchModal'); alert('Buscando...')"><i class="fas fa-search"></i> Buscar</button>
+
+      <h2 class="search-modal-title">
+        <i class="fas fa-search"></i>
+        Buscar en ZONFEM
+      </h2>
+
+      <div class="search-modal-input-container">
+        <input 
+          type="text" 
+          id="searchInput"
+          class="search-modal-input"
+          placeholder="¿Qué estás buscando? Ej: control prenatal, cursos..." 
+          onkeyup="handleSearch()"
+        >
+
+        <i class="fas fa-search search-modal-icon"></i>
+
+        <i class="fas fa-times search-modal-clear" 
+           id="clearSearch" 
+           onclick="document.getElementById('searchInput').value=''; handleSearch();"
+        ></i>
+      </div>
+
+      <div id="searchResults" class="search-modal-results">
+        <h4 style="margin-bottom: 10px; color: #333; font-weight: 500;">Resultados:</h4>
+        <ul id="resultsList" style="list-style: none; padding: 0; margin: 0;"></ul>
+      </div>
+
+      <button class="search-modal-button" onclick="performSearch()">
+        <i class="fas fa-search"></i> Buscar ahora
+      </button>
     </div>
   </div>
 
   <script>
-    // SISTEMA DE NAVEGACIÓN CON SOPORTE PARA ATRÁS/ADELANTE DEL NAVEGADOR
+    // Navegación con historial
     document.addEventListener('DOMContentLoaded', function() {
       initNavigation();
     });
@@ -1099,41 +1430,30 @@
       const navLinks = document.querySelectorAll('.nav-link');
 
       function mostrarPagina(pageId) {
-        // Actualizar enlace activo
         navLinks.forEach(link => {
           link.classList.toggle('active', link.getAttribute('data-page') === pageId);
         });
-
-        // Mostrar/ocultar páginas
         document.querySelectorAll('.content-page').forEach(page => {
           page.classList.toggle('active', page.id === pageId);
         });
       }
 
-      // Manejar clics en menú
       navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
           e.preventDefault();
           const pageId = this.getAttribute('data-page');
-          
-          // Agregar al historial del navegador
           history.pushState({ page: pageId }, '', `#${pageId}`);
-          
           mostrarPagina(pageId);
         });
       });
 
-      // Manejar botón atrás/adelante del navegador
       window.addEventListener('popstate', function(event) {
         const pageId = event.state?.page || 'home';
         mostrarPagina(pageId);
       });
 
-      // Inicializar según la URL actual (si hay #algo)
-      const hash = window.location.hash.substring(1); // Quita el #
+      const hash = window.location.hash.substring(1);
       const paginaInicial = hash || 'home';
-      
-      // Asegurar que el historial empiece en el estado correcto
       history.replaceState({ page: paginaInicial }, '', `#${paginaInicial}`);
       mostrarPagina(paginaInicial);
     }
@@ -1145,43 +1465,59 @@
 
     function updateCartDisplay() {
       const cartItemsElement = document.getElementById('cartItems');
-      const cartEmptyElement = document.getElementById('cartEmpty');
+      cartCountElement.textContent = cart.reduce((total, item) => total + item.quantity, 0);
       
-      // Actualizar contador
-      cartCountElement.textContent = cart.length;
-      
-      // Actualizar contenido del carrito
       if (cart.length === 0) {
         cartItemsElement.innerHTML = '<p id="cartEmpty">Tu carrito está vacío.</p>';
         cartTotalElement.textContent = '$0';
       } else {
         let itemsHTML = '';
         let total = 0;
-        
         cart.forEach((item, index) => {
           itemsHTML += `
             <div class="cart-item">
               <div class="cart-item-info">
                 <div class="cart-item-name">${item.name}</div>
                 <div class="cart-item-price">$${item.price.toLocaleString('es-CL')} CLP</div>
+                <div class="cart-item-quantity">
+                  <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                  <span class="quantity-value">${item.quantity}</span>
+                  <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                </div>
               </div>
               <button class="cart-item-remove" onclick="removeFromCart(${index})">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
           `;
-          total += item.price;
+          total += item.price * item.quantity;
         });
-        
         cartItemsElement.innerHTML = itemsHTML;
         cartTotalElement.textContent = `$${total.toLocaleString('es-CL')} CLP`;
       }
     }
 
     function addToCart(itemName, price) {
-      cart.push({ name: itemName, price: price });
+      const existingItemIndex = cart.findIndex(item => item.name === itemName);
+      
+      if (existingItemIndex !== -1) {
+        cart[existingItemIndex].quantity += 1;
+      } else {
+        cart.push({ name: itemName, price: price, quantity: 1 });
+      }
+      
       updateCartDisplay();
-      alert(`"${itemName}" agregado al carrito`);
+      showNotification(`"${itemName}" agregado al carrito`);
+    }
+
+    function updateQuantity(index, change) {
+      cart[index].quantity += change;
+      
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      
+      updateCartDisplay();
     }
 
     function removeFromCart(index) {
@@ -1189,21 +1525,25 @@
       updateCartDisplay();
     }
 
+    function clearCart() {
+      cart = [];
+      updateCartDisplay();
+      showNotification('Carrito vaciado');
+    }
+
     function confirmPurchase() {
       if (cart.length === 0) {
         alert('Tu carrito está vacío');
         return;
       }
-      
-      let total = cart.reduce((sum, item) => sum + item.price, 0);
+      let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       alert(`Compra confirmada por un total de $${total.toLocaleString('es-CL')} CLP.\nGracias por tu compra.`);
-      
       cart = [];
       updateCartDisplay();
       closeCart();
     }
 
-    // Abrir modales
+    // Modales
     function openCart() {
       document.getElementById('cartModal').style.display = 'flex';
     }
@@ -1252,24 +1592,196 @@
 
     setInterval(() => moveCarousel(1), 5000);
 
-    // Formulario de contacto
+    // Contacto
     function submitContactForm() {
       const name = document.getElementById('name').value;
       const phone = document.getElementById('phone').value;
       const message = document.getElementById('message').value;
-      
       if (!name || !phone || !message) {
         alert('Por favor, completa todos los campos del formulario.');
         return;
       }
-      
       alert(`¡Gracias ${name}! Tu mensaje ha sido enviado. Te contactaremos al ${phone} pronto.`);
-      
-      // Limpiar formulario
       document.getElementById('name').value = '';
       document.getElementById('phone').value = '';
       document.getElementById('message').value = '';
     }
+
+    // Búsqueda mejorada
+    function handleSearch() {
+      const input = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearSearch');
+      const resultsContainer = document.getElementById('searchResults');
+      const resultsList = document.getElementById('resultsList');
+
+      if (input.value.trim().length > 0) {
+        clearBtn.style.opacity = '1';
+      } else {
+        clearBtn.style.opacity = '0';
+      }
+
+      const query = input.value.toLowerCase();
+      const items = [
+        { name: "Control prenatal", url: "#home" },
+        { name: "Consulta prenatal integrativa", url: "#consultas" },
+        { name: "Curso preparación al parto online", url: "#cursos" },
+        { name: "Matronas especializadas", url: "#home" },
+        { name: "Recuperación postparto", url: "#cursos" },
+        { name: "Contacto", url: "#contacto" }
+      ];
+
+      const filtered = items.filter(item => item.name.toLowerCase().includes(query));
+
+      if (query.length === 0) {
+        resultsContainer.style.display = 'none';
+        return;
+      }
+
+      if (filtered.length === 0) {
+        resultsList.innerHTML = '<li style="padding: 10px; color: #888;">No se encontraron resultados.</li>';
+      } else {
+        resultsList.innerHTML = filtered.map(item => `
+          <li style="padding: 10px; border-bottom: 1px solid #eee;">
+            <a href="${item.url}" style="color: #E1306C; text-decoration: none;" onclick="closeModal('searchModal');">
+              <i class="fas fa-search"></i> ${item.name}
+            </a>
+          </li>
+        `).join('');
+      }
+
+      resultsContainer.style.display = 'block';
+    }
+
+    function performSearch() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (query === '') {
+        alert('Por favor, escribe algo para buscar.');
+        return;
+      }
+      alert(`Buscando: "${query}"\n\nEn una versión real, aquí se mostrarían resultados reales.`);
+      closeModal('searchModal');
+    }
+
+    // Login mejorado
+    function switchLoginTab(tab) {
+      document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.login-form').forEach(f => f.classList.remove('active'));
+      
+      document.querySelector(`.login-tab:nth-child(${tab === 'login' ? 1 : 2})`).classList.add('active');
+      document.getElementById(tab === 'login' ? 'loginForm' : 'registerForm').classList.add('active');
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      if (!email || !password) {
+        alert('Por favor, completa todos los campos.');
+        return;
+      }
+      
+      closeModal('loginModal');
+      showNotification('¡Bienvenido/a! Has iniciado sesión correctamente.');
+    }
+
+    function register() {
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+      
+      if (!name || !email || !password || !confirmPassword) {
+        alert('Por favor, completa todos los campos.');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        alert('Las contraseñas no coinciden.');
+        return;
+      }
+      
+      closeModal('loginModal');
+      showNotification('¡Cuenta creada exitosamente! Ahora puedes iniciar sesión.');
+    }
+
+    function forgotPassword() {
+      const email = prompt('Por favor, ingresa tu correo electrónico para recuperar tu contraseña:');
+      if (email) {
+        alert(`Se ha enviado un enlace de recuperación a: ${email}`);
+      }
+    }
+
+    function socialLogin(provider) {
+      alert(`Redirigiendo a inicio de sesión con ${provider}.`);
+    }
+
+    // Notificaciones
+    function showNotification(message) {
+      // Crear elemento de notificación
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--instagram-gradient);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        max-width: 300px;
+      `;
+      notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <i class="fas fa-check-circle"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Remover después de 3 segundos
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+
+    // Agregar estilos para las animaciones de notificación
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement.id === 'searchInput') {
+        performSearch();
+      }
+    });
 
     // Cerrar modales al hacer clic fuera
     window.onclick = function(event) {
@@ -1278,7 +1790,6 @@
       }
     };
 
-    // Inicializar el carrito
     updateCartDisplay();
   </script>
 
