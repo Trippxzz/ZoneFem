@@ -12,6 +12,7 @@
       --instagram-pink: #C13584;
       --instagram-red: #E1306C;
       --instagram-orange: #F56040;
+      --instagram-yellow: #FCAF45;
       --light-bg: #fafafa;
       --card-bg: #ffffff;
       --text-dark: #262626;
@@ -66,10 +67,26 @@
       color: var(--text-dark);
       font-weight: 500;
       transition: color 0.3s;
+      position: relative;
     }
 
     nav ul li a:hover {
       color: var(--instagram-pink);
+    }
+
+    nav ul li a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background: var(--instagram-gradient);
+      transition: width 0.3s;
+    }
+
+    nav ul li a:hover::after {
+      width: 100%;
     }
 
     .header-icons {
@@ -82,12 +99,21 @@
       font-size: 20px;
       cursor: pointer;
       color: var(--text-dark);
-      transition: color 0.3s;
+      transition: all 0.3s;
       position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
     }
 
     .icon:hover {
-      color: var(--instagram-pink);
+      background: var(--instagram-gradient);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(195, 53, 132, 0.3);
     }
 
     /* Carrusel */
@@ -132,6 +158,10 @@
       font-size: 28px;
       color: var(--text-dark);
       margin-bottom: 10px;
+      background: var(--instagram-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .carousel-text p {
@@ -148,6 +178,9 @@
       cursor: pointer;
       font-weight: bold;
       transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .btn-primary {
@@ -190,10 +223,12 @@
       cursor: pointer;
       transition: background 0.3s;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: var(--instagram-pink);
     }
 
     .carousel-arrow:hover {
       background: rgba(255,255,255,1);
+      color: var(--instagram-purple);
     }
 
     .carousel-dots {
@@ -233,6 +268,11 @@
       flex: 1 1 300px;
       max-width: 350px;
       border: 1px solid var(--border-color);
+      transition: transform 0.3s;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
     }
 
     .section h3 {
@@ -241,6 +281,13 @@
       background-clip: text;
       color: transparent;
       margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section h3 i {
+      font-size: 20px;
     }
 
     .section p {
@@ -264,6 +311,9 @@
       box-shadow: 0 4px 15px rgba(195, 53, 132, 0.4);
       z-index: 1000;
       transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .chat-button:hover {
@@ -346,6 +396,11 @@
       font-size: 20px;
       cursor: pointer;
       color: var(--text-light);
+      transition: color 0.3s;
+    }
+
+    .btn-close:hover {
+      color: var(--instagram-red);
     }
 
     /* Carrito mejorado */
@@ -395,6 +450,11 @@
       color: var(--instagram-red);
       cursor: pointer;
       font-size: 16px;
+      transition: transform 0.2s;
+    }
+
+    .cart-item-remove:hover {
+      transform: scale(1.2);
     }
 
     .cart-total {
@@ -404,6 +464,71 @@
       display: flex;
       justify-content: space-between;
       font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--card-bg);
+      padding: 30px 20px;
+      margin-top: 30px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .footer-section {
+      flex: 1 1 250px;
+      text-align: left;
+    }
+
+    .footer-section h4 {
+      margin-bottom: 15px;
+      background: var(--instagram-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .footer-section p {
+      color: var(--text-light);
+      margin-bottom: 10px;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .social-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--instagram-gradient);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: transform 0.3s;
+    }
+
+    .social-icon:hover {
+      transform: translateY(-3px);
+    }
+
+    .copyright {
+      margin-top: 30px;
+      color: var(--text-light);
+      font-size: 14px;
     }
 
     @media (max-width: 768px) {
@@ -420,6 +545,16 @@
       nav ul {
         display: none;
       }
+      
+      .header-icons {
+        gap: 10px;
+      }
+      
+      .icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
@@ -430,10 +565,10 @@
     <div class="logo">ZONFEM</div>
     <nav>
       <ul>
-        <li><a href="#">Inicio</a></li>
-        <li><a href="#">Consultas</a></li>
-        <li><a href="#">Cursos</a></li>
-        <li><a href="#">Contactos</a></li>
+        <li><a href="#"><i class="fas fa-home"></i> Inicio</a></li>
+        <li><a href="#"><i class="fas fa-calendar-check"></i> Consultas</a></li>
+        <li><a href="#"><i class="fas fa-book"></i> Cursos</a></li>
+        <li><a href="#"><i class="fas fa-address-book"></i> Contactos</a></li>
       </ul>
     </nav>
     <div class="header-icons">
@@ -452,28 +587,28 @@
       <div class="carousel-item">
         <img src="https://placehold.co/300x300?text=Mujer+Embarazada" alt="Mujer embarazada" class="carousel-image">
         <div class="carousel-text">
-          <h2>Control prenatal</h2>
+          <h2><i class="fas fa-heartbeat"></i> Control prenatal</h2>
           <p>Seguimiento y cuidados durante el embarazo</p>
-          <button class="btn btn-primary" onclick="alert('¡Consulta agendada!')">Agendar consulta</button>
-          <button class="btn btn-cart" onclick="addToCart('Control prenatal', 120)">Agregar al carrito</button>
+          <button class="btn btn-primary" onclick="alert('¡Consulta agendada!')"><i class="fas fa-calendar-plus"></i> Agendar consulta</button>
+          <button class="btn btn-cart" onclick="addToCart('Control prenatal', 120)"><i class="fas fa-cart-plus"></i> Agregar al carrito</button>
         </div>
       </div>
       <div class="carousel-item">
         <img src="https://placehold.co/300x300?text=Matrona" alt="Matrona" class="carousel-image">
         <div class="carousel-text">
-          <h2>Atención especializada</h2>
+          <h2><i class="fas fa-user-md"></i> Atención especializada</h2>
           <p>Con nuestras matronas experimentadas</p>
-          <button class="btn btn-primary" onclick="alert('¡Consulta agendada!')">Agendar consulta</button>
-          <button class="btn btn-cart" onclick="addToCart('Atención especializada', 150)">Agregar al carrito</button>
+          <button class="btn btn-primary" onclick="alert('¡Consulta agendada!')"><i class="fas fa-calendar-plus"></i> Agendar consulta</button>
+          <button class="btn btn-cart" onclick="addToCart('Atención especializada', 150)"><i class="fas fa-cart-plus"></i> Agregar al carrito</button>
         </div>
       </div>
       <div class="carousel-item">
         <img src="https://placehold.co/300x300?text=Parto" alt="Preparación al parto" class="carousel-image">
         <div class="carousel-text">
-          <h2>Preparación al parto</h2>
+          <h2><i class="fas fa-baby"></i> Preparación al parto</h2>
           <p>Clases y talleres para tu proceso</p>
-          <button class="btn btn-primary" onclick="alert('¡Clase agendada!')">Agendar clase</button>
-          <button class="btn btn-cart" onclick="addToCart('Preparación al parto', 80)">Agregar al carrito</button>
+          <button class="btn btn-primary" onclick="alert('¡Clase agendada!')"><i class="fas fa-calendar-plus"></i> Agendar clase</button>
+          <button class="btn btn-cart" onclick="addToCart('Preparación al parto', 80)"><i class="fas fa-cart-plus"></i> Agregar al carrito</button>
         </div>
       </div>
     </div>
@@ -493,18 +628,48 @@
   <!-- Secciones inferiores -->
   <div class="sections">
     <div class="section">
-      <h3>Quien Somos</h3>
+      <h3><i class="fas fa-info-circle"></i> Quien Somos</h3>
       <p>Somos un equipo de matronas dedicadas al cuidado integral de la mujer durante el embarazo, parto y postparto.</p>
     </div>
     <div class="section">
-      <h3>Matronas</h3>
+      <h3><i class="fas fa-user-nurse"></i> Matronas</h3>
       <p>Nuestras matronas cuentan con formación especializada y amplia experiencia en el acompañamiento de embarazos.</p>
     </div>
     <div class="section">
-      <h3>Preparación al parto</h3>
+      <h3><i class="fas fa-baby-carriage"></i> Preparación al parto</h3>
       <p>Ofrecemos cursos y talleres para prepararte física y emocionalmente para el parto y la maternidad.</p>
     </div>
   </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4><i class="fas fa-map-marker-alt"></i> Ubicación</h4>
+        <p>Av. Principal 123, Ciudad</p>
+        <p>Teléfono: (123) 456-7890</p>
+        <p>Email: info@zonfem.com</p>
+      </div>
+      <div class="footer-section">
+        <h4><i class="fas fa-clock"></i> Horarios</h4>
+        <p>Lunes a Viernes: 8:00 - 18:00</p>
+        <p>Sábados: 9:00 - 13:00</p>
+        <p>Domingos: Cerrado</p>
+      </div>
+      <div class="footer-section">
+        <h4><i class="fas fa-share-alt"></i> Síguenos</h4>
+        <div class="social-icons">
+          <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2023 ZONFEM - Todos los derechos reservados
+    </div>
+  </footer>
 
   <!-- Chat flotante -->
   <div class="chat-button" onclick="alert('¡Hola! ¿En qué podemos ayudarte?')">
@@ -515,7 +680,7 @@
   <div id="cartModal" class="modal">
     <div class="modal-content">
       <span class="btn-close" onclick="closeCart()">×</span>
-      <h2 class="modal-title">Carrito de Compras</h2>
+      <h2 class="modal-title"><i class="fas fa-shopping-cart"></i> Carrito de Compras</h2>
       <div id="cartItems">
         <p id="cartEmpty">Tu carrito está vacío.</p>
       </div>
@@ -523,7 +688,7 @@
         <span>Total:</span>
         <span id="cartTotal">$0</span>
       </div>
-      <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="confirmPurchase()">Confirmar compra</button>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="confirmPurchase()"><i class="fas fa-check"></i> Confirmar compra</button>
     </div>
   </div>
 
@@ -531,18 +696,18 @@
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <span class="btn-close" onclick="closeModal('loginModal')">×</span>
-      <h2 class="modal-title">Iniciar Sesión</h2>
+      <h2 class="modal-title"><i class="fas fa-user"></i> Iniciar Sesión</h2>
       <div class="form-group">
-        <label>Correo:</label>
+        <label><i class="fas fa-envelope"></i> Correo:</label>
         <input type="email" placeholder="tu@email.com">
       </div>
       <div class="form-group">
-        <label>Contraseña:</label>
+        <label><i class="fas fa-lock"></i> Contraseña:</label>
         <input type="password" placeholder="••••••••">
       </div>
       <div class="form-actions">
         <button class="btn-link" onclick="alert('Redirigiendo a recuperar contraseña...')">Olvidé mi contraseña</button>
-        <button class="btn-primary" onclick="closeModal('loginModal'); alert('¡Bienvenido/a!')">Iniciar sesión</button>
+        <button class="btn-primary" onclick="closeModal('loginModal'); alert('¡Bienvenido/a!')"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</button>
       </div>
     </div>
   </div>
@@ -550,9 +715,9 @@
   <div id="searchModal" class="modal">
     <div class="modal-content">
       <span class="btn-close" onclick="closeModal('searchModal')">×</span>
-      <h2 class="modal-title">Buscar</h2>
+      <h2 class="modal-title"><i class="fas fa-search"></i> Buscar</h2>
       <input type="text" placeholder="Escribe aquí..." style="width:100%; padding:10px; margin:10px 0;">
-      <button class="btn-primary" style="width:100%;" onclick="closeModal('searchModal'); alert('Buscando...')">Buscar</button>
+      <button class="btn-primary" style="width:100%;" onclick="closeModal('searchModal'); alert('Buscando...')"><i class="fas fa-search"></i> Buscar</button>
     </div>
   </div>
 
