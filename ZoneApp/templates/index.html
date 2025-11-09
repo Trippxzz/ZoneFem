@@ -901,14 +901,14 @@
 
     .search-modal-input {
       width: 100%;
-      padding: 12px 40px 12px 15px;
+      padding: 12px 45px 12px 42px;
       border: 1px solid #ddd;
       border-radius: 25px;
-      font-size: 16px;
+      font-size: 15px;
       background: #f8f8f8;
       transition: all 0.3s ease;
       outline: none;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .search-modal-input:focus {
@@ -1013,6 +1013,64 @@
         flex-direction: column;
       }
     }
+     
+   .search-modal-icon, .search-modal-clear {
+   display: none !important;
+   }
+
+   .search-modal-input-container {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   width: 100%;
+   }
+
+   .search-box {
+   position: relative;
+   width: 90%;
+   max-width: 420px;
+   }
+   .search-modal-input {
+   width: 100%;
+   padding: 12px 40px 12px 40px;
+   border-radius: 25px;
+   border: 1px solid #ddd;
+   outline: none;
+   font-size: 15px;
+   transition: all 0.3s ease;
+   background-color: #fff;
+   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+   }
+
+   .search-modal-input:focus {
+   border-color: #ff5ca8;
+   box-shadow: 0 0 8px rgba(255, 92, 168, 0.25);
+   }
+
+  .search-icon {
+   position: absolute;
+   left: 14px;
+   top: 50%;
+   transform: translateY(-50%);
+   color: #999;
+   font-size: 16px;
+  }
+
+   .clear-icon {
+   position: absolute;
+   right: 14px;
+   top: 50%;
+   transform: translateY(-50%);
+   color: #aaa;
+   font-size: 16px;
+   cursor: pointer;
+   transition: color 0.2s ease;
+   }
+
+   .clear-icon:hover {
+   color: #ff5ca8;
+   }
+
   </style>
 </head>
 <body>
@@ -1384,15 +1442,18 @@
 
   <!-- Modal de Búsqueda Mejorado -->
   <div id="searchModal" class="modal">
-    <div class="modal-content search-modal-content">
-      <span class="btn-close" onclick="closeModal('searchModal')">×</span>
+  <div class="modal-content search-modal-content">
+    <span class="btn-close" onclick="closeModal('searchModal')">×</span>
 
-      <h2 class="search-modal-title">
-        <i class="fas fa-search"></i>
-        Buscar en ZONFEM
-      </h2>
+    <h2 class="search-modal-title">
+      <i class="fas fa-search"></i>
+      Buscar en ZONFEM
+    </h2>
 
-      <div class="search-modal-input-container">
+    <div class="search-modal-input-container">
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+
         <input 
           type="text" 
           id="searchInput"
@@ -1400,25 +1461,25 @@
           placeholder="¿Qué estás buscando? Ej: control prenatal, cursos..." 
           onkeyup="handleSearch()"
         >
-
-        <i class="fas fa-search search-modal-icon"></i>
-
-        <i class="fas fa-times search-modal-clear" 
+        
+        <i class="fas fa-times clear-icon" 
            id="clearSearch" 
            onclick="document.getElementById('searchInput').value=''; handleSearch();"
         ></i>
       </div>
-
-      <div id="searchResults" class="search-modal-results">
-        <h4 style="margin-bottom: 10px; color: #333; font-weight: 500;">Resultados:</h4>
-        <ul id="resultsList" style="list-style: none; padding: 0; margin: 0;"></ul>
-      </div>
-
-      <button class="search-modal-button" onclick="performSearch()">
-        <i class="fas fa-search"></i> Buscar ahora
-      </button>
     </div>
+
+    <div id="searchResults" class="search-modal-results">
+      <h4 style="margin-bottom: 10px; color: #333; font-weight: 500;">Resultados:</h4>
+      <ul id="resultsList" style="list-style: none; padding: 0; margin: 0;"></ul>
+    </div>
+
+    <button class="search-modal-button" onclick="performSearch()">
+      <i class="fas fa-search"></i> Buscar ahora
+    </button>
   </div>
+</div>
+
 
   <script>
     // Navegación con historial
