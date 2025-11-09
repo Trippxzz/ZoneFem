@@ -4,7 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ZONFEM - Control Prenatal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --instagram-gradient: linear-gradient(45deg, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45);
+      --instagram-purple: #833AB4;
+      --instagram-pink: #C13584;
+      --instagram-red: #E1306C;
+      --instagram-orange: #F56040;
+      --light-bg: #fafafa;
+      --card-bg: #ffffff;
+      --text-dark: #262626;
+      --text-light: #8e8e8e;
+      --border-color: #dbdbdb;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -13,23 +27,29 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
+      background-color: var(--light-bg);
+      color: var(--text-dark);
     }
 
     header {
-      background: white;
+      background: var(--card-bg);
       padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+      z-index: 100;
     }
 
     .logo {
       font-size: 24px;
       font-weight: bold;
-      color: #4CAF50;
+      background: var(--instagram-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     nav ul {
@@ -43,24 +63,31 @@
 
     nav ul li a {
       text-decoration: none;
-      color: #333;
+      color: var(--text-dark);
       font-weight: 500;
       transition: color 0.3s;
     }
 
     nav ul li a:hover {
-      color: #4CAF50;
+      color: var(--instagram-pink);
     }
 
     .header-icons {
       display: flex;
       gap: 15px;
+      position: relative;
     }
 
     .icon {
       font-size: 20px;
       cursor: pointer;
-      color: #333;
+      color: var(--text-dark);
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .icon:hover {
+      color: var(--instagram-pink);
     }
 
     /* Carrusel */
@@ -69,10 +96,11 @@
       max-width: 100%;
       overflow: hidden;
       margin: 20px auto;
-      background: #fff8e1;
+      background: var(--card-bg);
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border: 1px solid var(--border-color);
     }
 
     .carousel {
@@ -92,7 +120,8 @@
       width: 300px;
       height: 300px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
     .carousel-text {
@@ -101,7 +130,7 @@
 
     .carousel-text h2 {
       font-size: 28px;
-      color: #333;
+      color: var(--text-dark);
       margin-bottom: 10px;
     }
 
@@ -109,21 +138,37 @@
       font-size: 18px;
       line-height: 1.6;
       margin-bottom: 20px;
+      color: var(--text-light);
     }
 
-    .btn-primary {
-      background: #4CAF50;
-      color: white;
-      padding: 12px 24px;
+    .btn {
+      padding: 10px 20px;
       border: none;
       border-radius: 25px;
       cursor: pointer;
       font-weight: bold;
-      transition: background 0.3s;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--instagram-gradient);
+      color: white;
     }
 
     .btn-primary:hover {
-      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(195, 53, 132, 0.3);
+    }
+
+    .btn-cart {
+      background: var(--instagram-orange);
+      color: white;
+      margin-left: 10px;
+    }
+
+    .btn-cart:hover {
+      background: #e04b2d;
+      transform: translateY(-2px);
     }
 
     .carousel-controls {
@@ -137,13 +182,14 @@
     }
 
     .carousel-arrow {
-      background: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.9);
       border: none;
       font-size: 24px;
       padding: 10px 15px;
       border-radius: 50%;
       cursor: pointer;
       transition: background 0.3s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .carousel-arrow:hover {
@@ -163,10 +209,11 @@
       border-radius: 50%;
       background: #ccc;
       cursor: pointer;
+      transition: background 0.3s;
     }
 
     .dot.active {
-      background: #4CAF50;
+      background: var(--instagram-pink);
     }
 
     /* Secciones inferiores */
@@ -179,22 +226,28 @@
     }
 
     .section {
-      background: white;
+      background: var(--card-bg);
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
       flex: 1 1 300px;
       max-width: 350px;
+      border: 1px solid var(--border-color);
     }
 
     .section h3 {
-      color: #4CAF50;
+      background: var(--instagram-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
       margin-bottom: 15px;
     }
 
     .section p {
       line-height: 1.6;
       font-size: 14px;
+      margin-bottom: 15px;
+      color: var(--text-light);
     }
 
     /* Chat flotante */
@@ -202,18 +255,19 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #ff5722;
+      background: var(--instagram-gradient);
       color: white;
       padding: 15px 20px;
       border-radius: 25px;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 15px rgba(195, 53, 132, 0.4);
       z-index: 1000;
+      transition: transform 0.3s;
     }
 
     .chat-button:hover {
-      background: #e64a19;
+      transform: translateY(-3px);
     }
 
     /* Modal de login */
@@ -231,18 +285,24 @@
     }
 
     .modal-content {
-      background: white;
+      background: var(--card-bg);
       padding: 30px;
-      border-radius: 10px;
+      border-radius: 15px;
       width: 350px;
       max-width: 90%;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color);
+      position: relative;
     }
 
     .modal-title {
       font-size: 20px;
       margin-bottom: 20px;
       text-align: center;
+      background: var(--instagram-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .form-group {
@@ -258,9 +318,10 @@
     .form-group input {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color);
       border-radius: 5px;
       font-size: 14px;
+      background: var(--light-bg);
     }
 
     .form-actions {
@@ -272,7 +333,7 @@
     .btn-link {
       background: none;
       border: none;
-      color: #4CAF50;
+      color: var(--instagram-purple);
       text-decoration: underline;
       cursor: pointer;
       font-weight: 500;
@@ -284,15 +345,15 @@
       right: 15px;
       font-size: 20px;
       cursor: pointer;
-      color: #999;
+      color: var(--text-light);
     }
 
-    /* Carrito y búsqueda */
+    /* Carrito mejorado */
     .cart-count {
       position: absolute;
       top: -8px;
       right: -8px;
-      background: red;
+      background: var(--instagram-red);
       color: white;
       border-radius: 50%;
       width: 20px;
@@ -301,6 +362,64 @@
       align-items: center;
       justify-content: center;
       font-size: 12px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item-info {
+      flex: 1;
+    }
+
+    .cart-item-name {
+      font-weight: 500;
+    }
+
+    .cart-item-price {
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    .cart-item-remove {
+      background: none;
+      border: none;
+      color: var(--instagram-red);
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .cart-total {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .carousel-item {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .carousel-image {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      nav ul {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -318,11 +437,11 @@
       </ul>
     </nav>
     <div class="header-icons">
-      <div class="icon" onclick="openSearch()">🔍</div>
-      <div class="icon" onclick="openLoginModal()">👤</div>
+      <div class="icon" onclick="openSearch()"><i class="fas fa-search"></i></div>
+      <div class="icon" onclick="openLoginModal()"><i class="fas fa-user"></i></div>
       <div class="icon" onclick="openCart()">
-        🛒
-        <span class="cart-count">0</span>
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="cartCount">0</span>
       </div>
     </div>
   </header>
@@ -335,7 +454,8 @@
         <div class="carousel-text">
           <h2>Control prenatal</h2>
           <p>Seguimiento y cuidados durante el embarazo</p>
-          <button class="btn-primary" onclick="alert('¡Gracias por agendar tu consulta!')">Agendar una consulta</button>
+          <button class="btn btn-primary" onclick="alert('¡Consulta agendada!')">Agendar consulta</button>
+          <button class="btn btn-cart" onclick="addToCart('Control prenatal', 120)">Agregar al carrito</button>
         </div>
       </div>
       <div class="carousel-item">
@@ -343,7 +463,8 @@
         <div class="carousel-text">
           <h2>Atención especializada</h2>
           <p>Con nuestras matronas experimentadas</p>
-          <button class="btn-primary" onclick="alert('¡Gracias por agendar tu consulta!')">Agendar una consulta</button>
+          <button class="btn btn-primary" onclick="alert('¡Consulta agendada!')">Agendar consulta</button>
+          <button class="btn btn-cart" onclick="addToCart('Atención especializada', 150)">Agregar al carrito</button>
         </div>
       </div>
       <div class="carousel-item">
@@ -351,7 +472,8 @@
         <div class="carousel-text">
           <h2>Preparación al parto</h2>
           <p>Clases y talleres para tu proceso</p>
-          <button class="btn-primary" onclick="alert('¡Gracias por agendar tu consulta!')">Agendar una consulta</button>
+          <button class="btn btn-primary" onclick="alert('¡Clase agendada!')">Agendar clase</button>
+          <button class="btn btn-cart" onclick="addToCart('Preparación al parto', 80)">Agregar al carrito</button>
         </div>
       </div>
     </div>
@@ -372,70 +494,155 @@
   <div class="sections">
     <div class="section">
       <h3>Quien Somos</h3>
-      <p>Somos un equipo de matronas dedicadas, comprometidas con el bienestar y la salud femenina en todas sus etapas.</p>
+      <p>Somos un equipo de matronas dedicadas al cuidado integral de la mujer durante el embarazo, parto y postparto.</p>
     </div>
     <div class="section">
       <h3>Matronas</h3>
-      <p>Nuestras matronas cuentan con una formación especializada y brindan atención integral, cercana y respetuosa a mujeres de todas las edades.</p>
+      <p>Nuestras matronas cuentan con formación especializada y amplia experiencia en el acompañamiento de embarazos.</p>
     </div>
     <div class="section">
       <h3>Preparación al parto</h3>
-      <p>Ofrecemos cursos y talleres para que vivas tu proceso de parto de forma informada, segura y saludable, acompañada en cada momento.</p>
+      <p>Ofrecemos cursos y talleres para prepararte física y emocionalmente para el parto y la maternidad.</p>
     </div>
   </div>
 
   <!-- Chat flotante -->
-  <div class="chat-button" onclick="alert('¡Hola! Estamos aquí para ayudarte. ¿En qué podemos servirte?')">
-    Chat
+  <div class="chat-button" onclick="alert('¡Hola! ¿En qué podemos ayudarte?')">
+    <i class="fas fa-comment"></i> Chat
   </div>
 
-  <!-- Modal de Login -->
-  <div id="loginModal" class="modal">
-    <div class="modal-content">
-      <span class="btn-close" onclick="closeLoginModal()">×</span>
-      <h2 class="modal-title">Iniciar Sesión</h2>
-      <div class="form-group">
-        <label for="email">Correo electrónico</label>
-        <input type="email" id="email" placeholder="tu@email.com">
-      </div>
-      <div class="form-group">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" placeholder="••••••••">
-      </div>
-      <div class="form-actions">
-        <button class="btn-link" onclick="alert('Redirigiendo a recuperar contraseña...')">Olvidé mi contraseña</button>
-        <button class="btn-primary" onclick="alert('¡Bienvenido/a!')">Iniciar sesión</button>
-      </div>
-      <div style="margin-top: 15px; text-align: center;">
-        <span>¿No tienes cuenta? </span>
-        <button class="btn-link" onclick="alert('Redirigiendo a registro...')">Crear cuenta</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de Carrito -->
+  <!-- Modal de Carrito mejorado -->
   <div id="cartModal" class="modal">
     <div class="modal-content">
       <span class="btn-close" onclick="closeCart()">×</span>
       <h2 class="modal-title">Carrito de Compras</h2>
-      <p>Actualmente no hay productos en tu carrito.</p>
-      <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="closeCart()">Cerrar</button>
+      <div id="cartItems">
+        <p id="cartEmpty">Tu carrito está vacío.</p>
+      </div>
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0</span>
+      </div>
+      <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="confirmPurchase()">Confirmar compra</button>
     </div>
   </div>
 
-  <!-- Modal de Búsqueda -->
+  <!-- Modal de Login y Búsqueda -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="btn-close" onclick="closeModal('loginModal')">×</span>
+      <h2 class="modal-title">Iniciar Sesión</h2>
+      <div class="form-group">
+        <label>Correo:</label>
+        <input type="email" placeholder="tu@email.com">
+      </div>
+      <div class="form-group">
+        <label>Contraseña:</label>
+        <input type="password" placeholder="••••••••">
+      </div>
+      <div class="form-actions">
+        <button class="btn-link" onclick="alert('Redirigiendo a recuperar contraseña...')">Olvidé mi contraseña</button>
+        <button class="btn-primary" onclick="closeModal('loginModal'); alert('¡Bienvenido/a!')">Iniciar sesión</button>
+      </div>
+    </div>
+  </div>
+
   <div id="searchModal" class="modal">
     <div class="modal-content">
-      <span class="btn-close" onclick="closeSearch()">×</span>
+      <span class="btn-close" onclick="closeModal('searchModal')">×</span>
       <h2 class="modal-title">Buscar</h2>
-      <div class="form-group">
-        <input type="text" placeholder="Escribe lo que buscas..." style="width: 100%; padding: 10px; margin-bottom: 10px;">
-      </div>
-      <button class="btn-primary" style="width: 100%;" onclick="alert('Buscando...')">Buscar</button>
+      <input type="text" placeholder="Escribe aquí..." style="width:100%; padding:10px; margin:10px 0;">
+      <button class="btn-primary" style="width:100%;" onclick="closeModal('searchModal'); alert('Buscando...')">Buscar</button>
     </div>
   </div>
 
   <script>
+    // Carrito mejorado
+    let cart = [];
+    const cartCountElement = document.getElementById('cartCount');
+    const cartTotalElement = document.getElementById('cartTotal');
+
+    function updateCartDisplay() {
+      const cartItemsElement = document.getElementById('cartItems');
+      const cartEmptyElement = document.getElementById('cartEmpty');
+      
+      // Actualizar contador
+      cartCountElement.textContent = cart.length;
+      
+      // Actualizar contenido del carrito
+      if (cart.length === 0) {
+        cartItemsElement.innerHTML = '<p id="cartEmpty">Tu carrito está vacío.</p>';
+        cartTotalElement.textContent = '$0';
+      } else {
+        let itemsHTML = '';
+        let total = 0;
+        
+        cart.forEach((item, index) => {
+          itemsHTML += `
+            <div class="cart-item">
+              <div class="cart-item-info">
+                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-price">$${item.price}</div>
+              </div>
+              <button class="cart-item-remove" onclick="removeFromCart(${index})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          `;
+          total += item.price;
+        });
+        
+        cartItemsElement.innerHTML = itemsHTML;
+        cartTotalElement.textContent = `$${total}`;
+      }
+    }
+
+    function addToCart(itemName, price) {
+      cart.push({ name: itemName, price: price });
+      updateCartDisplay();
+      alert(`"${itemName}" agregado al carrito`);
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartDisplay();
+    }
+
+    function confirmPurchase() {
+      if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        return;
+      }
+      
+      let total = cart.reduce((sum, item) => sum + item.price, 0);
+      alert(`Compra confirmada por un total de $${total}.\nGracias por tu compra.`);
+      
+      cart = [];
+      updateCartDisplay();
+      closeCart();
+    }
+
+    // Abrir modales
+    function openCart() {
+      document.getElementById('cartModal').style.display = 'flex';
+    }
+
+    function closeCart() {
+      document.getElementById('cartModal').style.display = 'none';
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+
+    function openSearch() {
+      document.getElementById('searchModal').style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
     // Carrusel
     let currentSlide = 0;
     const carousel = document.querySelector('.carousel');
@@ -452,54 +659,17 @@
       currentSlide += direction;
       if (currentSlide < 0) currentSlide = slides.length - 1;
       if (currentSlide >= slides.length) currentSlide = 0;
-      updateCarousel();
-    }
-
-    function goToSlide(index) {
-      currentSlide = index;
-      updateCarousel();
-    }
-
-    function updateCarousel() {
       carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
       updateDots();
     }
 
-    // Autoplay every 5 seconds
-    setInterval(() => {
-      moveCarousel(1);
-    }, 5000);
-
-    // Modales
-    function openLoginModal() {
-      document.getElementById('loginModal').style.display = 'flex';
+    function goToSlide(index) {
+      currentSlide = index;
+      carousel.style.transform = `translateX(-${index * 100}%)`;
+      updateDots();
     }
 
-    function closeLoginModal() {
-      document.getElementById('loginModal').style.display = 'none';
-    }
-
-    function openCart() {
-      document.getElementById('cartModal').style.display = 'flex';
-    }
-
-    function closeCart() {
-      document.getElementById('cartModal').style.display = 'none';
-    }
-
-    function openSearch() {
-      document.getElementById('searchModal').style.display = 'flex';
-    }
-
-    function closeSearch() {
-      document.getElementById('searchModal').style.display = 'none';
-    }
-
-    // Simular añadir al carrito
-    document.querySelector('.icon:nth-child(3)').addEventListener('click', () => {
-      const count = parseInt(document.querySelector('.cart-count').textContent);
-      document.querySelector('.cart-count').textContent = count + 1;
-    });
+    setInterval(() => moveCarousel(1), 5000);
 
     // Cerrar modales al hacer clic fuera
     window.onclick = function(event) {
@@ -507,6 +677,9 @@
         event.target.style.display = 'none';
       }
     };
+
+    // Inicializar el carrito
+    updateCartDisplay();
   </script>
 
 </body>
