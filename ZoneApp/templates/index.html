@@ -20,7 +20,7 @@
       --border-color: #dbdbdb;
     }
 
-    * {
+     *{
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -494,7 +494,7 @@
       box-shadow: 0 4px 12px rgba(195, 53, 132, 0.3);
     }
 
-    /* Chat flotante */
+    /* Chat flotante MEJORADO */
     .chat-button {
       position: fixed;
       bottom: 20px;
@@ -515,6 +515,131 @@
 
     .chat-button:hover {
       transform: translateY(-3px);
+    }
+
+    /* Chat Container */
+    .chat-container {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 350px;
+      height: 450px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .chat-header {
+      background: var(--instagram-gradient);
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header h3 {
+      margin: 0;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-action-btn {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.4;
+      position: relative;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background: var(--instagram-gradient);
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background: #f0f0f0;
+      color: #333;
+      border-bottom-left-radius: 5px;
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      background: #f0f0f0;
+      color: #666;
+      padding: 10px 15px;
+      border-radius: 18px;
+      font-style: italic;
+      border-bottom-left-radius: 5px;
+    }
+
+    .chat-input-container {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid var(--border-color);
+      background: white;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 25px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chat-send-btn {
+      background: var(--instagram-pink);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      margin-left: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+    }
+
+    .chat-send-btn:hover {
+      background: var(--instagram-purple);
     }
 
     /* Modal de login */
@@ -1012,6 +1137,12 @@
       .filters {
         flex-direction: column;
       }
+      
+      .chat-container {
+        width: 90%;
+        right: 5%;
+        height: 60vh;
+      }
     }
      
    .search-modal-icon, .search-modal-clear {
@@ -1354,9 +1485,34 @@
     </div>
   </footer>
 
-  <!-- Chat flotante -->
-  <div class="chat-button" onclick="alert('¡Hola! ¿En qué podemos ayudarte?')">
+  <!-- Chat flotante MEJORADO -->
+  <div class="chat-button" onclick="toggleChat()">
     <i class="fas fa-comment"></i> Chat
+  </div>
+
+  <!-- Chat Container -->
+  <div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+      <h3><i class="fas fa-comments"></i> Chat ZONFEM</h3>
+      <div class="chat-actions">
+        <button class="chat-action-btn" onclick="minimizeChat()"><i class="fas fa-minus"></i></button>
+        <button class="chat-action-btn" onclick="toggleChat()"><i class="fas fa-times"></i></button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="message bot-message">
+        ¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy?
+      </div>
+      <div class="typing-indicator" id="typingIndicator">
+        Escribiendo...
+      </div>
+    </div>
+    <div class="chat-input-container">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu mensaje..." onkeypress="handleChatKeyPress(event)">
+      <button class="chat-send-btn" onclick="sendMessage()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
   </div>
 
   <!-- Modal de Carrito mejorado -->
@@ -1850,6 +2006,109 @@
         event.target.style.display = 'none';
       }
     };
+
+    // CHAT MEJORADO
+    let chatMinimized = false;
+
+    function toggleChat() {
+      const chatContainer = document.getElementById('chatContainer');
+      if (chatContainer.style.display === 'flex') {
+        chatContainer.style.display = 'none';
+      } else {
+        chatContainer.style.display = 'flex';
+        chatMinimized = false;
+        document.getElementById('chatInput').focus();
+      }
+    }
+
+    function minimizeChat() {
+      const chatContainer = document.getElementById('chatContainer');
+      if (chatMinimized) {
+        chatContainer.style.height = '450px';
+        chatMinimized = false;
+      } else {
+        chatContainer.style.height = '60px';
+        chatMinimized = true;
+      }
+    }
+
+    function handleChatKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    function sendMessage() {
+      const chatInput = document.getElementById('chatInput');
+      const message = chatInput.value.trim();
+      
+      if (message === '') return;
+      
+      // Agregar mensaje del usuario
+      addMessage(message, 'user');
+      chatInput.value = '';
+      
+      // Mostrar indicador de escritura
+      showTypingIndicator();
+      
+      // Simular respuesta del bot después de un retraso
+      setTimeout(() => {
+        hideTypingIndicator();
+        const botResponse = generateBotResponse(message);
+        addMessage(botResponse, 'bot');
+      }, 1500);
+    }
+
+    function addMessage(text, sender) {
+      const chatMessages = document.getElementById('chatMessages');
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+      messageElement.textContent = text;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+      const typingIndicator = document.getElementById('typingIndicator');
+      typingIndicator.style.display = 'block';
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById('typingIndicator');
+      typingIndicator.style.display = 'none';
+    }
+
+    function generateBotResponse(userMessage) {
+      const lowerMessage = userMessage.toLowerCase();
+      
+      // Respuestas basadas en palabras clave
+      if (lowerMessage.includes('hola') || lowerMessage.includes('buenas')) {
+        return '¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy?';
+      } else if (lowerMessage.includes('cita') || lowerMessage.includes('consulta') || lowerMessage.includes('agendar')) {
+        return 'Puedes agendar una consulta haciendo clic en "Agendar consulta" en nuestra página de inicio o en la sección de consultas.';
+      } else if (lowerMessage.includes('curso') || lowerMessage.includes('taller') || lowerMessage.includes('clase')) {
+        return 'Ofrecemos varios cursos y talleres. Puedes verlos todos en la sección "Cursos" de nuestro sitio web.';
+      } else if (lowerMessage.includes('precio') || lowerMessage.includes('costo') || lowerMessage.includes('valor')) {
+        return 'Los precios de nuestros servicios varían. Puedes encontrar información detallada en las secciones de "Consultas" y "Cursos".';
+      } else if (lowerMessage.includes('horario') || lowerMessage.includes('disponibilidad') || lowerMessage.includes('cuándo')) {
+        return 'Nuestro horario de atención es de lunes a viernes de 8:00 a 18:00 y sábados de 9:00 a 13:00.';
+      } else if (lowerMessage.includes('embarazo') || lowerMessage.includes('prenatal')) {
+        return 'Ofrecemos control prenatal completo con matronas especializadas. Puedes agendar una consulta en nuestra página.';
+      } else if (lowerMessage.includes('parto') || lowerMessage.includes('nacimiento')) {
+        return 'Tenemos cursos de preparación al parto y consultas especializadas. ¡Visita nuestra sección de cursos!';
+      } else if (lowerMessage.includes('postparto') || lowerMessage.includes('postparto')) {
+        return 'Ofrecemos consultas y cursos de recuperación postparto. Puedes encontrar más información en nuestra página.';
+      } else if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('email')) {
+        return 'Puedes contactarnos a través del formulario en la sección "Contacto" o llamando al (123) 456-7890.';
+      } else if (lowerMessage.includes('gracias') || lowerMessage.includes('thank')) {
+        return '¡De nada! Estoy aquí para ayudarte. ¿Hay algo más en lo que pueda asistirte?';
+      } else {
+        return 'Entiendo que quieres información sobre: "' + userMessage + '". Te recomiendo visitar nuestras secciones de Consultas o Cursos, o contactarnos directamente para una atención personalizada.';
+      }
+    }
 
     updateCartDisplay();
   </script>
