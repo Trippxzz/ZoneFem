@@ -642,6 +642,178 @@
       background: var(--instagram-purple);
     }
 
+    /* Estilos para el seguimiento de envío */
+    .tracking-info {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    .tracking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .tracking-number {
+      font-weight: bold;
+      color: var(--instagram-pink);
+    }
+
+    .tracking-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-processing {
+      background: #cce7ff;
+      color: #004085;
+    }
+
+    .status-shipped {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-delivered {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .tracking-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tracking-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .step-completed {
+      background: var(--instagram-pink);
+      color: white;
+    }
+
+    .step-current {
+      background: var(--instagram-purple);
+      color: white;
+    }
+
+    .step-pending {
+      background: #e0e0e0;
+      color: #9e9e9e;
+    }
+
+    .step-info {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .step-date {
+      font-size: 11px;
+      color: #757575;
+    }
+
+    .step-line {
+      width: 2px;
+      height: 15px;
+      background: #e0e0e0;
+      margin-left: 11px;
+    }
+
+    .step-line.completed {
+      background: var(--instagram-pink);
+    }
+
+    /* Formulario de seguimiento en el chat */
+    .tracking-form {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+    }
+
+    .tracking-form-group {
+      margin-bottom: 12px;
+    }
+
+    .tracking-form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .tracking-form-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .tracking-form-group input:focus {
+      border-color: var(--instagram-pink);
+    }
+
+    .tracking-submit-btn {
+      background: var(--instagram-gradient);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+    }
+
+    .tracking-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(195, 53, 132, 0.3);
+    }
+
+    .tracking-error {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+    }
+
     /* Modal de login */
     .modal {
       display: none;
@@ -1481,7 +1653,7 @@
       </div>
     </div>
     <div class="copyright">
-      &copy; 2025 ZONFEM - Todos los derechos reservados
+      &copy; 2023 ZONFEM - Todos los derechos reservados
     </div>
   </footer>
 
@@ -1501,7 +1673,7 @@
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="message bot-message">
-        ¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy?
+        ¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre consultas, cursos, o consultar el estado de tu envío.
       </div>
       <div class="typing-indicator" id="typingIndicator">
         Escribiendo...
@@ -2009,6 +2181,7 @@
 
     // CHAT MEJORADO
     let chatMinimized = false;
+    let isTrackingRequested = false;
 
     function toggleChat() {
       const chatContainer = document.getElementById('chatContainer');
@@ -2064,7 +2237,14 @@
       const messageElement = document.createElement('div');
       messageElement.classList.add('message');
       messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-      messageElement.textContent = text;
+      
+      if (sender === 'bot' && text.includes('tracking-form')) {
+        // Si es un mensaje de seguimiento, usar HTML especial
+        messageElement.innerHTML = text;
+      } else {
+        messageElement.textContent = text;
+      }
+      
       chatMessages.appendChild(messageElement);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -2081,12 +2261,129 @@
       typingIndicator.style.display = 'none';
     }
 
+    // Función para generar información de seguimiento
+    function generateTrackingInfo(trackingNumber, status) {
+      let statusText = '';
+      let statusClass = '';
+      let steps = [];
+      
+      switch(status) {
+        case 'pending':
+          statusText = 'Pendiente';
+          statusClass = 'status-pending';
+          steps = [
+            { title: 'Pedido recibido', date: 'Hoy, 10:30 AM', completed: true },
+            { title: 'En preparación', date: 'Próximamente', completed: false },
+            { title: 'Enviado', date: '', completed: false },
+            { title: 'Entregado', date: '', completed: false }
+          ];
+          break;
+        case 'processing':
+          statusText = 'En proceso';
+          statusClass = 'status-processing';
+          steps = [
+            { title: 'Pedido recibido', date: 'Ayer, 14:20 PM', completed: true },
+            { title: 'En preparación', date: 'Hoy, 09:15 AM', completed: true },
+            { title: 'Enviado', date: 'Próximamente', completed: false },
+            { title: 'Entregado', date: '', completed: false }
+          ];
+          break;
+        case 'shipped':
+          statusText = 'Enviado';
+          statusClass = 'status-shipped';
+          steps = [
+            { title: 'Pedido recibido', date: '15/10/2023', completed: true },
+            { title: 'En preparación', date: '16/10/2023', completed: true },
+            { title: 'Enviado', date: 'Hoy, 11:45 AM', completed: true },
+            { title: 'Entregado', date: 'Estimado: 19/10/2023', completed: false }
+          ];
+          break;
+        case 'delivered':
+          statusText = 'Entregado';
+          statusClass = 'status-delivered';
+          steps = [
+            { title: 'Pedido recibido', date: '10/10/2023', completed: true },
+            { title: 'En preparación', date: '11/10/2023', completed: true },
+            { title: 'Enviado', date: '12/10/2023', completed: true },
+            { title: 'Entregado', date: '14/10/2023, 15:20 PM', completed: true }
+          ];
+          break;
+      }
+      
+      let stepsHTML = '';
+      steps.forEach((step, index) => {
+        const isLast = index === steps.length - 1;
+        const stepIconClass = step.completed ? 'step-completed' : 
+                             (index === 0 || steps[index-1].completed) ? 'step-current' : 'step-pending';
+        const stepIcon = step.completed ? '✓' : (index === 0 || steps[index-1].completed) ? '●' : '○';
+        
+        stepsHTML += `
+          <div class="tracking-step">
+            <div class="step-icon ${stepIconClass}">${stepIcon}</div>
+            <div class="step-info">
+              <div class="step-title">${step.title}</div>
+              <div class="step-date">${step.date}</div>
+            </div>
+          </div>
+          ${!isLast ? `<div class="step-line ${step.completed ? 'completed' : ''}"></div>` : ''}
+        `;
+      });
+      
+      return `
+        <div class="tracking-info">
+          <div class="tracking-header">
+            <div class="tracking-number">N° de pedido: ${trackingNumber}</div>
+            <div class="tracking-status ${statusClass}">${statusText}</div>
+          </div>
+          <div class="tracking-steps">
+            ${stepsHTML}
+          </div>
+        </div>
+      `;
+    }
+
+    // Función para procesar el formulario de seguimiento
+    function processTrackingForm() {
+      const orderNumber = document.getElementById('trackingOrderNumber').value.trim();
+      const email = document.getElementById('trackingEmail').value.trim();
+      
+      if (!orderNumber || !email) {
+        addMessage('Por favor, completa ambos campos para consultar el estado de tu pedido.', 'bot');
+        return;
+      }
+      
+      // Validar formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        addMessage('Por favor, ingresa un correo electrónico válido.', 'bot');
+        return;
+      }
+      
+      // Mostrar indicador de escritura
+      showTypingIndicator();
+      
+      // Simular consulta a la base de datos
+      setTimeout(() => {
+        hideTypingIndicator();
+        
+        // Generar un estado aleatorio para demostración
+        const statuses = ['pending', 'processing', 'shipped', 'delivered'];
+        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        const trackingInfo = generateTrackingInfo(orderNumber, randomStatus);
+        addMessage(`Aquí tienes la información de seguimiento para el pedido ${orderNumber}:` + trackingInfo, 'bot');
+        
+        // Resetear la bandera de seguimiento
+        isTrackingRequested = false;
+      }, 2000);
+    }
+
     function generateBotResponse(userMessage) {
       const lowerMessage = userMessage.toLowerCase();
       
       // Respuestas basadas en palabras clave
       if (lowerMessage.includes('hola') || lowerMessage.includes('buenas')) {
-        return '¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy?';
+        return '¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre consultas, cursos, o consultar el estado de tu envío.';
       } else if (lowerMessage.includes('cita') || lowerMessage.includes('consulta') || lowerMessage.includes('agendar')) {
         return 'Puedes agendar una consulta haciendo clic en "Agendar consulta" en nuestra página de inicio o en la sección de consultas.';
       } else if (lowerMessage.includes('curso') || lowerMessage.includes('taller') || lowerMessage.includes('clase')) {
@@ -2105,6 +2402,25 @@
         return 'Puedes contactarnos a través del formulario en la sección "Contacto" o llamando al (123) 456-7890.';
       } else if (lowerMessage.includes('gracias') || lowerMessage.includes('thank')) {
         return '¡De nada! Estoy aquí para ayudarte. ¿Hay algo más en lo que pueda asistirte?';
+      } else if (lowerMessage.includes('seguimiento') || lowerMessage.includes('envío') || lowerMessage.includes('entrega') || lowerMessage.includes('pedido') || lowerMessage.includes('estado')) {
+        // Mostrar formulario de seguimiento
+        isTrackingRequested = true;
+        return `
+          <div class="tracking-form">
+            <p>Para consultar el estado de tu pedido, por favor ingresa:</p>
+            <div class="tracking-form-group">
+              <label for="trackingOrderNumber">Número de pedido:</label>
+              <input type="text" id="trackingOrderNumber" placeholder="Ej: ZF123456">
+            </div>
+            <div class="tracking-form-group">
+              <label for="trackingEmail">Correo electrónico:</label>
+              <input type="email" id="trackingEmail" placeholder="tu@email.com">
+            </div>
+            <button class="tracking-submit-btn" onclick="processTrackingForm()">
+              <i class="fas fa-search"></i> Consultar estado
+            </button>
+          </div>
+        `;
       } else {
         return 'Entiendo que quieres información sobre: "' + userMessage + '". Te recomiendo visitar nuestras secciones de Consultas o Cursos, o contactarnos directamente para una atención personalizada.';
       }
