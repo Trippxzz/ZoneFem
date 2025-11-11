@@ -1,0 +1,12 @@
+{% load static %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <label>Imágenes:</label>
+    <input type="file" name="imagenes" id="id_imagenes" multiple accept="image/*" onchange="mostrarPreviewYRadios()">
+    <div id="preview_imagenes"></div>
+    <input type="hidden" name="imgprincipal" id="imgprincipal" value="0">
+    <button type="submit">Guardar</button>
+</form>
+
+<script src="{% static 'js/config.js' %}"></script>
