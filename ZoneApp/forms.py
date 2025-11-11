@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario
+from .models import Usuario, Servicio
 from datetime import date
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -50,3 +50,18 @@ class EmailAuthenticationForm(AuthenticationForm):
                     params={'username': self.username_field.verbose_name},
                 )
         return self.cleaned_data
+    
+
+class ServicioForm(forms.ModelForm):
+    class Meta:
+        model = Servicio
+        fields = ['nombre', 'descripcion', 'precio', 'duracion']
+        widgets = {
+            'descripcion': forms.Textarea(),
+        }
+
+class MultiFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+class ServicioImagenForm(forms.Form):
+    imagenes = forms.ImageField(widget=MultiFileInput(attrs={'multiple': True}), required=False)

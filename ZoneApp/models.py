@@ -57,3 +57,29 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.email
+    
+
+
+class Servicio(models.Model):
+    nombre = models.CharField(max_length=100, verbose_name='Nombre del Servicio')
+    descripcion = models.TextField(verbose_name='Descripción del Servicio')
+    precio = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Precio del Servicio')
+    duracion = models.IntegerField(verbose_name='Duración en minutos')
+
+    def __str__(self):
+        return self.nombre
+    def imagen_principal(self):
+        return self.imagenes.filter(es_principal=True).first()
+
+class ImagenServicio(models.Model):
+    servicio = models.ForeignKey(Servicio, related_name='imagenes', on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='servicios/')
+    es_principal = models.BooleanField(default=False, verbose_name='¿Imagen Principal?')
+
+    def __str__(self):
+        return f"Imagen de {self.servicio.nombre}"
+    
+    def save(self, *args, **kwargs):
+        if self.es_principal:
+            ImagenServicio.objects.filter(servicio=self.servicio, es_principal=True).update(es_principal=False)
+        super().save(*args, **kwargs)
