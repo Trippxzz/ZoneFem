@@ -63,3 +63,12 @@ def verServicio(request):
     if request.method == 'GET':
         servicio = Servicio.objects.all()
         return render(request, 'ZoneServicios/servicios.html', {'servicio': servicio})
+    
+def detServicio(request, id):
+    if request.method == 'GET':
+        serv = Servicio.objects.get(id = id)
+        imgserv = serv.imagenes.all()
+        return render (request, "servicio.html", {"serv":serv, "imgs":imgserv})
+
+
+
