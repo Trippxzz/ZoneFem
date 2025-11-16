@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1 class="text-3xl font-extrabold tracking-tight mb-6">Editar Servicio</h1>
+
+    <form id="edit-serv-form" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div>
+            <label for="id_imagenes">Imágenes nuevas:</label>
+            <input type="file" name="imagenes" id="id_imagenes" multiple accept="image/*">
+        </div>
+
+        <button type="submit">Guardar Cambios</button>
+    </form>
+
+    <h3>Imágenes actuales</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for img in imgs %}
+            <div style="border:1px solid #ccc; padding:10px; text-align:center;">
+                <img src="{{ img.imagen.url }}" alt="Imagen producto" style="max-width:120px; max-height:120px; display:block; margin-bottom:10px;" />
+
+                <form method="POST" action="{% url 'eliminarimagenservicio' img.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('¿Eliminar esta imagen?')">Eliminar</button>
+                </form>
+
+                <form method="POST" action="{% url 'cambiar_principal' img.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="imagen_id" value="{{ img.id }}">
+                    <input type="radio" name="principal" {% if img.es_principal %}checked{% endif %} onchange="this.form.submit()"> Principal
+                </form>
+            </div>
+        {% empty %}
+            <p>No hay imágenes para este producto.</p>
+        {% endfor %}
+    </div>
+
+    <form method="POST" action="{% url 'eliminarservicio' serv.id %}" style="display:inline; margin-top: 16px;">
+        {% csrf_token %}
+        <button type="submit" onclick="return confirm('¿Eliminar este producto?')">Eliminar Producto ❌</button>
+    </form>
+
+    <!-- ...existing code... -->
+</body>
+</html>

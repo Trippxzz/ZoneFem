@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+ <h1 class="text-3xl font-extrabold tracking-tight mb-6">{{serv.Nombre}}</h1>         <a href="{% url 'editarservicio' serv.id %}" class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
+                        Editar servicio
+                    </a>
+<body class="bg-[#101416] min-h-screen text-white">
+    <div class="max-w-7xl mx-auto px-4 py-10">
+        <div class="bg-[#181c20] rounded-xl shadow-lg overflow-hidden flex flex-col">
+            {% if serv.imagen_principal %}
+                <img src="{{ serv.imagen_principal.imagen.url }}" alt="{{ serv.nombre }}" class="h-48 w-full object-cover">
+            {% else %}
+                <img src="/static/img/no-image.png" alt="Sin imagen" class="h-48 w-full object-cover">
+            {% endif %}
+            <div class="p-6 flex-1 flex flex-col">
+                <p class="text-blue-400 font-semibold mb-2">${{ serv.precio }}</p>
+                <p class="text-gray-300 text-sm mb-4 flex-1 truncate">{{ serv.descripcion  }}</p>
+                <p class="text-gray-300 text-sm mb-4 flex-1 truncate">{{ serv.duracion  }}</p>
+                                <a href= class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
+                    Agregar al carrito
+                </a>
+                <a href= class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
+                    Volver
+                </a>
+            </div>
+        </div>
+    </div>
+</html>

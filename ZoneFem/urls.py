@@ -12,6 +12,11 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('crear_servicio/', views.crearServicio, name='crearservicio'),
     path('servicios/', views.verServicio, name='verservicio'),
+    path('servicio/<int:id>/', views.detServicio, name='detalleservicio'),
+    path('editar_servicio/<int:id>/', views.editServicio, name='editarservicio'),
+    path('eliminar_servicio/<int:id>/', views.eliminarServicio, name='eliminarservicio'),
+    path('eliminar_imagen/<int:id>/', views.eliminarImagen, name='eliminarimagenservicio'),
+    path('cambiar_principal/<int:imagen_id>/', views.cambiar_principal, name='cambiar_principal'),
 ]
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    
