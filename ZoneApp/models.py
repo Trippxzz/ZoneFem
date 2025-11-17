@@ -113,6 +113,9 @@ class BloqueServicio(models.Model):
 
     def getDuracion(self):
         return self.servicio.duracion
+    def __str__(self):
+        # Esto hará que el dropdown muestre el nombre del servicio
+        return self.servicio.nombre
 
 class disponibilidadServicio(models.Model):
     bloque_servicio = models.ForeignKey(BloqueServicio, on_delete=models.CASCADE, related_name='disponibilidad')

@@ -80,3 +80,13 @@ class seleccionarServicioForm(forms.Form):
     def __init__(self, matrona, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['bloque_servicio'].queryset = BloqueServicio.objects.filter(matrona=matrona)
+
+
+
+
+
+class ContactoForm(forms.Form):
+    nombre = forms.CharField(max_length=100, label='Nombre') 
+    email = forms.EmailField(label='Correo Electrónico')
+    phone = forms.CharField(max_length=15, required=False, label='Teléfono (Opcional)')
+    message = forms.CharField(widget=forms.Textarea, label='Mensaje')

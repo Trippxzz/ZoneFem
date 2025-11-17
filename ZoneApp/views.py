@@ -4,19 +4,24 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, JsonResponse, Http404
-from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet
+from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm
 from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import datetime, timedelta
 from django.db import transaction
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
 import calendar
 # Create your views here.
 
 def home(request):
     loginf = EmailAuthenticationForm()
-    return render(request, "index.html", {'loginf': loginf})
+    servicios = Servicio.objects.all().order_by('nombre')
+    contacto_form = ContactoForm()
+    context = {'loginf': loginf, 'servicios': servicios, 'contacto_form': contacto_form}
+    return render(request, "index.html", context)
 
 ### ZONE REGISTRO E INICIO DE SESIÓN 
 def RegistroUsuarios(request):
@@ -66,8 +71,8 @@ def crearServicio(request):
 
 def verServicio(request):
     if request.method == 'GET':
-        servicio = Servicio.objects.all()
-        return render(request, 'ZoneServicios/servicios.html', {'servicio': servicio})
+        servicios = Servicio.objects.all()
+        return render(request, 'ZoneServicios/servicios.html', {'servicios': servicios})
     
 def detServicio(request, id):
     if request.method == 'GET':
@@ -130,6 +135,63 @@ def eliminarImagen(request, imagen_id=None, id=None):
         imagen.delete()
         return redirect(reverse('editarservicio', args=[servicio_id]))
     return HttpResponse("Método no permitido", status=405)
+
+
+
+def contacto_view(request):
+    if request.method == 'POST':
+        form = ContactoForm(request.POST)
+        
+        # if form.is_valid():
+        #     nombre = form.cleaned_data['nombre']
+        #     email = form.cleaned_data['email']
+        #     phone = form.cleaned_data['phone']
+        #     mensaje = form.cleaned_data['message']
+
+        #     asunto = f"Mensaje de Contacto ZONFEM - {nombre}"
+        #     cuerpo_mensaje = f"""
+        #     Nombre: {nombre}
+        #     Email: {email}
+        #     Teléfono: {phone or 'No proporcionado'}
+
+        #     --- Mensaje ---
+        #     {mensaje}
+        #     """
+
+        #     # 2. Enviar el correo (¡Nota: Esto requiere configuración de EMAIL_BACKEND en settings.py!)
+        #     try:
+        #         # Simplemente lo imprime en la consola en modo DEBUG
+        #         send_mail(
+        #             asunto,
+        #             cuerpo_mensaje,
+        #             settings.DEFAULT_FROM_EMAIL, # Remitente (ej: 'no-reply@zonfem.com')
+        #             ['tu_email_destino@ejemplo.com'], # Destinatario (Tu correo real)
+        #             fail_silently=False,
+        #         )
+                
+
+        #         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        #             return JsonResponse({'success': True, 'message': 'Tu mensaje ha sido enviado con éxito.'})
+                
+
+        #         return redirect('home') 
+
+        #     except Exception as e:
+        #         # Si el envío del correo falla (ej: mala configuración de SMTP)
+        #         print(f"Error al enviar correo: {e}")
+        #         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        #             return JsonResponse({'success': False, 'errors': 'Error del servidor al enviar el correo.'}, status=500)
+                
+        #         form.add_error(None, 'Hubo un error al enviar tu mensaje. Intenta de nuevo más tarde.')
+
+        # else:
+        #     # Si la validación falla (para peticiones AJAX)
+        #     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        #         return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+
+    # Si es una petición GET o si la validación falló en una petición normal
+    form = ContactoForm() 
+    return render(request, 'ZoneComponentes/contacto.html', {'form': form})
 
 def generarHoras(dsemana: int, fecha: datetime.date, servicioid: int):
     disponibilidad = disponibilidadServicio.objects.filter(

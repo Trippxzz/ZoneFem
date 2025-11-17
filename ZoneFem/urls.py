@@ -11,6 +11,7 @@ urlpatterns = [
     path('login_ajax/', views.login_ajax, name='login_ajax'), 
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('crear_servicio/', views.crearServicio, name='crearservicio'),
+    path('contacto/', views.contacto_view, name='contacto'),
     path('servicios/', views.verServicio, name='verservicio'),
     path('servicio/<int:id>/', views.detServicio, name='detalleservicio'),
     path('editar_servicio/<int:id>/', views.editServicio, name='editarservicio'),
