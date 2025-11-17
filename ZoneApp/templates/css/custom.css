@@ -1,0 +1,97 @@
+/* Estilos para el degradado del texto */
+.text-instagram-gradient {
+  background: linear-gradient(45deg, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Estilos para los pasos del seguimiento */
+.step-completed { background: #C13584; color: white; }
+.step-current { background: #833AB4; color: white; }
+.step-pending { background: #e0e0e0; color: #9e9e9e; }
+.step-line.completed { background: #C13584; }
+
+/* Estados de pedido */
+.status-pending { background: #fff3cd; color: #856404; }
+.status-processing { background: #cce7ff; color: #004085; }
+.status-shipped { background: #d1ecf1; color: #0c5460; }
+.status-delivered { background: #d4edda; color: #155724; }
+
+/* Scrollbar personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #C13584;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #833AB4;
+}
+
+/* Estilo para el logo SVG */
+.logo-svg {
+  width: 56px; /* Ajusta el ancho del SVG */
+  height: 56px; /* Ajusta la altura del SVG */
+  flex-shrink: 0; /* Evita que el SVG se encoja */
+}
+
+/* Estilo para el texto del logo */
+.logo-text {
+  font-size: 2rem; /* Ajusta el tamaño del texto */
+  font-weight: bold;
+  background: linear-gradient(45deg, #ff2ea9, #ff6ab8, #ffb72a); /* Degradado del texto */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  line-height: 1; /* Ajusta el espaciado interno */
+}
+
+/* Ajuste para la altura del chat */
+.chat-container {
+  height: 500px; /* Altura fija inicial */
+}
+.chat-container.minimized {
+  height: 60px !important; /* Altura cuando está minimizado */
+}
+
+/* Clase para ocultar elementos */
+.hidden { display: none; }
+
+/* Estilos adicionales para elementos específicos */
+.nav-link.active {
+  color: #C13584;
+  background-color: rgba(193, 53, 132, 0.1);
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(193, 53, 132, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .logo-text {
+    font-size: 1.5rem;
+  }
+  
+  .header-icons {
+    gap: 2;
+  }
+  
+  .chat-container {
+    width: 90%;
+    right: 5%;
+  }
+}
