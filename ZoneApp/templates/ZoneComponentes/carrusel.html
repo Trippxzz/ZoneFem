@@ -1,0 +1,63 @@
+{% load static %}
+
+<div class="carousel-container relative max-w-6xl mx-auto my-8 overflow-hidden bg-card-bg p-5 rounded-2xl shadow-medium border border-border-color">
+  <div class="carousel flex transition-transform duration-500 ease-in-out">
+    
+    <div class="carousel-item min-w-full flex items-center p-5 gap-8">
+      <img src="{% static 'ZoneApp/img/mujer_embarazada.jpg' %}" class="carousel-image w-80 h-80 object-cover rounded-xl shadow-medium transition-all duration-300 hover:scale-102" alt="Mujer embarazada recibiendo atención">
+      <div class="carousel-text flex-1">
+        <h2 class="text-3xl text-text-dark mb-4 text-instagram-gradient flex items-center gap-3">
+          <i class="fas fa-venus"></i> Control prenatal
+        </h2>
+        <p class="text-lg leading-relaxed mb-6 text-text-light">
+          Seguimiento y cuidados especializados durante todo tu embarazo. Nuestras matronas te acompañarán en cada etapa para garantizar tu bienestar y el de tu bebé.
+        </p>
+        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('¡Consulta agendada! Te contactaremos para confirmar la fecha.')">
+          <i class="fas fa-calendar-plus"></i> Agendar consulta
+        </button>
+      </div>
+    </div>
+
+    <div class="carousel-item min-w-full flex items-center p-5 gap-8">
+      <img src="{% static 'ZoneApp/img/matrona.jpg' %}" class="carousel-image w-80 h-80 object-cover rounded-xl shadow-medium transition-all duration-300 hover:scale-102" alt="Matrona atendiendo a una paciente">
+      <div class="carousel-text flex-1">
+        <h2 class="text-3xl text-text-dark mb-4 text-instagram-gradient flex items-center gap-3">
+          <i class="fas fa-user-md"></i> Atención especializada
+        </h2>
+        <p class="text-lg leading-relaxed mb-6 text-text-light">
+          Con nuestras matronas experimentadas y certificadas. Contamos con profesionales altamente capacitadas para brindarte la mejor atención durante tu embarazo, parto y postparto.
+        </p>
+        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('¡Consulta agendada!')">
+          <i class="fas fa-calendar-plus"></i> Agendar consulta
+        </button>
+      </div>
+    </div>
+
+    <div class="carousel-item min-w-full flex items-center p-5 gap-8">
+      <img src="{% static 'ZoneApp/img/preparacion_parto.jpg' %}" class="carousel-image w-80 h-80 object-cover rounded-xl shadow-medium transition-all duration-300 hover:scale-102" alt="Clase de preparación al parto">
+      <div class="carousel-text flex-1">
+        <h2 class="text-3xl text-text-dark mb-4 text-instagram-gradient flex items-center gap-3">
+          <i class="fas fa-baby"></i> Preparación al parto
+        </h2>
+        <p class="text-lg leading-relaxed mb-6 text-text-light">
+          Clases y talleres especializados para tu proceso de parto. Aprende técnicas de respiración, relajación y posiciones que te ayudarán durante el trabajo de parto y nacimiento.
+        </p>
+        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('¡Clase agendada!')">
+          <i class="fas fa-calendar-plus"></i> Agendar clase
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="carousel-controls absolute top-1/2 transform -translate-y-1/2 w-full flex justify-between px-5">
+    <button class="carousel-arrow bg-white bg-opacity-90 border-none text-2xl py-3 px-4 rounded-full cursor-pointer transition-all duration-300 shadow-light text-instagram-pink hover:bg-white hover:text-instagram-purple hover:scale-110" onclick="moveCarousel(-1)">❮</button>
+    <button class="carousel-arrow bg-white bg-opacity-90 border-none text-2xl py-3 px-4 rounded-full cursor-pointer transition-all duration-300 shadow-light text-instagram-pink hover:bg-white hover:text-instagram-purple hover:scale-110" onclick="moveCarousel(1)">❯</button>
+  </div>
+  
+  <div class="carousel-dots flex justify-center mt-5 gap-3">
+    <div class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all duration-300 active bg-instagram-pink scale-120" onclick="goToSlide(0)"></div>
+    <div class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all duration-300 hover:bg-instagram-purple" onclick="goToSlide(1)"></div>
+    <div class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all duration-300 hover:bg-instagram-purple" onclick="goToSlide(2)"></div>
+  </div>
+</div>

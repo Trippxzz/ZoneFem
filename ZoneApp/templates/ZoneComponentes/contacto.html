@@ -1,0 +1,60 @@
+
+{% load static %}
+
+<div id="contacto" class="content-page max-w-6xl mx-auto my-8 p-5 animate-fadeIn hidden">
+  <h1 class="page-title text-4xl mb-6 text-instagram-gradient text-center pb-3 border-b border-border-color">
+    <i class="fas fa-address-book"></i> Contacto Directo
+  </h1>
+  
+  <div class="contact-form bg-card-bg p-9 rounded-2xl shadow-medium border border-border-color max-w-3xl mx-auto">
+    <p class="text-center text-lg text-text-dark mb-8">
+        Envíanos un mensaje y te responderemos a la brevedad.
+    </p>
+    
+    <form method="POST" action="{% url 'contacto' %}">
+        {% csrf_token %}
+        
+        <div class="form-group-modal mb-6">
+          <label for="nombre" class="block mb-3 font-medium flex items-center gap-2">
+            <i class="fas fa-user"></i> Nombre
+          </label>
+          <input type="text" id="nombre" name="nombre" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Tu nombre completo" required value="{{ form.nombre.value|default:'' }}">
+          {% if form.nombre.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ form.nombre.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="form-group-modal mb-6">
+          <label for="phone" class="block mb-3 font-medium flex items-center gap-2">
+            <i class="fas fa-phone"></i> Número de teléfono
+          </label>
+          <input type="tel" id="phone" name="phone" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Tu número de teléfono" value="{{ form.phone.value|default:'' }}">
+        </div>
+        
+        <div class="form-group-modal mb-6">
+          <label for="email" class="block mb-3 font-medium flex items-center gap-2">
+            <i class="fas fa-envelope"></i> Correo electrónico
+          </label>
+          <input type="email" id="email" name="email" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Tu correo electrónico" required value="{{ form.email.value|default:'' }}">
+          {% if form.email.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <div class="form-group-modal mb-6">
+          <label for="message" class="block mb-3 font-medium flex items-center gap-2">
+            <i class="fas fa-comment"></i> Comentario
+          </label>
+          <textarea id="message" name="message" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10 min-h-40 resize-vertical" placeholder="Escribe tu mensaje aquí. Cuéntanos en qué podemos ayudarte." required>{{ form.message.value|default:'' }}</textarea>
+          {% if form.message.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ form.message.errors.0 }}</p>
+          {% endif %}
+        </div>
+        
+        <button type="submit" class="submit-btn bg-instagram-gradient text-white border-none py-3 px-9 rounded-full text-base font-bold cursor-pointer transition-all duration-300 block mx-auto mt-8 min-w-48 hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40">
+          <i class="fas fa-paper-plane"></i> Enviar mensaje
+        </button>
+    </form>
+    
+  </div>
+</div>

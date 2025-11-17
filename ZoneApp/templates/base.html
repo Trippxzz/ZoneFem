@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZONFEM - {% block title %}Control Prenatal{% endblock %}</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <script>
+ tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'instagram-purple': '#833AB4',
+            'instagram-pink': '#C13584',
+            'instagram-red': '#E1306C',
+            'instagram-orange': '#F56040',
+            'instagram-yellow': '#FCAF45',
+            'light-bg': '#fafafa',
+            'card-bg': '#ffffff',
+            'text-dark': '#262626',
+            'text-light': '#8e8e8e',
+            'border-color': '#dbdbdb',
+          },
+          backgroundImage: {
+            'instagram-gradient': 'linear-gradient(45deg, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45)',
+          },
+          boxShadow: {
+            'light': '0 2px 10px rgba(0,0,0,0.08)',
+            'medium': '0 4px 12px rgba(0,0,0,0.12)',
+            'heavy': '0 5px 25px rgba(0,0,0,0.15)',
+          },
+          animation: {
+            'fadeIn': 'fadeIn 0.5s ease-in',
+            'modalFadeIn': 'modalFadeIn 0.3s ease-out',
+            'slideIn': 'slideIn 0.3s ease-out',
+            'slideOut': 'slideOut 0.3s ease-in',
+          },
+          keyframes: {
+            fadeIn: {
+              from: { opacity: 0, transform: 'translateY(20px)' },
+              to: { opacity: 1, transform: 'translateY(0)' },
+            },
+            modalFadeIn: {
+              from: { opacity: 0, transform: 'scale(0.9) translateY(-20px)' },
+              to: { opacity: 1, transform: 'scale(1) translateY(0)' },
+            },
+            slideIn: {
+              from: { transform: 'translateX(100%)', opacity: 0 },
+              to: { transform: 'translateX(0)', opacity: 1 },
+            },
+            slideOut: {
+              from: { transform: 'translateX(0)', opacity: 1 },
+              to: { transform: 'translateX(100%)', opacity: 0 },
+            },
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="{% static 'ZoneApp/css/custom.css' %}">
+</head>
+<body class="bg-light-bg text-text-dark font-sans leading-relaxed">
+
+<header class="bg-card-bg py-4 px-5 flex justify-between items-center shadow-light border-b border-border-color sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+        <span class="logo-text">ZONFEM</span> 
+    </div>
+    
+    <nav>
+      <ul class="flex list-none">
+        <li class="ml-5">
+          <a href="{% url 'home' %}" class="nav-link active text-text-dark font-medium transition-all duration-300 relative cursor-pointer py-2 px-3 rounded flex items-center gap-2 hover:text-instagram-pink hover:bg-opacity-10 hover:bg-instagram-pink" data-page="home">
+            <i class="fas fa-home"></i> Inicio
+          </a>
+        </li>
+        <li class="ml-5">
+          <a href="{% url 'verservicio' %}" class="nav-link text-text-dark font-medium transition-all duration-300 relative cursor-pointer py-2 px-3 rounded flex items-center gap-2 hover:text-instagram-pink hover:bg-opacity-10 hover:bg-instagram-pink" data-page="servicios">
+            <i class="fas fa-calendar-check"></i> Servicios
+          </a>
+        </li>
+        <li class="ml-5">
+          <a href="{% url 'contacto' %}" class="nav-link text-text-dark font-medium transition-all duration-300 relative cursor-pointer py-2 px-3 rounded flex items-center gap-2 hover:text-instagram-pink hover:bg-opacity-10 hover:bg-instagram-pink" data-page="contacto">
+            <i class="fas fa-address-book"></i> Contacto
+          </a>
+        </li>
+      </ul>
+    </nav>
+    
+    <div class="header-icons flex gap-4 relative">
+        <div class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="openSearch()" title="Buscar" aria-label="Buscar">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="openLoginModal()" title="Iniciar sesión" aria-label="Iniciar sesión">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="openCart()" title="Carrito de compras" aria-label="Carrito de compras">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount">0</span>
+        </div>
+    </div>
+</header>
+
+  <main>
+      {% block content %}
+      {% endblock %}
+  </main>
+
+  <footer class="bg-card-bg py-10 px-5 mt-12 border-t border-border-color">
+      </footer>
+
+{% include 'ZoneComponentes/modals.html' %}
+{% include 'ZoneComponentes/contacto.html' %}
+  <script src="{% static 'ZoneApp/js/carrusel.js' %}"></script>
+  <script src="{% static 'ZoneApp/js/main.js' %}"></script>
+  <script src="{% static 'ZoneApp/js/cart.js' %}"></script>
+  <script src="{% static 'ZoneApp/js/chat.js' %}"></script>
+  <script src="{% static 'ZoneApp/js/modals.js' %}"></script>
+</body>
+</html>

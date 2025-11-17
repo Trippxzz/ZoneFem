@@ -1,44 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body class="bg-[#101416] min-h-screen text-white">
-    <div class="max-w-7xl mx-auto px-4 py-10">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-extrabold tracking-tight">Catálogo</h1>
-            <a href="{% url 'crearservicio' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition">
-                <span class="text-xl mr-2">+</span> Agregar servicio
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Catálogo de Servicios{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto my-8 p-5 animate-fadeIn">
+
+    <div id="servicios" class="content-page">
+        <h1 class="page-title text-4xl mb-6 text-instagram-gradient text-center pb-3 border-b border-border-color">
+            <i class="fas fa-user-md"></i> Servicios Disponibles
+        </h1>
+        
+        <div class="filters flex justify-between mb-6 flex-wrap gap-5 bg-card-bg p-5 rounded-xl shadow-light">
+            <div class="filter-group flex items-center gap-3">
+                <label class="font-medium"><i class="fas fa-filter"></i> Filtrar:</label>
+                <select class="py-2 px-4 border border-border-color rounded-lg bg-card-bg cursor-pointer transition-all duration-300 focus:outline-none focus:border-instagram-pink">
+                    <option>Todos los servicios</option>
+                    <option>Disponibles</option>
+                </select>
+            </div>
+            <div class="filter-group flex items-center gap-3">
+                <label class="font-medium"><i class="fas fa-sort"></i> Ordenar por:</label>
+                <select class="py-2 px-4 border border-border-color rounded-lg bg-card-bg cursor-pointer transition-all duration-300 focus:outline-none focus:border-instagram-pink">
+                    <option>Nombre (A-Z)</option>
+                    <option>Precio: menor a mayor</option>
+                </select>
+            </div>
+        </div>
+
+<div class="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    
+    {% for servicio in servicios %}
+    <div class="product-card bg-card-bg rounded-2xl overflow-hidden shadow-light border border-border-color transition-all duration-300 hover:-translate-y-2 hover:shadow-medium flex flex-col">
+      
+      {% if servicio.imagen_principal %}
+        <img src="{{ servicio.imagen_principal.imagen.url }}" class="product-image w-full h-56 object-cover" alt="{{ servicio.nombre }}">
+      {% else %}
+        <img src="https://via.placeholder.com/400x300?text=ZONFEM" class="product-image w-full h-56 object-cover" alt="Sin Imagen">
+      {% endif %}
+
+      <div class="product-info p-5 flex flex-col flex-1">
+        <h3 class="product-title text-xl mb-2 font-bold text-text-dark">{{ servicio.nombre }}</h3>
+        
+        <div class="product-brand text-text-light text-sm mb-3 flex items-center gap-2">
+            <i class="far fa-clock"></i> Duración: {{ servicio.duracion }} min
+        </div>
+        
+        <div class="product-price text-2xl font-bold text-instagram-pink mb-4">
+            ${{ servicio.precio }} CLP
+        </div>
+        
+        <p class="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
+            {{ servicio.descripcion }}
+        </p>
+
+        <div class="product-actions flex gap-3 mt-auto">
+            <a href="{% url 'detalleservicio' servicio.id %}" class="btn btn-primary w-full py-2 px-4 border-none rounded-lg font-bold transition-all duration-300 inline-flex items-center justify-center gap-2 text-white bg-instagram-gradient hover:shadow-lg hover:-translate-y-1 decoration-0">
+                <i class="fas fa-calendar-check"></i> Ver Detalles
             </a>
         </div>
-        {% if servicio %}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for s in servicio %}
-            <div class="bg-[#181c20] rounded-xl shadow-lg overflow-hidden flex flex-col">
-                {% if s.imagen_principal %}
-                    <img src="{{ s.imagen_principal.imagen.url }}" alt="{{ s.nombre }}" class="h-48 w-full object-cover">
-                {% else %}
-                    <img src="/static/img/no-image.png" alt="Sin imagen" class="h-48 w-full object-cover">
-                {% endif %}
-                <div class="p-6 flex-1 flex flex-col">
-                    <h2 class="text-xl font-bold mb-2 truncate">{{ s.nombre }}</h2>
-                    <p class="text-blue-400 font-semibold mb-2">${{ s.precio }}</p>
-                    <p class="text-gray-300 text-sm mb-4 flex-1 truncate">{{ s.descripcion  }}</p>
-                    <p class="text-gray-300 text-sm mb-4 flex-1 truncate">{{ s.duracion  }}</p>
-                    <a href="{% url 'detalleservicio' s.id %}" class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
-                        Ver servicio
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-center text-gray-400 mt-20 text-lg">
-            No hay productos creados
-        </div>
-        {% endif %}
+      </div>
     </div>
-</body>
-</html>
+    {% empty %}
+      <div class="col-span-full text-center py-10 bg-card-bg rounded-xl border border-border-color">
+        <i class="fas fa-inbox text-4xl text-gray-300 mb-3"></i>
+        <p class="text-xl text-gray-500">No hay servicios disponibles en este momento.</p>
+      </div>
+    {% endfor %}
+</div>
+    </div>
+</div>
+{% endblock %}

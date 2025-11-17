@@ -95,3 +95,54 @@
     right: 5%;
   }
 }
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none; /* Quitar subrayado de enlaces */
+}
+
+.btn-primary {
+    /* Un fallback sólido por si el gradiente falla */
+    background-color: #C13584; 
+    /* El gradiente real */
+    background-image: linear-gradient(45deg, #833AB4, #C13584, #E1306C, #F56040);
+    color: white !important; /* Forzar texto blanco */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(193, 53, 132, 0.4);
+    filter: brightness(1.1); /* Hacerlo un poco más brillante al pasar el mouse */
+}
+
+/* Botón Secundario/Outline (Opcional, por si usas bordes) */
+.btn-outline {
+    background: transparent;
+    border: 2px solid #C13584;
+    color: #C13584;
+}
+
+.btn-outline:hover {
+    background: #C13584;
+    color: white;
+}
+
+/* Ajustes para el Grid de Servicios */
+.products-grid {
+    display: grid;
+    /* Asegura que el grid responda bien */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 2rem;
+}
+
+.product-card {
+    display: flex;
+    flex-direction: column;
+    background-color: white; /* Asegurar fondo blanco en la tarjeta */
+    height: 100%;
+}

@@ -1,77 +1,44 @@
-<div class="main-content">
-    <h1>Contenido Principal de la Página</h1>
-    {% if user.is_authenticated %}
-        <p>¡Hola, {{ user.first_name }}! Estás autenticado.</p>
-        {%if user.rol == 'matrona'%}
-            <a>Ir al Panel de Matrona</a>
-        {% elif user.rol == 'usuario'%}
-            <a>Ir al Panel de Paciente</a>
-        {% endif %}
-   <a href="{% url 'crearservicio' %}" class="block px-4 py-2 rounded-md text-gray-200 hover:text-white mb-2">Crear servicio</a>
-      <a href="{% url 'verservicio' %}" class="block px-4 py-2 rounded-md text-gray-200 hover:text-white mb-2">Ver servicios</a>
-        <form method="post" action="{% url 'logout' %}" style="display: inline;">
-        {% csrf_token %} <button type="submit" class="btn btn-link">Cerrar Sesión</button>
-    </form>
-    {% else %}
-        <button id="open-login-modal-btn">Iniciar Sesión</button>
-    {% endif %}
-</div>
+{% extends 'base.html' %}
+{% load static %}
 
+{% block title %}Inicio - ZONFEM{% endblock %}
 
-<div id="login-modal" style="display: none;">
-    <h2>Iniciar Sesión</h2>
-    <form id="login-form" method="post" action="{% url 'login_ajax' %}">
-        {% csrf_token %}
-        {{ loginf.as_p }} 
-        <div id="login-errors" style="color: red;"></div>
-        <button type="submit">Entrar</button>
-        <button type="button" id="close-login-modal-btn">Cerrar</button>
-    </form>
-</div>
+{% block content %}
+    <div class="max-w-6xl mx-auto my-8 p-5 animate-fadeIn">
+        
+        {% include 'ZoneComponentes/carrusel.html' %} 
+        
+        <div class="sections flex justify-around py-10 px-5 flex-wrap gap-6 max-w-6xl mx-auto">
+            <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
+                <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
+                    <i class="fas fa-info-circle text-2xl"></i> Quien Somos
+                </h3>
+                <p class="leading-relaxed text-base mb-4 text-text-light">
+                    Somos un equipo de matronas dedicadas al cuidado integral de la mujer durante el embarazo, parto y postparto. Nuestra misión es acompañarte en esta etapa tan especial con profesionalismo y calidez humana.
+                </p>
+            </div>
+                    <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
+          <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
+            <i class="fas fa-user-nurse text-2xl"></i> Matronas
+          </h3>
+          <p class="leading-relaxed text-base mb-4 text-text-light">
+            Nuestras matronas cuentan con formación especializada y amplia experiencia en el acompañamiento de embarazos. Estamos comprometidas con tu bienestar y el de tu bebé en cada consulta.
+          </p>
+        </div>
+        <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
+          <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
+            <i class="fas fa-baby-carriage text-2xl"></i> Preparación al parto
+          </h3>
+          <p class="leading-relaxed text-base mb-4 text-text-light">
+            Ofrecemos cursos y talleres para prepararte física y emocionalmente para el parto y la maternidad. Aprende con expertas y comparte experiencias con otras futuras mamás.
+          </p>
+        </div>
+            </div>
+            
+    </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        const modal = $('#login-modal');
-        const loginForm = $('#login-form');
-        const errorDiv = $('#login-errors');
+    {% include 'ZoneServicios/servicios.html' %}
 
-        $('#open-login-modal-btn').click(function() {
-            modal.show(); 
-        });
-        $('#close-login-modal-btn').click(function() {
-            modal.hide(); 
-        });
-
-
-        loginForm.submit(function(e) {
-            e.preventDefault(); 
-            errorDiv.empty(); 
-
-            $.ajax({
-                type: loginForm.attr('method'),
-                url: loginForm.attr('action'),
-                data: loginForm.serialize(),
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                    
-                        window.location.href = response.redirect_url || "{% url 'home' %}";
-                    } else {
-                       
-                        let errorsHtml = '';
-                        for (const field in response.errors) {
-                            response.errors[field].forEach(error => {
-                                errorsHtml += `<p>${error}</p>`;
-                            });
-                        }
-                        errorDiv.html(errorsHtml);
-                    }
-                },
-                error: function() {
-                    errorDiv.html('<p>Ocurrió un error de conexión.</p>');
-                }
-            });
-        });
-    });
-</script>
+    {% include 'ZoneComponentes/modals.html' %}
+    {% include 'ZoneComponentes/contacto.html' %}
+{% endblock %}
