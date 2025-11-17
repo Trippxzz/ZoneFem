@@ -1,12 +1,17 @@
+from urllib import request
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponse, JsonResponse
-from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm
-from .models import Usuario, Servicio, ImagenServicio
+from django.http import HttpResponse, JsonResponse, Http404
+from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet
+from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import AuthenticationForm
+from datetime import datetime, timedelta
+from django.db import transaction
+from django.contrib.auth.decorators import login_required
+import calendar
 # Create your views here.
 
 def home(request):
@@ -126,3 +131,198 @@ def eliminarImagen(request, imagen_id=None, id=None):
         return redirect(reverse('editarservicio', args=[servicio_id]))
     return HttpResponse("Método no permitido", status=405)
 
+def generarHoras(dsemana: int, fecha: datetime.date, servicioid: int):
+    disponibilidad = disponibilidadServicio.objects.filter(
+        bloque_servicio__servicio__id=servicioid, 
+        dia_semana=dsemana
+    ).select_related('bloque_servicio__matrona') 
+    
+    if not disponibilidad.exists():
+        return []
+    
+    duracion = disponibilidad.first().bloque_servicio.servicio.duracion 
+    
+    reservas_existentes = Reservas.objects.filter(
+        servicio__id=servicioid, 
+        fecha=fecha, 
+        estado__in=['P', 'C']
+    ).values('matrona_id', 'hora_inicio')
+    
+    slots_ocupados = set((r['matrona_id'], r['hora_inicio'].strftime("%H:%M")) for r in reservas_existentes)
+    horas_disponibles = []
+    
+    for dispo in disponibilidad:
+        matrona_usuario = dispo.bloque_servicio.matrona
+        matrona_id = matrona_usuario.id
+        
+        matrona_nombre = matrona_usuario.get_full_name() or matrona_usuario.email 
+        
+        start_time = datetime.combine(fecha, dispo.hora_inicio)
+        end_time = datetime.combine(fecha, dispo.hora_fin)
+        
+        current_slot = start_time
+        
+        while current_slot + timedelta(minutes=duracion) <= end_time:
+            slot_inicio_str = current_slot.strftime("%H:%M")
+            slot_fin = current_slot + timedelta(minutes=duracion)
+            
+            if (matrona_id, slot_inicio_str) in slots_ocupados:
+                current_slot += timedelta(minutes=duracion)
+                continue
+                
+            horas_disponibles.append({
+                'matrona_id': matrona_id,
+                'matrona_nombre': matrona_nombre,
+                'hora_inicio': slot_inicio_str,
+                'hora_fin': slot_fin.strftime("%H:%M"),
+                'fecha': fecha.isoformat(),
+                'colorm': f"#{matrona_id * 100 % 0xFFFFFF:06x}" 
+            })
+            
+            current_slot += timedelta(minutes=duracion)
+            
+    return horas_disponibles
+
+def seleccionarHora(request, servicio_id):
+    servicio = get_object_or_404(Servicio, id=servicio_id)
+    
+    fecha_seleccionada_str = request.GET.get('fecha', datetime.now().strftime("%Y-%m-%d")) 
+    
+    try:
+        fecha_seleccionada = datetime.strptime(fecha_seleccionada_str, "%Y-%m-%d").date()
+        dia_semana_num = fecha_seleccionada.weekday()
+    except ValueError:
+        # Si la fecha es inválida, devuelve un error JSON
+        return JsonResponse({'slots': [], 'error': 'Formato de fecha inválido'}, status=400)
+        
+    # Generar los slots
+    slots = generarHoras(dia_semana_num, fecha_seleccionada, servicio_id)
+
+    return JsonResponse({'slots': slots, 'fecha': fecha_seleccionada_str})
+
+# views.py
+
+@login_required
+def reservarHora(request, servicio_id=None): 
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    
+    try:
+        servicio_id = request.POST.get('servicio_id', servicio_id) 
+        if not servicio_id:
+             raise ValueError("ID de servicio no proporcionado.")
+             
+        matrona_id = request.POST.get('matrona_id')
+        fecha_reserva_str = request.POST.get('fecha')
+        hora_inicio_str = request.POST.get('hora_inicio')
+        
+        servicio = get_object_or_404(Servicio, id=servicio_id)
+        matrona = get_object_or_404(Usuario, id=matrona_id, rol='matrona') 
+        cliente = request.user
+        
+        duracion = servicio.duracion 
+        
+        dt_inicio = datetime.strptime(f"{fecha_reserva_str} {hora_inicio_str}", "%Y-%m-%d %H:%M")
+        dt_fin = dt_inicio + timedelta(minutes=duracion)
+        
+    except (ValueError, Http404) as e:
+        return JsonResponse({'success': False, 'error': f'Datos de reserva inválidos: {e}'}, status=400)
+    
+    if Reservas.objects.filter(
+        matrona=matrona, 
+        fecha=dt_inicio.date(), 
+        hora_inicio=dt_inicio.time(),
+        estado__in=['P','C']).exists():
+        return JsonResponse({'success': False, 'error': 'La hora seleccionada ya no está disponible'}, status=409)
+    
+
+    with transaction.atomic():
+        reserva = Reservas.objects.create(
+
+            usuario=cliente, 
+            servicio=servicio,
+            matrona=matrona,
+            fecha=dt_inicio.date(),
+            hora_inicio=dt_inicio.time(),
+            hora_fin=dt_fin.time(),
+            estado='P' 
+        )
+        carrito, _ = Carrito.objects.get_or_create(usuario=cliente) 
+        
+        item = CarritoItem.objects.create(
+            carrito=carrito,
+            servicio=servicio,
+            cantidad=1
+        )
+        
+        reserva.carrito_item = item
+        reserva.save()
+        
+    return JsonResponse({'success': True, 'redirect_url': reverse('ver_carrito')})
+
+@login_required
+def verCarrito(request):
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+    except Carrito.DoesNotExist:
+        carrito = Carrito.objects.create(usuario=request.user)
+    
+    items = CarritoItem.objects.filter(carrito=carrito).select_related(
+        'reserva_asociada', 
+        'servicio',
+        'reserva_asociada__matrona__usuario'). prefetch_related('reserva_asociada__matrona')
+    
+    context = {'carrito': carrito, 'items': items, 'total': carrito.total}
+    return render(request, 'ZoneServicios/carrito.html', context)
+
+@login_required
+def eliminarItemCarrito(request, item_id):
+    try:
+        carrito = Carrito.objects.get(usuario=request.user)
+    except Carrito.DoesNotExist:
+        raise Http404("Carrito no encontrado")
+    item = get_object_or_404(CarritoItem, id=item_id, carrito=carrito)
+    with transaction.atomic():
+        try:
+            reserva = item.reserva_asociada
+            reserva.estado = 'X'  # Cancelada/Expirada
+            reserva.carrito_item = None
+            reserva.save()
+        except Reservas.DoesNotExist:
+            pass
+        item.delete()
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'item_id': item_id, 'total': carrito.total})
+    return redirect(reverse('vercarrito'))
+
+
+@login_required
+def panelServicio(request):
+    if request.user.rol != 'matrona':
+        return redirect('home')
+    if request.method == 'POST':
+        form = seleccionarServicioForm(matrona=request.user, data=request.POST)
+        if form.is_valid():
+            bloque_id = form.cleaned_data['bloque_servicio'].id
+            return redirect('editar_disponibilidad_servicio', bloque_id=bloque_id)
+    else:
+        form = seleccionarServicioForm(matrona=request.user)
+    return render(request, 'ZoneMatronas/panelservicio.html', {'form': form})
+
+@login_required
+def editardispoServicio(request, bloque_id):
+    if request.user.rol != 'matrona':
+        return redirect('home')
+
+    bloque = get_object_or_404(BloqueServicio, id=bloque_id, matrona=request.user)
+    if request.method == 'POST':
+        formset = disponibilidadServicioFormSet(request.POST, request.FILES, instance=bloque)
+        if formset.is_valid():
+            with transaction.atomic():
+                formset.save()
+            return redirect('panel_matrona_servicios')
+    else:
+        formset = disponibilidadServicioFormSet(instance=bloque)
+    context = {'formset': formset, 'bloque': bloque}
+    return render(request, 'ZoneMatronas/editardisponibilidad.html', context)
+       

@@ -1,5 +1,6 @@
 from django import forms
-from .models import Usuario, Servicio
+from .models import Usuario, Servicio, BloqueServicio, disponibilidadServicio
+from django.forms.models import inlineformset_factory
 from datetime import date
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
@@ -65,3 +66,17 @@ class MultiFileInput(forms.ClearableFileInput):
 
 class ServicioImagenForm(forms.Form):
     imagenes = forms.ImageField(widget=MultiFileInput(attrs={'multiple': True}), required=False)
+
+disponibilidadServicioFormSet = inlineformset_factory(
+    BloqueServicio,
+    disponibilidadServicio,
+    fields=['dia_semana', 'hora_inicio', 'hora_fin'],
+    extra=1,
+    can_delete=True
+)
+
+class seleccionarServicioForm(forms.Form):
+    bloque_servicio = forms.ModelChoiceField(queryset=BloqueServicio.objects.none(), label="Seleccione un Servicio")
+    def __init__(self, matrona, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bloque_servicio'].queryset = BloqueServicio.objects.filter(matrona=matrona)

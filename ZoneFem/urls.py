@@ -17,6 +17,12 @@ urlpatterns = [
     path('eliminar_servicio/<int:id>/', views.eliminarServicio, name='eliminarservicio'),
     path('eliminar_imagen/<int:id>/', views.eliminarImagen, name='eliminarimagenservicio'),
     path('cambiar_principal/<int:imagen_id>/', views.cambiar_principal, name='cambiar_principal'),
+    path('carrito/', views.verCarrito, name='ver_carrito'),
+    path('carrito/eliminar/<int:item_id>/', views.eliminarItemCarrito, name='eliminaritemcarrito'),
+    path('panel/', views.panelServicio, name='panel_matrona_servicios'),
+    path('disponibilidad/editar/<int:bloque_id>/', views.editardispoServicio, name='editar_disponibilidad_servicio'),
+    path('seleccionar_hora/<int:servicio_id>/', views.seleccionarHora, name='seleccionar_hora'),
+    path('reservar_hora/', views.reservarHora, name='reservar_hora')
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    
