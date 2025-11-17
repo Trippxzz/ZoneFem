@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Selección de Hora para {{ serv.nombre }}{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h2>Seleccionar Hora para {{ serv.nombre }}</h2>
+        <p>Esta página se usará solo temporalmente o se integrará mediante AJAX.</p>
+
+        <div id="slots-output-temp">
+            {% if slots %}
+                {% for slot in slots %}
+                    <p style="color: {{ slot.colorm }};">
+                        {{ slot.hora_inicio }} - {{ slot.colorm }} | Matrona: {{ slot.matrona_nombre }}
+                    </p>
+                {% endfor %}
+            {% else %}
+                <p>No hay slots disponibles para la fecha seleccionada.</p>
+            {% endif %}
+        </div>
+        
+        <a href="{% url 'detalleservicio' serv.id %}" class="btn btn-secondary mt-3">Volver al Servicio</a>
+    </div>
+{% endblock %}

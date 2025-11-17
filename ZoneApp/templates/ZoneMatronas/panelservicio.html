@@ -1,0 +1,35 @@
+{% comment %} {% extends "base.html" %}  {% endcomment %}
+{% block title %}Panel de Servicios - Matrona{% endblock %}
+
+{% block content %}
+    <div class="container my-5">
+        <h2>Panel de Gestión de Servicios</h2>
+        <p>Selecciona un servicio para definir o actualizar tu disponibilidad horaria.</p>
+        <hr>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="{{ form.bloque_servicio.id_for_label }}" class="form-label">
+                    {{ form.bloque_servicio.label }}
+                </label>
+                {{ form.bloque_servicio }}
+                {% if form.bloque_servicio.errors %}
+                    <div class="text-danger">{{ form.bloque_servicio.errors }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Editar Disponibilidad
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Volver</a>
+        </form>
+
+        {% if not form.bloque_servicio.queryset %}
+            <div class="alert alert-warning mt-4" role="alert">
+                Aún no tienes bloques de servicio asignados. Contacta al administrador para definir qué servicios ofreces.
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

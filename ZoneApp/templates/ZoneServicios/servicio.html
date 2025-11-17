@@ -29,4 +29,115 @@
             </div>
         </div>
     </div>
+    <div id="calendar-container" class="my-5">
+    <h3>Selecciona Fecha y Hora</h3>
+    <p class="text-muted">La duración del servicio es de {{ serv.duracion }} minutos.</p>
+    
+    <input type="date" id="date-selector" class="form-control mb-3" required>
+    
+    <div id="slots-output" class="row">
+        <p id="loading-message">Selecciona una fecha para ver las horas disponibles.</p>
+    </div>
+</div>
+</body>
 </html>
+
+<script>
+    const servicioId = {{ serv.id }};
+    const dateSelector = document.getElementById('date-selector');
+    const slotsOutput = document.getElementById('slots-output');
+    const loadingMessage = document.getElementById('loading-message');
+
+    // 1. Función para cargar slots vía AJAX
+    function loadSlots(selectedDate) {
+        slotsOutput.innerHTML = '';
+        loadingMessage.textContent = 'Cargando disponibilidad...';
+        
+        // Llama a la vista que genera los slots (JSON)
+        fetch(`/seleccionar_hora/${servicioId}/?fecha=${selectedDate}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar slots.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                loadingMessage.textContent = '';
+                if (data.slots && data.slots.length > 0) {
+                    data.slots.forEach(slot => {
+                        // 2. Dibujar cada slot como un botón o tarjeta
+                        const button = document.createElement('button');
+                        button.className = 'btn btn-outline-primary m-1 slot-btn';
+                        button.style.borderColor = slot.colorm;
+                        button.style.color = slot.colorm;
+                        button.innerHTML = `
+                            <strong>${slot.hora_inicio}</strong> 
+                            <span class="badge" style="background-color: ${slot.colorm};">
+                                ${slot.matrona_nombre.split(' ')[0]}
+                            </span>
+                        `;
+                        
+                        // 3. Asignar datos del slot para la reserva POST
+                        button.dataset.matronaId = slot.matrona_id;
+                        button.dataset.horaInicio = slot.hora_inicio;
+                        button.dataset.fecha = slot.fecha;
+                        
+                        slotsOutput.appendChild(button);
+                    });
+                } else {
+                    slotsOutput.innerHTML = '<div class="alert alert-info">No hay disponibilidad para la fecha seleccionada.</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                slotsOutput.innerHTML = '<div class="alert alert-danger">Error al cargar la disponibilidad.</div>';
+            });
+    }
+
+    // Event listener para el cambio de fecha
+    dateSelector.addEventListener('change', (e) => {
+        loadSlots(e.target.value);
+    });
+
+    // 4. Función para reservar y agregar al carrito (POST)
+    slotsOutput.addEventListener('click', (e) => {
+        const slotBtn = e.target.closest('.slot-btn');
+        if (!slotBtn) return;
+        
+        const matronaId = slotBtn.dataset.matronaId;
+        const horaInicio = slotBtn.dataset.horaInicio;
+        const fecha = slotBtn.dataset.fecha;
+        
+        const formData = new FormData();
+        formData.append('servicio_id', servicioId);
+        formData.append('matrona_id', matronaId);
+        formData.append('fecha', fecha);
+        formData.append('hora_inicio', horaInicio);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); // Necesario para POST
+        
+        fetch("{% url 'reservar_hora' %}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('¡Reserva agregada al carrito!');
+                window.location.href = data.redirect_url;
+            } else {
+                alert(`Error al reservar: ${data.error}`);
+                // Recargar slots para reflejar el bloqueo si hubo conflicto
+                loadSlots(dateSelector.value); 
+            }
+        })
+        .catch(error => {
+            console.error('Error de red:', error);
+            alert('Error de conexión al servidor.');
+        });
+    });
+    
+    // Establecer la fecha mínima a hoy
+    dateSelector.min = new Date().toISOString().split('T')[0];
+    dateSelector.value = dateSelector.min;
+    loadSlots(dateSelector.min); // Cargar slots iniciales
+</script>
