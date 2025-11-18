@@ -192,7 +192,7 @@ function generateBotResponse(userMessage) {
   const lowerMessage = userMessage.toLowerCase();
   
   if (lowerMessage.includes('hola') || lowerMessage.includes('buenas')) {
-    return '¡Hola! Soy tu asistente de ZONFEM. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre consultas, cursos, o consultar el estado de tu envío.';
+    return '¡Hola! Soy tu asistente de ZONEFEM. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre consultas, cursos, o consultar el estado de tu envío.';
   } else if (lowerMessage.includes('cita') || lowerMessage.includes('consulta') || lowerMessage.includes('agendar')) {
     return 'Puedes agendar una consulta haciendo clic en "Agendar consulta" en nuestra página de inicio o en la sección de consultas. También puedes contactarnos directamente por teléfono o WhatsApp.';
   } else if (lowerMessage.includes('curso') || lowerMessage.includes('taller') || lowerMessage.includes('clase')) {

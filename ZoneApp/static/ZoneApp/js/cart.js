@@ -1,6 +1,10 @@
 // --- Funciones del Carrito ---
 function updateCartDisplay() {
   const cartItemsElement = document.getElementById('cartItems');
+  if (!cartItemsElement || !cartCountElement) {
+      console.warn("Elementos del carrito no encontrados en el DOM todavía.");
+      return;
+  }
   cartCountElement.textContent = cart.reduce((total, item) => total + item.quantity, 0);
   
   if (cart.length === 0) {
