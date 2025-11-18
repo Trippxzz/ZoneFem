@@ -1,60 +1,116 @@
-
+{% extends 'base.html' %}
 {% load static %}
 
-<div id="contacto" class="content-page max-w-6xl mx-auto my-8 p-5 animate-fadeIn hidden">
-  <h1 class="page-title text-4xl mb-6 text-instagram-gradient text-center pb-3 border-b border-border-color">
-    <i class="fas fa-address-book"></i> Contacto Directo
-  </h1>
+{% block title %}Contacto - ZONEFEM{% endblock %}
+
+{% block content %}
+
+<div id="contacto-section" class="max-w-6xl mx-auto my-12 px-5 animate-fadeIn">
   
-  <div class="contact-form bg-card-bg p-9 rounded-2xl shadow-medium border border-border-color max-w-3xl mx-auto">
-    <p class="text-center text-lg text-text-dark mb-8">
-        Envíanos un mensaje y te responderemos a la brevedad.
-    </p>
+  <div class="text-center mb-10">
+    <h2 class="text-4xl font-bold text-instagram-gradient inline-block mb-2">
+      <i class="fas fa-envelope-open-text mr-2"></i> Contáctanos
+    </h2>
+    <p class="text-text-light text-lg">Estamos aquí para resolver tus dudas y acompañarte.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
     
-    <form method="POST" action="{% url 'contacto' %}">
+    <div class="md:col-span-1 space-y-6">
+      
+      <div class="bg-card-bg p-6 rounded-2xl shadow-medium border border-border-color flex items-start gap-4 transition-transform hover:-translate-y-1">
+        <div class="w-12 h-12 rounded-full bg-instagram-gradient text-white flex items-center justify-center text-xl flex-shrink-0 shadow-lg shadow-instagram-pink/30">
+          <i class="fas fa-phone-alt"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-text-dark text-lg mb-1">Teléfono</h3>
+          <p class="text-text-light">+56 9 1234 5678</p>
+          <p class="text-xs text-instagram-pink font-medium mt-1">Lunes a Viernes, 9:00 - 18:00</p>
+        </div>
+      </div>
+
+      <div class="bg-card-bg p-6 rounded-2xl shadow-medium border border-border-color flex items-start gap-4 transition-transform hover:-translate-y-1">
+        <div class="w-12 h-12 rounded-full bg-instagram-gradient text-white flex items-center justify-center text-xl flex-shrink-0 shadow-lg shadow-instagram-pink/30">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-text-dark text-lg mb-1">Email</h3>
+          <p class="text-text-light break-all">contacto@ZONEFEM.cl</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="md:col-span-2 bg-card-bg p-8 md:p-10 rounded-3xl shadow-heavy border border-border-color relative overflow-hidden">
+      
+      <div class="absolute top-0 right-0 w-32 h-32 bg-instagram-pink opacity-5 rounded-bl-full -mr-10 -mt-10 pointer-events-none"></div>
+      
+      <form method="POST" action="{% url 'contacto' %}" class="relative z-10">
         {% csrf_token %}
         
-        <div class="form-group-modal mb-6">
-          <label for="nombre" class="block mb-3 font-medium flex items-center gap-2">
-            <i class="fas fa-user"></i> Nombre
-          </label>
-          <input type="text" id="nombre" name="nombre" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Tu nombre completo" required value="{{ form.nombre.value|default:'' }}">
-          {% if form.nombre.errors %}
-            <p class="text-red-500 text-sm mt-1">{{ form.nombre.errors.0 }}</p>
-          {% endif %}
+        {% if messages %}
+          <div class="mb-6 space-y-2">
+            {% for message in messages %}
+              <div class="p-4 rounded-xl text-white font-medium text-center shadow-md {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} animate-slideIn">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="group">
+            <label for="nombre" class="block mb-2 font-semibold text-text-dark text-sm ml-1">Nombre Completo</label>
+            <div class="relative">
+              <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-instagram-pink transition-colors"></i>
+              <input type="text" id="nombre" name="nombre" required 
+                     class="w-full py-3 pl-11 pr-4 bg-light-bg border border-border-color rounded-xl outline-none transition-all duration-300 focus:bg-white focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10"
+                     placeholder="Ej: María Pérez" value="{{ form.nombre.value|default:'' }}">
+            </div>
+            {% if form.nombre.errors %} <p class="text-red-500 text-xs mt-1 ml-1">{{ form.nombre.errors.0 }}</p> {% endif %}
+          </div>
+
+          <div class="group">
+            <label for="phone" class="block mb-2 font-semibold text-text-dark text-sm ml-1">Teléfono</label>
+            <div class="relative">
+              <i class="fas fa-mobile-alt absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-instagram-pink transition-colors"></i>
+              <input type="tel" id="phone" name="phone" 
+                     class="w-full py-3 pl-11 pr-4 bg-light-bg border border-border-color rounded-xl outline-none transition-all duration-300 focus:bg-white focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10"
+                     placeholder="+56 9..." value="{{ form.phone.value|default:'' }}">
+            </div>
+          </div>
         </div>
-        
-        <div class="form-group-modal mb-6">
-          <label for="phone" class="block mb-3 font-medium flex items-center gap-2">
-            <i class="fas fa-phone"></i> Número de teléfono
-          </label>
-          <input type="tel" id="phone" name="phone" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Tu número de teléfono" value="{{ form.phone.value|default:'' }}">
+
+        <div class="group mb-6">
+          <label for="email" class="block mb-2 font-semibold text-text-dark text-sm ml-1">Correo Electrónico</label>
+          <div class="relative">
+            <i class="fas fa-at absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-instagram-pink transition-colors"></i>
+            <input type="email" id="email" name="email" required 
+                   class="w-full py-3 pl-11 pr-4 bg-light-bg border border-border-color rounded-xl outline-none transition-all duration-300 focus:bg-white focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10"
+                   placeholder="tu@correo.com" value="{{ form.email.value|default:'' }}">
+          </div>
+          {% if form.email.errors %} <p class="text-red-500 text-xs mt-1 ml-1">{{ form.email.errors.0 }}</p> {% endif %}
         </div>
-        
-        <div class="form-group-modal mb-6">
-          <label for="email" class="block mb-3 font-medium flex items-center gap-2">
-            <i class="fas fa-envelope"></i> Correo electrónico
-          </label>
-          <input type="email" id="email" name="email" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Tu correo electrónico" required value="{{ form.email.value|default:'' }}">
-          {% if form.email.errors %}
-            <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
-          {% endif %}
+
+        <div class="group mb-8">
+          <label for="message" class="block mb-2 font-semibold text-text-dark text-sm ml-1">¿En qué podemos ayudarte?</label>
+          <div class="relative">
+            <i class="fas fa-comment-dots absolute left-4 top-5 text-gray-400 group-focus-within:text-instagram-pink transition-colors"></i>
+            <textarea id="message" name="message" required rows="4"
+                      class="w-full py-3 pl-11 pr-4 bg-light-bg border border-border-color rounded-xl outline-none transition-all duration-300 focus:bg-white focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10 resize-none"
+                      placeholder="Escribe tu consulta aquí...">{{ form.message.value|default:'' }}</textarea>
+          </div>
+          {% if form.message.errors %} <p class="text-red-500 text-xs mt-1 ml-1">{{ form.message.errors.0 }}</p> {% endif %}
         </div>
-        
-        <div class="form-group-modal mb-6">
-          <label for="message" class="block mb-3 font-medium flex items-center gap-2">
-            <i class="fas fa-comment"></i> Comentario
-          </label>
-          <textarea id="message" name="message" class="w-full py-3 px-4 border border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10 min-h-40 resize-vertical" placeholder="Escribe tu mensaje aquí. Cuéntanos en qué podemos ayudarte." required>{{ form.message.value|default:'' }}</textarea>
-          {% if form.message.errors %}
-            <p class="text-red-500 text-sm mt-1">{{ form.message.errors.0 }}</p>
-          {% endif %}
+
+        <div class="text-right">
+          <button type="submit" class="w-full md:w-auto py-3 px-8 rounded-full font-bold text-white bg-instagram-gradient shadow-md transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-instagram-pink/40 flex items-center justify-center gap-2">
+            <span>Enviar Mensaje</span>
+            <i class="fas fa-paper-plane"></i>
+          </button>
         </div>
-        
-        <button type="submit" class="submit-btn bg-instagram-gradient text-white border-none py-3 px-9 rounded-full text-base font-bold cursor-pointer transition-all duration-300 block mx-auto mt-8 min-w-48 hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40">
-          <i class="fas fa-paper-plane"></i> Enviar mensaje
-        </button>
-    </form>
-    
+
+      </form>
+    </div>
   </div>
 </div>
+{% endblock %}

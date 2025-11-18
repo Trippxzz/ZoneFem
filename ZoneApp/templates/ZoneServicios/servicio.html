@@ -1,143 +1,318 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
- <h1 class="text-3xl font-extrabold tracking-tight mb-6">{{serv.Nombre}}</h1>         <a href="{% url 'editarservicio' serv.id %}" class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
-                        Editar servicio
-                    </a>
-<body class="bg-[#101416] min-h-screen text-white">
-    <div class="max-w-7xl mx-auto px-4 py-10">
-        <div class="bg-[#181c20] rounded-xl shadow-lg overflow-hidden flex flex-col">
-            {% if serv.imagen_principal %}
-                <img src="{{ serv.imagen_principal.imagen.url }}" alt="{{ serv.nombre }}" class="h-48 w-full object-cover">
-            {% else %}
-                <img src="/static/img/no-image.png" alt="Sin imagen" class="h-48 w-full object-cover">
-            {% endif %}
-            <div class="p-6 flex-1 flex flex-col">
-                <p class="text-blue-400 font-semibold mb-2">${{ serv.precio }}</p>
-                <p class="text-gray-300 text-sm mb-4 flex-1 truncate">{{ serv.descripcion  }}</p>
-                <p class="text-gray-300 text-sm mb-4 flex-1 truncate">{{ serv.duracion  }}</p>
-                                <a href= class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
-                    Agregar al carrito
-                </a>
-                <a href= class="inline-block mt-auto px-4 py-2 bg-yellow-700 hover:bg-yellow-800 text-white rounded-lg font-semibold transition">
-                    Volver
-                </a>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ serv.nombre }} - Reserva{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto my-10 px-5 animate-fadeIn">
+
+  <a href="{% url 'verservicio' %}" class="inline-flex items-center gap-2 text-text-light font-medium mb-6 transition-colors hover:text-instagram-pink">
+    <i class="fas fa-arrow-left"></i> Volver a Servicios
+  </a>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="lg:col-span-1 space-y-6">
+      <div class="bg-card-bg rounded-3xl shadow-medium border border-border-color overflow-hidden sticky top-24">
+        <div class="h-48 bg-gray-200 relative overflow-hidden group">
+          {% if serv.imagen_principal %}
+            <img src="{{ serv.imagen_principal.imagen.url }}" alt="{{ serv.nombre }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+          {% else %}
+            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100 text-instagram-pink text-4xl">
+              <i class="fas fa-stethoscope"></i>
             </div>
+          {% endif %}
+          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-instagram-pink shadow-sm">
+            {{ serv.duracion }} min
+          </div>
         </div>
+
+        <div class="p-6">
+          <h1 class="text-2xl font-bold text-text-dark mb-2">{{ serv.nombre }}</h1>
+          <p class="text-2xl font-extrabold text-instagram-gradient mb-4">
+            ${{ serv.precio|default:"0" }} <span class="text-sm text-text-light font-normal">CLP</span>
+          </p>
+          
+          <div class="h-px bg-gray-100 my-4"></div>
+          
+          <h3 class="font-bold text-sm text-text-dark mb-2 uppercase tracking-wider opacity-70">Descripción</h3>
+          <p class="text-text-light leading-relaxed text-sm mb-6">
+            {{ serv.descripcion|default:"Descripción detallada del servicio." }}
+          </p>
+
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 items-start">
+            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+            <p class="text-sm text-blue-800">
+              Selecciona fecha y hora para continuar. El pago se realiza al finalizar.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="calendar-container" class="my-5">
-    <h3>Selecciona Fecha y Hora</h3>
-    <p class="text-muted">La duración del servicio es de {{ serv.duracion }} minutos.</p>
-    
-    <input type="date" id="date-selector" class="form-control mb-3" required>
-    
-    <div id="slots-output" class="row">
-        <p id="loading-message">Selecciona una fecha para ver las horas disponibles.</p>
+
+    <div class="lg:col-span-2">
+      <div class="bg-card-bg rounded-3xl shadow-heavy border border-border-color p-6 md:p-8">
+        
+        <h2 class="text-xl font-bold text-text-dark mb-6 flex items-center gap-2">
+          <i class="fas fa-calendar-alt text-instagram-pink"></i> Selecciona tu fecha y hora
+        </h2>
+
+        <div class="flex flex-col md:flex-row gap-8">
+          
+          <div class="flex-1">
+             <div class="flex justify-between items-center mb-4">
+               <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors" onclick="cambiarMes(-1)">
+                 <i class="fas fa-chevron-left"></i>
+               </button>
+               <h3 class="font-bold text-lg capitalize" id="currentMonthLabel">Cargando...</h3>
+               <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors" onclick="cambiarMes(1)">
+                 <i class="fas fa-chevron-right"></i>
+               </button>
+             </div>
+
+             <div class="grid grid-cols-7 text-center mb-2">
+               <span class="text-xs font-bold text-gray-400 py-2">Do</span>
+               <span class="text-xs font-bold text-gray-400 py-2">Lu</span>
+               <span class="text-xs font-bold text-gray-400 py-2">Ma</span>
+               <span class="text-xs font-bold text-gray-400 py-2">Mi</span>
+               <span class="text-xs font-bold text-gray-400 py-2">Ju</span>
+               <span class="text-xs font-bold text-gray-400 py-2">Vi</span>
+               <span class="text-xs font-bold text-gray-400 py-2">Sa</span>
+             </div>
+
+             <div class="grid grid-cols-7 gap-1 text-sm" id="calendarDays">
+                </div>
+          </div>
+
+          <div class="hidden md:block w-px bg-gray-200"></div>
+
+          <div class="flex-1 flex flex-col">
+            <div class="mb-4">
+              <h3 class="font-bold text-text-dark mb-1">Horas disponibles</h3>
+              <p class="text-xs text-text-light" id="selectedDateLabel">Selecciona un día</p>
+            </div>
+            
+            <div id="slots-container" class="grid grid-cols-2 gap-3 mb-6 overflow-y-auto max-h-[300px] pr-1 custom-scrollbar min-h-[150px]">
+               <p class="text-gray-400 text-sm col-span-2 text-center py-10">
+                   <i class="fas fa-mouse-pointer mb-2 block text-2xl"></i>
+                   Selecciona una fecha en el calendario
+               </p>
+            </div>
+
+            <div class="mt-auto bg-gray-50 rounded-xl p-4 transition-all duration-300" id="reservationSummary" style="opacity: 0.5; pointer-events: none;">
+              <div class="flex justify-between items-center mb-4 text-sm">
+                <span class="text-gray-500">Seleccionado:</span>
+                <span class="font-bold text-text-dark" id="summaryText">--/--/-- --:--</span>
+              </div>
+              
+              <form id="reservationForm" method="POST" action="{% url 'reservar_hora' %}">
+                {% csrf_token %}
+                <input type="hidden" name="servicio_id" value="{{ serv.id }}">
+                <input type="hidden" name="matrona_id" id="inputMatronaId">
+                <input type="hidden" name="fecha" id="inputFecha">
+                <input type="hidden" name="hora_inicio" id="inputHoraInicio">
+
+                <button type="submit" class="w-full py-3.5 rounded-full bg-instagram-gradient text-white font-bold shadow-lg shadow-instagram-pink/30 hover:-translate-y-1 hover:shadow-xl transition-all flex items-center justify-center gap-2">
+                  Confirmar Reserva <i class="fas fa-arrow-right"></i>
+                </button>
+              </form>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+      <p class="text-center text-xs text-gray-400 mt-6">
+        <i class="fas fa-lock"></i> Tus datos están protegidos.
+      </p>
     </div>
+
+  </div>
 </div>
-</body>
-</html>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+  
+  /* Estilos para estado seleccionado y hoy */
+  .day-btn:hover:not(:disabled) { background-color: #fce7f3; color: #C13584; }
+  .day-btn.selected { background: linear-gradient(45deg, #833AB4, #C13584, #E1306C); color: white; transform: scale(1.1); font-weight: bold; box-shadow: 0 4px 10px rgba(193, 53, 132, 0.3); border: none; }
+  .day-btn.today { border: 1px solid #C13584; color: #C13584; font-weight: bold; }
+  
+  /* Animación de carga */
+  .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #C13584; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
 
 <script>
-    const servicioId = {{ serv.id }};
-    const dateSelector = document.getElementById('date-selector');
-    const slotsOutput = document.getElementById('slots-output');
-    const loadingMessage = document.getElementById('loading-message');
+  const servicioId = {{ serv.id }};
+  const calendarDays = document.getElementById('calendarDays');
+  const currentMonthLabel = document.getElementById('currentMonthLabel');
+  const slotsContainer = document.getElementById('slots-container');
+  const selectedDateLabel = document.getElementById('selectedDateLabel');
+  const reservationSummary = document.getElementById('reservationSummary');
+  const summaryText = document.getElementById('summaryText');
 
-    // 1. Función para cargar slots vía AJAX
-    function loadSlots(selectedDate) {
-        slotsOutput.innerHTML = '';
-        loadingMessage.textContent = 'Cargando disponibilidad...';
-        
-        // Llama a la vista que genera los slots (JSON)
-        fetch(`/seleccionar_hora/${servicioId}/?fecha=${selectedDate}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al cargar slots.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                loadingMessage.textContent = '';
-                if (data.slots && data.slots.length > 0) {
-                    data.slots.forEach(slot => {
-                        // 2. Dibujar cada slot como un botón o tarjeta
-                        const button = document.createElement('button');
-                        button.className = 'btn btn-outline-primary m-1 slot-btn';
-                        button.style.borderColor = slot.colorm;
-                        button.style.color = slot.colorm;
-                        button.innerHTML = `
-                            <strong>${slot.hora_inicio}</strong> 
-                            <span class="badge" style="background-color: ${slot.colorm};">
-                                ${slot.matrona_nombre.split(' ')[0]}
-                            </span>
-                        `;
-                        
-                        // 3. Asignar datos del slot para la reserva POST
-                        button.dataset.matronaId = slot.matrona_id;
-                        button.dataset.horaInicio = slot.hora_inicio;
-                        button.dataset.fecha = slot.fecha;
-                        
-                        slotsOutput.appendChild(button);
-                    });
-                } else {
-                    slotsOutput.innerHTML = '<div class="alert alert-info">No hay disponibilidad para la fecha seleccionada.</div>';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                slotsOutput.innerHTML = '<div class="alert alert-danger">Error al cargar la disponibilidad.</div>';
-            });
-    }
+  // Inputs del formulario
+  const inputMatronaId = document.getElementById('inputMatronaId');
+  const inputFecha = document.getElementById('inputFecha');
+  const inputHoraInicio = document.getElementById('inputHoraInicio');
 
-    // Event listener para el cambio de fecha
-    dateSelector.addEventListener('change', (e) => {
-        loadSlots(e.target.value);
-    });
 
-    // 4. Función para reservar y agregar al carrito (POST)
-    slotsOutput.addEventListener('click', (e) => {
-        const slotBtn = e.target.closest('.slot-btn');
-        if (!slotBtn) return;
-        
-        const matronaId = slotBtn.dataset.matronaId;
-        const horaInicio = slotBtn.dataset.horaInicio;
-        const fecha = slotBtn.dataset.fecha;
-        
-        const formData = new FormData();
-        formData.append('servicio_id', servicioId);
-        formData.append('matrona_id', matronaId);
-        formData.append('fecha', fecha);
-        formData.append('hora_inicio', horaInicio);
-        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}'); // Necesario para POST
-        
-        fetch("{% url 'reservar_hora' %}", {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('¡Reserva agregada al carrito!');
-                window.location.href = data.redirect_url;
-            } else {
-                alert(`Error al reservar: ${data.error}`);
-                // Recargar slots para reflejar el bloqueo si hubo conflicto
-                loadSlots(dateSelector.value); 
-            }
-        })
-        .catch(error => {
-            console.error('Error de red:', error);
-            alert('Error de conexión al servidor.');
-        });
-    });
-    
-    // Establecer la fecha mínima a hoy
-    dateSelector.min = new Date().toISOString().split('T')[0];
-    dateSelector.value = dateSelector.min;
-    loadSlots(dateSelector.min); // Cargar slots iniciales
+  let currDate = new Date();
+  let currYear = currDate.getFullYear();
+  let currMonth = currDate.getMonth();
+  let selectedDateObj = null; 
+
+  const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+
+  function renderCalendar() {
+      let firstDayofMonth = new Date(currYear, currMonth, 1).getDay(); 
+      let lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate(); 
+      let lastDayofMonth = new Date(currYear, currMonth, lastDateofMonth).getDay(); 
+      let lastDateofLastMonth = new Date(currYear, currMonth, 0).getDate(); 
+      
+      let liTag = "";
+
+
+      for (let i = firstDayofMonth; i > 0; i--) { 
+          liTag += `<div class="aspect-square text-gray-300 text-center py-2 opacity-30">${lastDateofLastMonth - i + 1}</div>`;
+      }
+
+
+      for (let i = 1; i <= lastDateofMonth; i++) { 
+          let isToday = i === new Date().getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "today" : "";
+          let isSelected = selectedDateObj && i === selectedDateObj.getDate() && currMonth === selectedDateObj.getMonth() && currYear === selectedDateObj.getFullYear() ? "selected" : "";
+          
+
+          let checkDate = new Date(currYear, currMonth, i);
+          let todayDate = new Date();
+          todayDate.setHours(0,0,0,0);
+          
+          let isDisabled = checkDate < todayDate ? "disabled class='aspect-square rounded-full flex items-center justify-center text-gray-300 cursor-not-allowed'" : `class='day-btn aspect-square rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer font-medium ${isToday} ${isSelected}' onclick="selectDay(${i})"`;
+
+          liTag += `<button ${isDisabled}>${i}</button>`;
+      }
+
+      currentMonthLabel.innerText = `${months[currMonth]} ${currYear}`;
+      calendarDays.innerHTML = liTag;
+  }
+
+  function cambiarMes(direction) {
+      currMonth = currMonth + direction;
+      if(currMonth < 0 || currMonth > 11) { 
+          currDate = new Date(currYear, currMonth, new Date().getDate());
+          currYear = currDate.getFullYear(); 
+          currMonth = currDate.getMonth(); 
+      } else {
+          currDate = new Date(); 
+      }
+      renderCalendar();
+  }
+
+ 
+  function selectDay(day) {
+
+      selectedDateObj = new Date(currYear, currMonth, day);
+      renderCalendar(); 
+
+      const offset = selectedDateObj.getTimezoneOffset();
+      const dateLocal = new Date(selectedDateObj.getTime() - (offset*60*1000));
+      const dateString = dateLocal.toISOString().split('T')[0];
+
+
+      selectedDateLabel.innerText = `Para el ${day} de ${months[currMonth]}`;
+      
+
+      disableReservation();
+
+
+      loadSlots(dateString);
+  }
+
+  function loadSlots(dateString) {
+      slotsContainer.innerHTML = '<div class="col-span-2 py-10"><div class="loading-spinner"></div><p class="text-center text-xs text-gray-400 mt-2">Buscando horas...</p></div>';
+
+      fetch(`/seleccionar_hora/${servicioId}/?fecha=${dateString}`)
+      .then(response => {
+          if (!response.ok) throw new Error('Error de red');
+          return response.json();
+      })
+      .then(data => {
+          slotsContainer.innerHTML = ''; 
+          
+          if (data.slots && data.slots.length > 0) {
+              data.slots.forEach(slot => {
+
+                  const btn = document.createElement('button');
+                  btn.className = 'slot-item py-3 px-4 rounded-xl border border-border-color bg-white text-text-dark hover:border-instagram-pink hover:bg-pink-50 transition-all text-sm font-medium flex flex-col justify-center items-center group relative w-full text-center shadow-sm';
+                  
+                    /// ESTO SE MODIFICARÁ EN BREVE SEGUN EL COLOR QUE ESCOJA LA MATRONA EN SU PERFIL
+                  btn.style.borderLeft = `4px solid ${slot.colorm}`;
+                  
+                  btn.innerHTML = `
+                    <span class="text-base font-bold">${slot.hora_inicio}</span>
+                    <span class="text-xs text-text-light mt-1 flex items-center gap-1">
+                       <i class="fas fa-user-nurse text-xs" style="color:${slot.colorm}"></i> ${slot.matrona_nombre.split(' ')[0]}
+                    </span>
+                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-instagram-pink">
+                        <i class="far fa-check-circle"></i>
+                    </div>
+                  `;
+
+       
+                  btn.onclick = () => selectHour(btn, slot, dateString);
+                  
+                  slotsContainer.appendChild(btn);
+              });
+          } else {
+              slotsContainer.innerHTML = '<div class="col-span-2 py-8 text-center text-gray-400 bg-gray-50 rounded-xl"><i class="far fa-calendar-times text-2xl mb-2 block"></i>No hay horas disponibles para esta fecha.</div>';
+          }
+      })
+      .catch(error => {
+          console.error(error);
+          slotsContainer.innerHTML = '<div class="col-span-2 text-red-500 text-center text-sm">Error al cargar disponibilidad.</div>';
+      });
+  }
+
+
+  function selectHour(btnElement, slotData, dateString) {
+
+      document.querySelectorAll('.slot-item').forEach(b => {
+          b.classList.remove('ring-2', 'ring-instagram-pink', 'bg-pink-50');
+          b.classList.add('border-border-color');
+      });
+
+
+      btnElement.classList.remove('border-border-color');
+      btnElement.classList.add('ring-2', 'ring-instagram-pink', 'bg-pink-50');
+
+
+      inputMatronaId.value = slotData.matrona_id;
+      inputFecha.value = slotData.fecha; 
+      inputHoraInicio.value = slotData.hora_inicio;
+
+   
+      summaryText.innerText = `${dateString} a las ${slotData.hora_inicio} con ${slotData.matrona_nombre.split(' ')[0]}`;
+      
+
+      reservationSummary.style.opacity = "1";
+      reservationSummary.style.pointerEvents = "auto";
+  }
+
+  function disableReservation() {
+      reservationSummary.style.opacity = "0.5";
+      reservationSummary.style.pointerEvents = "none";
+      summaryText.innerText = "--/--/-- --:--";
+      inputMatronaId.value = "";
+      inputFecha.value = "";
+      inputHoraInicio.value = "";
+  }
+
+
+  renderCalendar();
 </script>
+{% endblock %}

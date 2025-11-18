@@ -1,153 +1,88 @@
 {% load static %}
 
-<div id="loginModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm">
+<div id="loginModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
   <div class="modal-content bg-card-bg p-9 rounded-2xl w-96 max-w-[90%] shadow-heavy border border-border-color relative animate-modalFadeIn">
-    <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer text-text-light transition-all duration-300 w-7 h-7 flex items-center justify-center rounded-full hover:text-instagram-red hover:bg-black hover:bg-opacity-5" onclick="closeModal('loginModal')" aria-label="Cerrar modal">×</span>
+    <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer" onclick="closeModal('loginModal')">×</span>
+    
     <h2 class="modal-title text-2xl mb-6 text-center text-instagram-gradient flex items-center justify-center gap-3">
-      <i class="fas fa-user"></i> Iniciar Sesión
+      <i class="fas fa-user"></i> Acceso
     </h2>
+    
     <div class="login-tabs flex mb-6 border-b border-border-color">
-      <div id="tab-login" class="login-tab flex-1 text-center py-3 cursor-pointer transition-all duration-300 border-b-2 border-transparent font-medium active border-b-2 border-instagram-pink text-instagram-pink font-bold" onclick="switchLoginTab('login')">Iniciar Sesión</div>
-      <div id="tab-register" class="login-tab flex-1 text-center py-3 cursor-pointer transition-all duration-300 border-b-2 border-transparent font-medium hover:bg-instagram-pink hover:bg-opacity-5" onclick="switchLoginTab('register')">Registrarse</div>
+      <div id="tab-login" class="login-tab flex-1 text-center py-3 cursor-pointer border-b-2 border-instagram-pink text-instagram-pink font-bold" onclick="switchLoginTab('login')">Login</div>
+      <div id="tab-register" class="login-tab flex-1 text-center py-3 cursor-pointer border-b-2 border-transparent" onclick="switchLoginTab('register')">Registro</div>
     </div>
     
     <div id="loginForm" class="login-form active">
-      
-      <form id="ajax-login-form" method="POST" action="{% url 'login_ajax' %}">
+      <form method="POST" action="{% url 'login_ajax' %}">
           {% csrf_token %}
-          
           <div class="form-group-modal mb-5">
-            <label for="{{ loginf.username.id_for_label }}" class="block mb-2 font-medium flex items-center gap-2">
-              <i class="fas fa-envelope"></i> Correo Electrónico
-            </label>
-            {{ loginf.username }}
+            <label class="block mb-2 font-medium">Usuario / Correo</label>
+            <input type="text" name="username" class="w-full py-3 px-4 border rounded-lg" required placeholder="Usuario">
           </div>
-          
           <div class="form-group-modal mb-5">
-            <label for="{{ loginf.password.id_for_label }}" class="block mb-2 font-medium flex items-center gap-2">
-              <i class="fas fa-lock"></i> Contraseña
-            </label>
-            {{ loginf.password }}
+            <label class="block mb-2 font-medium">Contraseña</label>
+            <input type="password" name="password" class="w-full py-3 px-4 border rounded-lg" required placeholder="••••••">
           </div>
           
-          <div id="login-errors" class="text-red-500 mb-3 text-sm"></div>
-
-          <div class="form-actions flex justify-between mt-6">
-            <button type="button" class="btn-link bg-transparent border-none text-instagram-purple underline cursor-pointer font-medium transition-all duration-300 hover:text-instagram-pink" onclick="showForgotPassword()">¿Olvidaste tu contraseña?</button>
-            <button type="submit" class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40">
-              <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-            </button>
-          </div>
+          <button type="submit" class="w-full py-3 px-6 rounded-full font-bold bg-instagram-gradient text-white hover:shadow-lg transition-all">
+             Iniciar Sesión
+          </button>
       </form>
     </div>
     
-    <div id="registerForm" class="login-form hidden">
-      <p class="text-center text-text-dark mb-6">
-          Para crear una cuenta completa, por favor haz clic en el botón de abajo.
-      </p>
-      <div class="form-actions flex justify-center">
-        <a href="{% url 'registro' %}" class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40">
-          <i class="fas fa-user-plus"></i> Ir a Registrarse
-        </a>
-      </div>
+    <div id="registerForm" class="login-form hidden text-center">
+      <p class="mb-6">¿Aún no tienes cuenta? Regístrate para acceder a nuestros servicios.</p>
+      <a href="{% url 'registro' %}" class="btn btn-primary w-full py-3 px-6 rounded-full font-bold bg-instagram-gradient text-white inline-block">
+         Ir a Registrarse
+      </a>
     </div>
   </div>
 </div>
 
-<div id="searchModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm">
-    <div class="modal-content bg-white p-8 rounded-2xl w-[650px] max-w-[90%] shadow-heavy animate-modalFadeIn search-modal-content">
-      <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer text-text-light transition-all duration-300 w-7 h-7 flex items-center justify-center rounded-full hover:text-instagram-red hover:bg-black hover:bg-opacity-5" onclick="closeModal('searchModal')" aria-label="Cerrar búsqueda">×</span>
-      <h2 class="search-modal-title text-center mb-6 text-2xl text-instagram-red font-bold flex items-center justify-center gap-3">
-        <i class="fas fa-search"></i>
-        Buscar en ZONFEM
-      </h2>
-      <div class="search-modal-input-container my-6">
-        <div class="search-box relative w-full max-w-lg mx-auto">
-          <i class="fas fa-search search-icon absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg"></i>
-          <input 
-            type="text" 
-            id="searchInput"
-            class="search-modal-input w-full py-4 px-12 border border-gray-300 rounded-full text-base bg-gray-50 transition-all duration-300 outline-none shadow-inner shadow-gray-200 focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/20 focus:bg-white"
-            placeholder="¿Qué estás buscando? Ej: control prenatal, cursos..." 
-            onkeyup="handleSearch()"
-          >
-          <i class="fas fa-times clear-icon absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg cursor-pointer transition-all duration-300 w-7 h-7 flex items-center justify-center rounded-full hover:text-pink-400 hover:bg-black hover:bg-opacity-5" 
-              id="clearSearch" 
-              onclick="document.getElementById('searchInput').value=''; handleSearch();"
-          ></i>
-        </div>
-      </div>
-      <div id="searchResults" class="search-modal-results mt-6 p-5 bg-gray-50 rounded-xl hidden max-h-80 overflow-y-auto border border-gray-200">
-        <h4 class="mb-3 text-gray-800 font-medium">Resultados:</h4>
-        <ul id="resultsList" class="list-none p-0 m-0"></ul>
-      </div>
-      <button class="search-modal-button w-full mt-5 py-4 px-6 border-none rounded-full text-base font-bold cursor-pointer bg-instagram-gradient text-white transition-all duration-300 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="performSearch()">
-        <i class="fas fa-search"></i> Buscar ahora
-      </button>
+<div id="searchModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
+    <div class="modal-content bg-white p-8 rounded-2xl w-[650px] relative">
+      <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer" onclick="closeModal('searchModal')">×</span>
+      <h2 class="text-center mb-6 text-2xl font-bold">Buscar en ZONEFEM</h2>
+      <input type="text" id="searchInput" class="w-full py-4 px-6 border rounded-full bg-gray-50" placeholder="Buscar...">
+      <button class="w-full mt-5 py-4 rounded-full font-bold bg-instagram-gradient text-white" onclick="performSearch()">Buscar</button>
     </div>
 </div>
 
-
-<div id="cartModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm">
-    <div class="modal-content bg-card-bg p-9 rounded-2xl w-[450px] max-w-[90%] shadow-heavy border border-border-color relative animate-modalFadeIn cart-modal">
-      <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer text-text-light transition-all duration-300 w-7 h-7 flex items-center justify-center rounded-full hover:text-instagram-red hover:bg-black hover:bg-opacity-5" onclick="closeCart()" aria-label="Cerrar carrito">×</span>
-      <h2 class="modal-title text-2xl mb-6 text-center text-instagram-gradient flex items-center justify-center gap-3">
-        <i class="fas fa-shopping-cart"></i> Carrito de Compras
-      </h2>
+<div id="cartModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
+    <div class="modal-content bg-card-bg p-9 rounded-2xl w-[450px] relative">
+      <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer" onclick="closeCart()">×</span>
+      <h2 class="text-2xl mb-6 text-center text-instagram-gradient"><i class="fas fa-shopping-cart"></i> Carrito</h2>
+      
       <div id="cartItems">
-        <p id="cartEmpty">Tu carrito está vacío.</p>
-        
-        <p class="text-center text-sm text-gray-500">
-            Los items se cargarán vía AJAX.
-        </p>
-      </div>
-      <div class="cart-total mt-5 pt-5 border-t-2 border-border-color flex justify-between font-bold text-lg">
+         </div>
+      
+      <div class="cart-total mt-5 pt-5 border-t flex justify-between font-bold text-lg">
         <span>Total:</span>
         <span id="cartTotal">$0</span>
       </div>
+      
       <div class="cart-actions flex gap-3 mt-6">
-        <button class="btn btn-clear py-3 px-6 border-none rounded-xl font-semibold cursor-pointer transition-all duration-300 flex-1 flex items-center justify-center gap-2 bg-text-light text-white hover:bg-gray-600" onclick="clearCart()">
-          <i class="fas fa-trash"></i> Vaciar carrito
-        </button>
-        <button class="btn btn-primary py-3 px-6 border-none rounded-xl font-semibold cursor-pointer transition-all duration-300 flex-1 flex items-center justify-center gap-2 bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="openPaymentModal()">
-          <i class="fas fa-credit-card"></i> Proceder al pago
-        </button>
+        <button class="flex-1 py-3 rounded-xl bg-gray-200 hover:bg-gray-300" onclick="clearCart()">Vaciar</button>
+        <button class="flex-1 py-3 rounded-xl bg-instagram-gradient text-white font-bold" onclick="openPaymentModal()">Pagar</button>
       </div>
     </div>
 </div>
 
-
-<div id="paymentModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm">
-    <div class="modal-content bg-card-bg p-9 rounded-2xl w-[450px] max-w-[90%] shadow-heavy border border-border-color relative animate-modalFadeIn payment-modal">
-      <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer text-text-light transition-all duration-300 w-7 h-7 flex items-center justify-center rounded-full hover:text-instagram-red hover:bg-black hover:bg-opacity-5" onclick="closeModal('paymentModal')" aria-label="Cerrar modal">×</span>
-      <div class="payment-header text-center mb-6">
-        <h2 class="modal-title text-2xl mb-6 text-center text-instagram-gradient flex items-center justify-center gap-3">
-          <i class="fas fa-credit-card"></i> Pago en ZONFEM
-        </h2>
-        <p class="payment-description text-text-light mt-3 text-sm leading-relaxed">
-          Ingresa los datos de tu tarjeta para completar tu pago de manera segura.
-        </p>
-      </div>
-      <div class="payment-amount bg-gradient-to-br from-blue-500 to-purple-600 text-white p-5 rounded-xl mb-6 text-center">
-        <h3 class="m-0 text-xl font-bold">Monto a pagar: <span id="paymentAmount" class="text-2xl font-extrabold">$0</span></h3>
-      </div>
-      
-      <form class="payment-form bg-card-bg p-0" id="paymentForm">
-          {% csrf_token %} 
-          <div class="form-group-payment mb-5 relative">
-            <label for="cardName" class="block mb-2 font-semibold text-text-dark flex items-center gap-2 text-sm">
-              <i class="fas fa-user"></i> Nombre del titular
-            </label>
-            <input type="text" id="cardName" class="w-full py-3 px-4 border-2 border-border-color rounded-xl text-base bg-light-bg transition-all duration-300 focus:outline-none focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10 focus:bg-white" placeholder="Como aparece en la tarjeta" required>
+<div id="paymentModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
+    <div class="modal-content bg-card-bg p-9 rounded-2xl w-[450px] relative">
+       <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer" onclick="closeModal('paymentModal')">×</span>
+       <h2 class="text-2xl mb-4 text-center">Pago Seguro</h2>
+       <h3 class="text-center text-xl font-bold mb-5">Monto: <span id="paymentAmount">$0</span></h3>
+       <form id="paymentForm" onsubmit="processPayment(event)">
+          <input type="text" id="cardName" class="w-full py-3 px-4 mb-4 border rounded-xl" placeholder="Nombre en la tarjeta" required>
+          <input type="text" id="cardNumber" class="w-full py-3 px-4 mb-4 border rounded-xl" placeholder="0000 0000 0000 0000" required>
+          <div class="flex gap-3">
+             <input type="text" id="cardExpiry" class="w-full py-3 px-4 mb-4 border rounded-xl" placeholder="MM/AA" required>
+             <input type="text" id="cardCvv" class="w-full py-3 px-4 mb-4 border rounded-xl" placeholder="CVV" required>
           </div>
-          <div class="payment-actions flex gap-3 mt-5">
-            <button type="button" class="btn btn-secondary bg-gray-600 text-white border-none py-3 px-5 rounded-xl font-semibold cursor-pointer transition-all duration-300 flex-1 flex items-center justify-center gap-2 hover:bg-gray-700 hover:-translate-y-1" onclick="closeModal('paymentModal')">
-              <i class="fas fa-arrow-left"></i> Volver al carrito
-            </button>
-            <button type="submit" class="btn btn-pay bg-gradient-to-br from-green-500 to-teal-500 text-white border-none py-3 px-5 rounded-xl font-semibold cursor-pointer transition-all duration-300 flex-[2] flex items-center justify-center gap-2 hover:from-green-600 hover:to-teal-600 hover:-translate-y-1 hover:shadow-lg hover:shadow-green-500/30">
-              <i class="fas fa-lock"></i> Pagar ahora
-            </button>
-          </div>
-      </form>
+          <input type="email" id="cardEmail" class="w-full py-3 px-4 mb-4 border rounded-xl" placeholder="Email comprobante" required>
+          <button type="submit" class="w-full py-3 rounded-xl bg-green-500 text-white font-bold hover:bg-green-600">Confirmar Pago</button>
+       </form>
     </div>
 </div>
