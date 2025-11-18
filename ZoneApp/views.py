@@ -44,7 +44,7 @@ def login_ajax(request):
     if form.is_valid():
         user = form.get_user()
         login(request, user)
-        return JsonResponse({'success': True, 'redirect_url': reverse_lazy('home')})
+        return redirect('home')
     return JsonResponse({'success': False, 'errors': form.errors})
 
 ####Sección CRUD Servicios
@@ -148,7 +148,7 @@ def contacto_view(request):
         #     phone = form.cleaned_data['phone']
         #     mensaje = form.cleaned_data['message']
 
-        #     asunto = f"Mensaje de Contacto ZONFEM - {nombre}"
+        #     asunto = f"Mensaje de Contacto ZONEFEM - {nombre}"
         #     cuerpo_mensaje = f"""
         #     Nombre: {nombre}
         #     Email: {email}
@@ -164,7 +164,7 @@ def contacto_view(request):
         #         send_mail(
         #             asunto,
         #             cuerpo_mensaje,
-        #             settings.DEFAULT_FROM_EMAIL, # Remitente (ej: 'no-reply@zonfem.com')
+        #             settings.DEFAULT_FROM_EMAIL, # Remitente (ej: 'no-reply@ZONEFEM.com')
         #             ['tu_email_destino@ejemplo.com'], # Destinatario (Tu correo real)
         #             fail_silently=False,
         #         )
