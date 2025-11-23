@@ -62,6 +62,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ZoneApp.procesos.cont_carrito',
             ],
         },
     },
@@ -107,9 +108,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-cl'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Santiago'
 
 USE_I18N = True
 
@@ -132,3 +133,28 @@ AUTHENTICATION_BACKENDS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+###SECCION PARA CONFIGURACIÓN DE SISTEMA DE EMAILS
+
+###USAREMOS ESTO CUANDO LANCEMOS EL SISTEMA, POR MIENTRAS USAMOS LA CONSOLA PARA VERIFICAR FUNCIONAMIENTO
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'   
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your_email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'your_email_password'
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# Ruta donde se guardarán los correos salientes
+EMAIL_FILE_PATH = BASE_DIR / 'emails'
+
+###CONFIGURACIÓN DE WEBPAY (TRANSBANK)
+WEBPAY_COMMERCE_CODE = '597055555532'  # Código de comercio de integración
+WEBPAY_API_KEY = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'  # API Key de integración
+WEBPAY_ENVIRONMENT = 'INTEGRACION'  # 'INTEGRACION' o 'PRODUCCION'
+WEBPAY_RETURN_URL = 'http://127.0.0.1:8000/pago/confirmar/'  # URL de retorno después del pago
