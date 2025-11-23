@@ -113,7 +113,8 @@
                 <input type="hidden" name="hora_inicio" id="inputHoraInicio">
 
                 <button type="submit" class="w-full py-3.5 rounded-full bg-instagram-gradient text-white font-bold shadow-lg shadow-instagram-pink/30 hover:-translate-y-1 hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                  Confirmar Reserva <i class="fas fa-arrow-right"></i>
+                  <span id="btnReservaText">Confirmar Reserva</span>
+                  <i id="btnReservaIcon" class="fas fa-arrow-right"></i>
                 </button>
               </form>
             </div>
@@ -314,5 +315,71 @@
 
 
   renderCalendar();
+
+  // Manejar envío del formulario con AJAX
+  document.getElementById('reservationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const btnText = document.getElementById('btnReservaText');
+    const btnIcon = document.getElementById('btnReservaIcon');
+    
+    // Deshabilitar botón y mostrar cargando
+    submitBtn.disabled = true;
+    btnText.textContent = 'Agregando...';
+    btnIcon.className = 'fas fa-spinner fa-spin';
+    
+    // Obtener datos del formulario
+    const formData = new FormData(this);
+    
+    // Enviar con fetch
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Mostrar éxito
+        btnText.textContent = '¡Agregado al carrito!';
+        btnIcon.className = 'fas fa-check';
+        submitBtn.className = 'w-full py-3.5 rounded-full bg-green-500 text-white font-bold shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2';
+        
+        // Actualizar contador del carrito en el header
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) {
+          const currentCount = parseInt(cartCount.textContent);
+          cartCount.textContent = currentCount + 1;
+        } else {
+          // Si no existe el badge, crearlo
+          const cartIcon = document.querySelector('a[href="{% url 'ver_carrito' %}"]');
+          if (cartIcon) {
+            const badge = document.createElement('span');
+            badge.id = 'cartCount';
+            badge.className = 'cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold';
+            badge.textContent = '1';
+            cartIcon.appendChild(badge);
+          }
+        }
+        
+      } else {
+        // Mostrar error
+        alert(data.error || 'Error al agregar al carrito');
+        btnText.textContent = 'Confirmar Reserva';
+        btnIcon.className = 'fas fa-arrow-right';
+        submitBtn.disabled = false;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al procesar la reserva');
+      btnText.textContent = 'Confirmar Reserva';
+      btnIcon.className = 'fas fa-arrow-right';
+      submitBtn.disabled = false;
+    });
+  });
 </script>
 {% endblock %}

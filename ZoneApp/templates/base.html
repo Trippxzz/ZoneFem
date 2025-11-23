@@ -5,7 +5,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ZONEFEM - {% block title %}Control Prenatal{% endblock %}</title>
-  
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   
@@ -82,29 +81,66 @@
             <i class="fas fa-user"></i>
         </div>
         {% else %}
-             <div class="hidden md:flex items-center gap-2">
-                <span class="text-sm font-bold text-instagram-pink">Hola {{ user.first_name }}!</span>
-                <form method="POST" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition">Salir</button>
-                </form>
-             </div>
-             <form method="POST" action="{% url 'logout' %}" class="md:hidden">
-                {% csrf_token %}
-                <button type="submit" class="icon text-xl cursor-pointer text-text-dark w-10 h-10 flex items-center justify-center rounded-full hover:bg-red-500 hover:text-white transition-all" title="Cerrar sesión">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
-             </form>
-        {% endif %}
+        <!-- Dropdown de usuario -->
+        <div class="relative">
+    <button onclick="toggleUserDropdown()" 
+            class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30"
+            id="user-menu-button"
+            title="Mi cuenta">
+        <i class="fas fa-user"></i>
+    </button>
 
+    <!-- Dropdown Menu -->
+    <div id="user-dropdown" 
+         class="hidden absolute right-0 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 z-50 animate-modalFadeIn">
+        <div class="p-4 border-b border-gray-100">
+            <p class="text-sm font-medium text-text-dark">{{ user.first_name }} {{ user.last_name }}</p>
+            <p class="text-xs text-text-light mt-1">{{ user.email }}</p>
+        </div>
+        
+        <div class="py-2">
+            <a href="{% url 'home' %}" 
+               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
+                <i class="fas fa-user-circle text-instagram-pink w-5"></i>
+                <span>Mi Perfil</span>
+            </a>
+            <a href="#" 
+               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
+                <i class="fas fa-calendar-alt text-instagram-pink w-5"></i>
+                <span>Mis Reservas</span>
+            </a>
+            
+            {% comment %} <a href="#" 
+               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
+                <i class="fas fa-cog text-instagram-pink w-5"></i>
+                <span>Configuración</span>
+            </a> {% endcomment %}
+        </div>
+        
+        <div class="border-t border-gray-100">
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="w-full flex items-center gap-3 px-4 py-3 text-sm text-instagram-red hover:bg-red-50 transition-colors">
+                    <i class="fas fa-sign-out-alt w-5"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+        {% endif %}
+        
+        {% if user.is_authenticated %}
         <a href="{% url 'ver_carrito' %}" class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" title="Carrito de compras">
             <i class="fas fa-shopping-cart"></i>
-            {% if user.is_authenticated and total_carrito > 0 %}
-        <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount">
-            {{ total_carrito }}
-        </span>
-    {% endif %}
-  </a>
+            {% if total_carrito > 0 %}
+            <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount">
+                {{ total_carrito }}
+            </span>
+            {% endif %}
+        </a>
+        {% endif %}
 
         <button id="mobile-menu-btn" class="md:hidden text-2xl text-text-dark ml-2 focus:outline-none" onclick="toggleMobileMenu()">
             <i class="fas fa-bars"></i>
@@ -159,6 +195,22 @@
         const menu = document.getElementById('mobile-menu');
         menu.classList.toggle('hidden');
     }
+
+    // Función para el dropdown de usuario
+    function toggleUserDropdown() {
+        const dropdown = document.getElementById('user-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('user-dropdown');
+        const button = document.getElementById('user-menu-button');
+        
+        if (dropdown && button && !button.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+        }
+    });
 </script>
 
 </body>

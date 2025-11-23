@@ -42,7 +42,7 @@
                         </p>
                     </div>
                     
-                    <form method="POST" action="{% url 'eliminaritemcarrito' item.id %}" class="ml-4">
+                    <form method="POST" action="{% url 'eliminaritemcarrito' item.id %}" class="ml-4 delete-item-form">
                         {% csrf_token %}
                         <button type="submit" 
                                 class="text-instagram-red hover:bg-red-50 p-2 rounded-full transition-all"
@@ -105,4 +105,67 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+// Manejar eliminación de items con AJAX
+document.querySelectorAll('.delete-item-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('¿Eliminar este servicio del carrito?')) {
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const url = this.action;
+        const itemCard = this.closest('.bg-white');
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Animar y remover el item
+                itemCard.style.transition = 'all 0.3s ease';
+                itemCard.style.opacity = '0';
+                itemCard.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    itemCard.remove();
+                    
+                    // Actualizar contador del header
+                    const cartCount = document.getElementById('cartCount');
+                    if (cartCount) {
+                        const currentCount = parseInt(cartCount.textContent);
+                        const newCount = currentCount - 1;
+                        if (newCount > 0) {
+                            cartCount.textContent = newCount;
+                        } else {
+                            cartCount.remove();
+                        }
+                    }
+                    
+                    // Si no quedan items, mostrar mensaje vacío y recargar
+                    const itemsContainer = document.querySelector('.lg\\:col-span-2');
+                    if (itemsContainer && itemsContainer.querySelectorAll('.bg-white').length === 0) {
+                        window.location.reload();
+                    } else {
+                        // Actualizar el total
+                        location.reload();
+                    }
+                }, 300);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar el item');
+        });
+    });
+});
+</script>
 {% endblock %}
