@@ -31,6 +31,7 @@ class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=150, blank=False, verbose_name='Nombre')
     rut = models.CharField(max_length=15, unique=True, verbose_name="RUT") # Esto cambia el nombre en el Admin
+    fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name='Fecha de Nacimiento')
     USERNAME_FIELD = 'email' # Para que se pida el correo para iniciar sesión
     REQUIRED_FIELDS = ['first_name', 'rut']
     objects = UsuarioManager()
@@ -183,3 +184,29 @@ class CarritoItem(models.Model):
     @property
     def subtotal(self):
         return self.servicio.precio * self.cantidad
+
+
+class Venta(models.Model):
+    rut = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    fecha_venta = models.DateTimeField(auto_now_add=True)
+    total_venta = models.IntegerField()
+    estado = models.CharField(
+        max_length=20, 
+        choices=[('PENDIENTE', 'Pendiente'), ('CONFIRMADA', 'Confirmada'), ('ANULADA', 'Anulada')],
+        default='PENDIENTE'
+    )###CAMPOS QUE FUNCIONAN CON LA INTEGRACIÓN DE TRANSBANK WEBPAY
+
+class Pagos(models.Model):
+    venta = models.OneToOneField(Venta, on_delete=models.CASCADE)
+    monto_total = models.IntegerField()
+    fecha_pago = models.DateTimeField(auto_now_add=True)
+    metodo_pago = models.CharField(max_length=50, default='WEBPAY')
+    #TRANSBANK
+    token_ws = models.CharField(max_length=255, unique=True, null=True) # El token vital
+    tipo_pago = models.CharField(max_length=50, null=True, blank=True) # Crédito/Débito (te lo da TBK al volver)
+    codigo_autorizacion = models.CharField(max_length=50, null=True, blank=True)
+    estado = models.CharField(
+        max_length=20, 
+        choices=[('PENDIENTE', 'Pendiente'), ('APROBADO', 'Aprobado'), ('RECHAZADO', 'Rechazado')],
+        default='PENDIENTE'
+    )

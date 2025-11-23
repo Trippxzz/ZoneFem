@@ -5,8 +5,9 @@ from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, JsonResponse, Http404
 from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm
-from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona
+from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona, Venta, Pagos
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import AuthenticationForm
 from datetime import datetime, timedelta
 from django.db import transaction
@@ -14,6 +15,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 import calendar
+from transbank.webpay.webpay_plus.transaction import Transaction
+from transbank.common.integration_type import IntegrationType
+from transbank.common.options import WebpayOptions
 # Create your views here.
 
 def home(request):
@@ -324,38 +328,40 @@ def reservarHora(request, servicio_id=None):
 
 @login_required
 def verCarrito(request):
-    try:
-        carrito = Carrito.objects.get(usuario=request.user)
-    except Carrito.DoesNotExist:
-        carrito = Carrito.objects.create(usuario=request.user)
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
     
     items = CarritoItem.objects.filter(carrito=carrito).select_related(
-        'reserva_asociada', 
-        'servicio',
-        'reserva_asociada__matrona__usuario'). prefetch_related('reserva_asociada__matrona')
+        'servicio'
+    ).prefetch_related('servicio__imagenes')
     
-    context = {'carrito': carrito, 'items': items, 'total': carrito.total}
+    # Agregar información de reservas si existen
+    for item in items:
+        try:
+            item.reserva_asociada = Reservas.objects.get(carrito_item=item)
+        except Reservas.DoesNotExist:
+            item.reserva_asociada = None
+    
+    context = {'carrito': carrito, 'items': items}
     return render(request, 'ZoneServicios/carrito.html', context)
 
 @login_required
 def eliminarItemCarrito(request, item_id):
-    try:
-        carrito = Carrito.objects.get(usuario=request.user)
-    except Carrito.DoesNotExist:
-        raise Http404("Carrito no encontrado")
+    carrito, created = Carrito.objects.get_or_create(usuario=request.user)
     item = get_object_or_404(CarritoItem, id=item_id, carrito=carrito)
+    
     with transaction.atomic():
         try:
-            reserva = item.reserva_asociada
+            reserva = Reservas.objects.get(carrito_item=item)
             reserva.estado = 'X'  # Cancelada/Expirada
             reserva.carrito_item = None
             reserva.save()
         except Reservas.DoesNotExist:
             pass
         item.delete()
+    
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'success': True, 'item_id': item_id, 'total': carrito.total})
-    return redirect(reverse('vercarrito'))
+    return redirect('ver_carrito')
 
 
 @login_required
@@ -387,4 +393,190 @@ def editardispoServicio(request, bloque_id):
         formset = disponibilidadServicioFormSet(instance=bloque)
     context = {'formset': formset, 'bloque': bloque}
     return render(request, 'ZoneMatronas/editardisponibilidad.html', context)
-       
+
+
+### ========== SECCIÓN WEBPAY ==========
+
+@login_required
+def iniciar_pago(request):
+    """
+    Inicia el proceso de pago con Webpay
+    Crea una venta y redirige a Webpay
+    """
+    try:
+        # Obtener el carrito del usuario
+        carrito = Carrito.objects.get(usuario=request.user)
+        items = CarritoItem.objects.filter(carrito=carrito)
+        
+        if not items.exists():
+            return redirect('ver_carrito')
+        
+        # Calcular el total
+        total = int(carrito.total)
+        
+        if total <= 0:
+            return redirect('ver_carrito')
+        
+        with transaction.atomic():
+            # Crear la venta
+            venta = Venta.objects.create(
+                rut=request.user,
+                total_venta=total,
+                estado='PENDIENTE'
+            )
+            
+            # Crear el pago asociado
+            pago = Pagos.objects.create(
+                venta=venta,
+                monto_total=total,
+                estado='PENDIENTE'
+            )
+            
+            # Configurar Webpay
+            if settings.WEBPAY_ENVIRONMENT == 'PRODUCCION':
+                options = WebpayOptions(
+                    commerce_code=settings.WEBPAY_COMMERCE_CODE,
+                    api_key=settings.WEBPAY_API_KEY,
+                    integration_type=IntegrationType.LIVE
+                )
+            else:
+                # Usar credenciales de integración por defecto
+                options = WebpayOptions(
+                    commerce_code='597055555532',
+                    api_key='579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
+                    integration_type=IntegrationType.TEST
+                )
+            
+            # Generar orden de compra única
+            buy_order = f"ORDER-{venta.id}-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            session_id = str(request.user.id)
+            return_url = request.build_absolute_uri(reverse('confirmar_pago'))
+            
+            # Crear transacción en Webpay
+            tx = Transaction(options)
+            response = tx.create(buy_order, session_id, total, return_url)
+            
+            # Guardar el token en el pago
+            pago.token_ws = response['token']
+            pago.save()
+            
+            # Guardar información en sesión para validar después
+            request.session['venta_id'] = venta.id
+            request.session['buy_order'] = buy_order
+            
+            # Redirigir a Webpay
+            return redirect(f"{response['url']}?token_ws={response['token']}")
+            
+    except Carrito.DoesNotExist:
+        return redirect('ver_carrito')
+    except Exception as e:
+        print(f"Error al iniciar pago: {e}")
+        return render(request, 'ZonePagos/error_pago.html', {
+            'error': 'Ocurrió un error al procesar el pago. Por favor, intenta nuevamente.'
+        })
+
+
+@csrf_exempt
+def confirmar_pago(request):
+    """
+    Callback de Webpay después del pago
+    Valida la transacción y actualiza el estado
+    """
+    token = request.POST.get('token_ws') or request.GET.get('token_ws')
+    
+    if not token:
+        print("No se recibió token")
+        return redirect('resultado_pago', resultado='error')
+    
+    try:
+        # Configurar opciones según el ambiente
+        if settings.WEBPAY_ENVIRONMENT == 'PRODUCCION':
+            options = WebpayOptions(
+                commerce_code=settings.WEBPAY_COMMERCE_CODE,
+                api_key=settings.WEBPAY_API_KEY,
+                integration_type=IntegrationType.LIVE
+            )
+        else:
+            options = WebpayOptions(
+                commerce_code='597055555532',
+                api_key='579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C',
+                integration_type=IntegrationType.TEST
+            )
+        
+        # Consultar el estado de la transacción en Webpay
+        tx = Transaction(options)
+        response = tx.commit(token)
+        
+        print(f"Respuesta de Webpay: {response}")
+        
+        # Buscar el pago por token
+        pago = Pagos.objects.get(token_ws=token)
+        venta = pago.venta
+        
+        # Verificar si el pago fue aprobado
+        # response_code 0 = aprobado
+        if response.get('response_code') == 0:
+            with transaction.atomic():
+                # Actualizar el pago
+                pago.estado = 'APROBADO'
+                pago.codigo_autorizacion = response.get('authorization_code', '')
+                pago.tipo_pago = response.get('payment_type_code', '')
+                pago.save()
+                
+                # Actualizar la venta
+                venta.estado = 'CONFIRMADA'
+                venta.save()
+                
+                # Actualizar las reservas a confirmadas y vaciar el carrito
+                carrito = Carrito.objects.get(usuario=venta.rut)
+                items = CarritoItem.objects.filter(carrito=carrito)
+                
+                for item in items:
+                    try:
+                        reserva = Reservas.objects.get(carrito_item=item)
+                        reserva.estado = 'C'  # Confirmada
+                        reserva.save()
+                    except Reservas.DoesNotExist:
+                        pass
+                
+                # Eliminar items del carrito
+                items.delete()
+            
+            return redirect('resultado_pago', resultado='exito', venta_id=venta.id)
+        else:
+            # Pago rechazado
+            print(f"Pago rechazado. Código de respuesta: {response.get('response_code')}")
+            pago.estado = 'RECHAZADO'
+            pago.save()
+            venta.estado = 'ANULADA'
+            venta.save()
+            
+            return redirect('resultado_pago', resultado='rechazado')
+            
+    except Pagos.DoesNotExist:
+        print(f"No se encontró pago con token: {token}")
+        return redirect('resultado_pago', resultado='error')
+    except Exception as e:
+        print(f"Error al confirmar pago: {e}")
+        import traceback
+        traceback.print_exc()
+        return redirect('resultado_pago', resultado='error')
+
+
+@login_required
+def resultado_pago(request, resultado, venta_id=None):
+    """
+    Muestra el resultado del pago
+    """
+    context = {'resultado': resultado}
+    
+    if resultado == 'exito' and venta_id:
+        try:
+            venta = Venta.objects.get(id=venta_id, rut=request.user)
+            pago = Pagos.objects.get(venta=venta)
+            context['venta'] = venta
+            context['pago'] = pago
+        except (Venta.DoesNotExist, Pagos.DoesNotExist):
+            pass
+    
+    return render(request, 'ZonePagos/resultado_pago.html', context)
