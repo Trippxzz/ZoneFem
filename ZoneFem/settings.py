@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from decouple import config, Csv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#=0g+li=*y^4jyb_oae&hm8(-8!!t!l@tk@5g#nskturuzvsid'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
 
 # Application definition
@@ -77,11 +78,11 @@ WSGI_APPLICATION = 'ZoneFem.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'ZoneFem',
-        'USER': 'root', 
-        'PASSWORD': '', 
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'), 
+        'PASSWORD': config('DB_PASSWORD'), 
+        'HOST': config('DB_HOST', default='127.0.0.1'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
 
@@ -110,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-cl'
 
-TIME_ZONE = 'America/Santiago'
+TIME_ZONE = 'America/Santiago' 
 
 USE_I18N = True
 
@@ -137,24 +138,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ###SECCION PARA CONFIGURACIÓN DE SISTEMA DE EMAILS
 
-###USAREMOS ESTO CUANDO LANCEMOS EL SISTEMA, POR MIENTRAS USAMOS LA CONSOLA PARA VERIFICAR FUNCIONAMIENTO
+# Configuración de Email
+if config('DEBUG', default=False, cast=bool):
+    # En desarrollo: guardar emails en archivos
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+    EMAIL_FILE_PATH = BASE_DIR / 'emails'
+else:
+    # En producción: enviar emails reales
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+    DEFAULT_FROM_EMAIL = f'ZoneFem <{EMAIL_HOST_USER}>'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'   
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your_email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'your_email_password'
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# Ruta donde se guardarán los correos salientes
-EMAIL_FILE_PATH = BASE_DIR / 'emails'
-
-###CONFIGURACIÓN DE WEBPAY (TRANSBANK)
-WEBPAY_COMMERCE_CODE = '597055555532'  # Código de comercio de integración
-WEBPAY_API_KEY = '579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C'  # API Key de integración
-WEBPAY_ENVIRONMENT = 'INTEGRACION'  # 'INTEGRACION' o 'PRODUCCION'
-WEBPAY_RETURN_URL = 'http://127.0.0.1:8000/pago/confirmar/'  # URL de retorno después del pago
+# Configuración de Webpay (Transbank)
+WEBPAY_COMMERCE_CODE = config('WEBPAY_COMMERCE_CODE')
+WEBPAY_API_KEY = config('WEBPAY_API_KEY')
+WEBPAY_ENVIRONMENT = config('WEBPAY_ENVIRONMENT', default='INTEGRACION')
+WEBPAY_RETURN_URL = config('WEBPAY_RETURN_URL')
