@@ -23,7 +23,12 @@ urlpatterns = [
     path('panel/', views.panelServicio, name='panel_matrona_servicios'),
     path('disponibilidad/editar/<int:bloque_id>/', views.editardispoServicio, name='editar_disponibilidad_servicio'),
     path('seleccionar_hora/<int:servicio_id>/', views.seleccionarHora, name='seleccionar_hora'),
-    path('reservar_hora/', views.reservarHora, name='reservar_hora')
+    path('reservar_hora/', views.reservarHora, name='reservar_hora'),
+    # URLs de Webpay
+    path('pago/iniciar/', views.iniciar_pago, name='iniciar_pago'),
+    path('pago/confirmar/', views.confirmar_pago, name='confirmar_pago'),
+    path('pago/resultado/<str:resultado>/', views.resultado_pago, name='resultado_pago'),
+    path('pago/resultado/<str:resultado>/<int:venta_id>/', views.resultado_pago, name='resultado_pago'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    

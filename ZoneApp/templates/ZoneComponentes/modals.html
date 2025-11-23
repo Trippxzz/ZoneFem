@@ -1,7 +1,7 @@
 {% load static %}
 
 <div id="loginModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
-  <div class="modal-content bg-card-bg p-9 rounded-2xl w-96 max-w-[90%] shadow-heavy border border-border-color relative animate-modalFadeIn">
+  <div class="modal-content bg-card-bg p-9 rounded-2xl w-[500px] max-w-[90%] shadow-heavy border border-border-color relative animate-modalFadeIn max-h-[90vh] overflow-y-auto">
     <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer" onclick="closeModal('loginModal')">×</span>
     
     <h2 class="modal-title text-2xl mb-6 text-center text-instagram-gradient flex items-center justify-center gap-3">
@@ -9,33 +9,150 @@
     </h2>
     
     <div class="login-tabs flex mb-6 border-b border-border-color">
-      <div id="tab-login" class="login-tab flex-1 text-center py-3 cursor-pointer border-b-2 border-instagram-pink text-instagram-pink font-bold" onclick="switchLoginTab('login')">Login</div>
-      <div id="tab-register" class="login-tab flex-1 text-center py-3 cursor-pointer border-b-2 border-transparent" onclick="switchLoginTab('register')">Registro</div>
+      <div id="tab-login" class="login-tab flex-1 text-center py-3 cursor-pointer border-b-2 border-instagram-pink text-instagram-pink font-bold" onclick="switchLoginTab('login')">Iniciar Sesión</div>
+      <div id="tab-register" class="login-tab flex-1 text-center py-3 cursor-pointer border-b-2 border-transparent" onclick="switchLoginTab('register')">Registrarse</div>
     </div>
     
+    <!-- Formulario de Login -->
     <div id="loginForm" class="login-form active">
       <form method="POST" action="{% url 'login_ajax' %}">
           {% csrf_token %}
           <div class="form-group-modal mb-5">
-            <label class="block mb-2 font-medium">Usuario / Correo</label>
-            <input type="text" name="username" class="w-full py-3 px-4 border rounded-lg" required placeholder="Usuario">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-envelope mr-2 text-instagram-pink"></i>Correo Electrónico
+            </label>
+            <input type="email" name="username" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="tu@email.com">
           </div>
           <div class="form-group-modal mb-5">
-            <label class="block mb-2 font-medium">Contraseña</label>
-            <input type="password" name="password" class="w-full py-3 px-4 border rounded-lg" required placeholder="••••••">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-lock mr-2 text-instagram-pink"></i>Contraseña
+            </label>
+            <input type="password" name="password" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="••••••">
           </div>
           
           <button type="submit" class="w-full py-3 px-6 rounded-full font-bold bg-instagram-gradient text-white hover:shadow-lg transition-all">
-             Iniciar Sesión
+             <i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión
           </button>
       </form>
     </div>
     
-    <div id="registerForm" class="login-form hidden text-center">
-      <p class="mb-6">¿Aún no tienes cuenta? Regístrate para acceder a nuestros servicios.</p>
-      <a href="{% url 'registro' %}" class="btn btn-primary w-full py-3 px-6 rounded-full font-bold bg-instagram-gradient text-white inline-block">
-         Ir a Registrarse
-      </a>
+    <!-- Formulario de Registro -->
+    <div id="registerForm" class="login-form hidden">
+      <form method="POST" action="{% url 'registro' %}" id="registroFormModal">
+          {% csrf_token %}
+          
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-user mr-2 text-instagram-pink"></i>Nombre Completo
+            </label>
+            <input type="text" name="first_name" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="María González">
+          </div>
+
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-envelope mr-2 text-instagram-pink"></i>Correo Electrónico
+            </label>
+            <input type="email" name="email" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="tu@email.com">
+          </div>
+
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-id-card mr-2 text-instagram-pink"></i>RUT
+            </label>
+            <input type="text" name="rut" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="12.345.678-9">
+            <p class="text-xs text-gray-500 mt-1">Formato: 12.345.678-9</p>
+          </div>
+
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-birthday-cake mr-2 text-instagram-pink"></i>Fecha de Nacimiento
+            </label>
+            <div class="relative">
+              <input type="text" id="fechaNacimientoDisplay" readonly class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink cursor-pointer bg-white" placeholder="Selecciona tu fecha de nacimiento">
+              <input type="hidden" name="fecha_nacimiento" id="fechaNacimiento">
+              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                {% comment %} <i class="fas fa-calendar-alt text-instagram-pink"></i> {% endcomment %}
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Debe ser mayor de 14 años</p>
+            
+            <!-- Calendario personalizado -->
+            <div id="customCalendar" class="hidden absolute z-50 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 w-80">
+              <div class="flex justify-between items-center mb-4">
+                <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 transition-colors" onclick="cambiarMesNacimiento(-1)">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="flex gap-2">
+                  <select id="mesNacimiento" class="px-2 py-1 border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-instagram-pink">
+                    <option value="0">Enero</option>
+                    <option value="1">Febrero</option>
+                    <option value="2">Marzo</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Mayo</option>
+                    <option value="5">Junio</option>
+                    <option value="6">Julio</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Septiembre</option>
+                    <option value="9">Octubre</option>
+                    <option value="10">Noviembre</option>
+                    <option value="11">Diciembre</option>
+                  </select>
+                  <input type="number" id="anioNacimiento" min="1925" max="2007" class="w-20 px-2 py-1 border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-instagram-pink">
+                </div>
+                <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 transition-colors" onclick="cambiarMesNacimiento(1)">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+              
+              <div class="grid grid-cols-7 text-center mb-2">
+                <span class="text-xs font-bold text-gray-400 py-2">Do</span>
+                <span class="text-xs font-bold text-gray-400 py-2">Lu</span>
+                <span class="text-xs font-bold text-gray-400 py-2">Ma</span>
+                <span class="text-xs font-bold text-gray-400 py-2">Mi</span>
+                <span class="text-xs font-bold text-gray-400 py-2">Ju</span>
+                <span class="text-xs font-bold text-gray-400 py-2">Vi</span>
+                <span class="text-xs font-bold text-gray-400 py-2">Sa</span>
+              </div>
+              
+              <div class="grid grid-cols-7 gap-1 text-sm" id="diasCalendarioNacimiento">
+              </div>
+              
+              <div class="flex gap-2 mt-4 pt-4 border-t">
+                <button type="button" class="flex-1 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors" onclick="cerrarCalendarioNacimiento()">
+                  Cancelar
+                </button>
+                <button type="button" class="flex-1 py-2 px-4 bg-instagram-gradient text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all" onclick="confirmarFechaNacimiento()">
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-lock mr-2 text-instagram-pink"></i>Contraseña
+            </label>
+            <input type="password" name="password" id="password1" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="••••••">
+            <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres</p>
+          </div>
+
+          <div class="form-group-modal mb-5">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-lock mr-2 text-instagram-pink"></i>Confirmar Contraseña
+            </label>
+            <input type="password" name="password2" id="password2" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="••••••">
+          </div>
+
+          <div id="registroErrors" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"></div>
+          
+          <button type="submit" class="w-full py-3 px-6 rounded-full font-bold bg-instagram-gradient text-white hover:shadow-lg transition-all">
+             <i class="fas fa-user-plus mr-2"></i>Crear Cuenta
+          </button>
+
+          <p class="text-center text-xs text-gray-500 mt-4">
+            Al registrarte, aceptas nuestros términos y condiciones
+          </p>
+      </form>
     </div>
   </div>
 </div>
@@ -46,26 +163,6 @@
       <h2 class="text-center mb-6 text-2xl font-bold">Buscar en ZONEFEM</h2>
       <input type="text" id="searchInput" class="w-full py-4 px-6 border rounded-full bg-gray-50" placeholder="Buscar...">
       <button class="w-full mt-5 py-4 rounded-full font-bold bg-instagram-gradient text-white" onclick="performSearch()">Buscar</button>
-    </div>
-</div>
-
-<div id="cartModal" class="modal fixed inset-0 z-50 hidden justify-center items-center bg-black bg-opacity-50 backdrop-blur-sm" style="display: none;">
-    <div class="modal-content bg-card-bg p-9 rounded-2xl w-[450px] relative">
-      <span class="btn-close absolute top-4 right-5 text-2xl cursor-pointer" onclick="closeCart()">×</span>
-      <h2 class="text-2xl mb-6 text-center text-instagram-gradient"><i class="fas fa-shopping-cart"></i> Carrito</h2>
-      
-      <div id="cartItems">
-         </div>
-      
-      <div class="cart-total mt-5 pt-5 border-t flex justify-between font-bold text-lg">
-        <span>Total:</span>
-        <span id="cartTotal">$0</span>
-      </div>
-      
-      <div class="cart-actions flex gap-3 mt-6">
-        <button class="flex-1 py-3 rounded-xl bg-gray-200 hover:bg-gray-300" onclick="clearCart()">Vaciar</button>
-        <button class="flex-1 py-3 rounded-xl bg-instagram-gradient text-white font-bold" onclick="openPaymentModal()">Pagar</button>
-      </div>
     </div>
 </div>
 

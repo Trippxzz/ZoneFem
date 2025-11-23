@@ -97,10 +97,14 @@
              </form>
         {% endif %}
 
-        <div class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="openCart()" title="Carrito de compras">
+        <a href="{% url 'ver_carrito' %}" class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" title="Carrito de compras">
             <i class="fas fa-shopping-cart"></i>
-            <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount">0</span>
-        </div>
+            {% if user.is_authenticated and total_carrito > 0 %}
+        <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount">
+            {{ total_carrito }}
+        </span>
+    {% endif %}
+  </a>
 
         <button id="mobile-menu-btn" class="md:hidden text-2xl text-text-dark ml-2 focus:outline-none" onclick="toggleMobileMenu()">
             <i class="fas fa-bars"></i>
