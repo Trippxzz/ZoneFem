@@ -284,29 +284,159 @@
 }
 
 /* Calendario personalizado */
-#customCalendar {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+.calendario-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    background: white;
+    border: 2px solid #e91e63;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(233, 30, 99, 0.2);
+    z-index: 1000;
+    padding: 1rem;
+    max-width: 350px;
 }
 
-#diasCalendarioNacimiento {
-  gap: 4px;
+.calendario-container.hidden {
+    display: none;
 }
 
-#diasCalendarioNacimiento button {
-  min-height: 36px;
-  min-width: 36px;
+.calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f3f4f6;
 }
 
-#diasCalendarioNacimiento button:hover {
-  background-color: rgba(193, 53, 132, 0.1);
-  color: #C13584;
+.calendario-title {
+    display: flex;
+    gap: 0.5rem;
 }
 
-/* Ícono del calendario */
-input[type="text"]#fechaNacimientoDisplay {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="%23e91e63" class="size-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>');
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px 20px;
-  cursor: pointer;
+.calendario-title select {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    background: white;
+}
+
+.calendario-title select:focus {
+    outline: none;
+    border-color: #e91e63;
+    box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.calendario-nav {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.calendario-nav:hover {
+    background: #fce4ec;
+    color: #e91e63;
+}
+
+.calendario-dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+.calendario-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+}
+
+.calendario-dia {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.calendario-dia:not(.vacio):not(.deshabilitado):hover {
+    background: #fce4ec;
+    color: #e91e63;
+    transform: scale(1.1);
+}
+
+.calendario-dia.seleccionado {
+    background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+    color: white;
+    font-weight: 700;
+}
+
+.calendario-dia.vacio {
+    cursor: default;
+}
+
+.calendario-dia.deshabilitado {
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.calendario-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+.calendario-btn-cancelar,
+.calendario-btn-confirmar {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendario-btn-cancelar {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.calendario-btn-cancelar:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.calendario-btn-confirmar {
+    background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+    color: white;
+}
+
+.calendario-btn-confirmar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
 }

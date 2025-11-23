@@ -2,6 +2,7 @@ from urllib import request
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView as DjangoLoginView
+from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, JsonResponse, Http404
 from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm
@@ -18,6 +19,11 @@ import calendar
 from transbank.webpay.webpay_plus.transaction import Transaction
 from transbank.common.integration_type import IntegrationType
 from transbank.common.options import WebpayOptions
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.contrib.sites.shortcuts import get_current_site
 # Create your views here.
 
 def home(request):
@@ -399,10 +405,6 @@ def editardispoServicio(request, bloque_id):
 
 @login_required
 def iniciar_pago(request):
-    """
-    Inicia el proceso de pago con Webpay
-    Crea una venta y redirige a Webpay
-    """
     try:
         # Obtener el carrito del usuario
         carrito = Carrito.objects.get(usuario=request.user)
@@ -474,7 +476,7 @@ def iniciar_pago(request):
         return render(request, 'ZonePagos/error_pago.html', {
             'error': 'Ocurrió un error al procesar el pago. Por favor, intenta nuevamente.'
         })
-
+ 
 
 @csrf_exempt
 def confirmar_pago(request):
@@ -513,44 +515,102 @@ def confirmar_pago(request):
         pago = Pagos.objects.get(token_ws=token)
         venta = pago.venta
         
-        # Verificar si el pago fue aprobado
-        # response_code 0 = aprobado
         if response.get('response_code') == 0:
+            carrito = Carrito.objects.get(usuario=venta.rut)
+            items = CarritoItem.objects.filter(carrito=carrito).select_related('servicio')
+            
+            reservas_info = []
+            for item in items:
+                try:
+                    reserva = Reservas.objects.get(carrito_item=item)
+                    reservas_info.append({
+                        'servicio_nombre': reserva.servicio.nombre,
+                        'servicio_precio': reserva.servicio.precio,
+                        'fecha': reserva.fecha.strftime('%d/%m/%Y'),
+                        'hora_inicio': reserva.hora_inicio.strftime('%H:%M'),
+                        'hora_fin': reserva.hora_fin.strftime('%H:%M'),
+                        'matrona': reserva.matrona.get_full_name(),
+                    })
+                except Reservas.DoesNotExist:
+                    pass
+            
+            # Ahora actualizar la base de datos
             with transaction.atomic():
-                # Actualizar el pago
                 pago.estado = 'APROBADO'
                 pago.codigo_autorizacion = response.get('authorization_code', '')
                 pago.tipo_pago = response.get('payment_type_code', '')
                 pago.save()
                 
-                # Actualizar la venta
                 venta.estado = 'CONFIRMADA'
                 venta.save()
-                
-                # Actualizar las reservas a confirmadas y vaciar el carrito
-                carrito = Carrito.objects.get(usuario=venta.rut)
-                items = CarritoItem.objects.filter(carrito=carrito)
                 
                 for item in items:
                     try:
                         reserva = Reservas.objects.get(carrito_item=item)
-                        reserva.estado = 'C'  # Confirmada
+                        reserva.estado = 'C'
                         reserva.save()
                     except Reservas.DoesNotExist:
                         pass
                 
-                # Eliminar items del carrito
                 items.delete()
+            
+            # Preparar y enviar correo
+            usuario = venta.rut
+            nombre_completo = usuario.get_full_name() or usuario.email
+            
+            if reservas_info:
+                detalles_servicios = "\n".join([
+                    f"• {info['servicio_nombre']}\n"
+                    f"  Fecha: {info['fecha']}\n"
+                    f"  Hora: {info['hora_inicio']} - {info['hora_fin']}\n"
+                    f"  Matrona: {info['matrona']}\n"
+                    for info in reservas_info
+                ])
+            else:
+                detalles_servicios = "No se encontraron detalles"
+            
+            subject = '✅ Reserva Confirmada - ZoneFem'
+            message = f'''
+Hola {nombre_completo},
+
+¡Tu pago ha sido procesado exitosamente!
+
+📋 DETALLES DE TU COMPRA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• ID de Venta: {venta.id}
+• Total Pagado: ${venta.total_venta:,} CLP
+• Fecha de Pago: {pago.fecha_pago.strftime('%d/%m/%Y %H:%M')}
+
+📅 TUS RESERVAS CONFIRMADAS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{detalles_servicios}
+‼️¡IMPORTANTE! La matrona se contactará contigo para enviarte el link de la reunión en las próximas horas😎
+
+🤞Recuerda estar en un lugar sin ruido, para que nuestra comunicación sea la optima😊.
+
+¿Necesitas reagendar o tienes dudas?
+Contáctanos: contacto@zonefem.cl
+
+Gracias por confiar en ZoneFem 💗
+
+—
+Equipo ZoneFem
+            '''.strip()
+            
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [usuario.email]
+            
+            try:
+                send_mail(subject, message, from_email, to_email, fail_silently=False)
+            except Exception as e:
+                print(f"Error al enviar correo: {e}")
             
             return redirect('resultado_pago', resultado='exito', venta_id=venta.id)
         else:
-            # Pago rechazado
-            print(f"Pago rechazado. Código de respuesta: {response.get('response_code')}")
             pago.estado = 'RECHAZADO'
             pago.save()
             venta.estado = 'ANULADA'
             venta.save()
-            
             return redirect('resultado_pago', resultado='rechazado')
             
     except Pagos.DoesNotExist:
@@ -565,9 +625,6 @@ def confirmar_pago(request):
 
 @login_required
 def resultado_pago(request, resultado, venta_id=None):
-    """
-    Muestra el resultado del pago
-    """
     context = {'resultado': resultado}
     
     if resultado == 'exito' and venta_id:
@@ -580,3 +637,80 @@ def resultado_pago(request, resultado, venta_id=None):
             pass
     
     return render(request, 'ZonePagos/resultado_pago.html', context)
+
+def recuperar_contra(request):
+    """Vista para solicitar recuperación de contraseña"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        try:
+            usuario = Usuario.objects.get(email=email)
+            
+            # Generar token
+            token = default_token_generator.make_token(usuario)
+            uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+            
+            # Crear URL de recuperación
+            current_site = get_current_site(request)
+            protocol = 'https' if request.is_secure() else 'http'
+            reset_url = f"{protocol}://{current_site.domain}/reset_contrasena/{uid}/{token}/"
+            
+            # Enviar correo
+            subject = 'Recuperación de Contraseña - ZoneFem'
+            message = render_to_string('ZoneComponentes/reiniciar_contra-mail.html', {
+                'usuario': usuario,
+                'reset_url': reset_url,
+                'domain': current_site.domain,
+            })
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+                html_message=message
+            )
+            
+            messages.success(request, 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña.')
+            return redirect('home')
+            
+        except Usuario.DoesNotExist:
+            # Por seguridad, mostramos el mismo mensaje aunque el usuario no exista
+            messages.success(request, 'Si el correo existe, te hemos enviado instrucciones para restablecer tu contraseña.')
+            return redirect('home')
+    
+    return render(request, 'ZoneUsuarios/recuperar_contra.html')
+
+def restablecer_contra(request, uidb64, token):
+    """Vista para restablecer la contraseña con el token"""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        usuario = Usuario.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist):
+        usuario = None
+    
+    if usuario is not None and default_token_generator.check_token(usuario, token):
+        if request.method == 'POST':
+            password = request.POST.get('password')
+            password_confirm = request.POST.get('password_confirm')
+            
+            if password != password_confirm:
+                messages.error(request, 'Las contraseñas no coinciden.')
+                return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': True})
+            
+            if len(password) < 8:
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+                return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': True})
+            
+            # Cambiar contraseña
+            usuario.set_password(password)
+            usuario.save()
+            
+            messages.success(request, '¡Contraseña cambiada exitosamente! Ahora puedes iniciar sesión.')
+            return redirect('home')
+        
+        return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': True})
+    else:
+        messages.error(request, 'El enlace de recuperación es inválido o ha expirado.')
+        return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': False})

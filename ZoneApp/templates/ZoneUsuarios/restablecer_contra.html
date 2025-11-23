@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Restablecer Contraseña{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
+        {% if validlink %}
+        <div class="text-center mb-8">
+            <div class="bg-instagram-pink/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-lock text-4xl text-instagram-pink"></i>
+            </div>
+            <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange">
+                Restablecer Contraseña
+            </h2>
+            <p class="text-text-light mt-2">
+                Ingresa tu nueva contraseña
+            </p>
+        </div>
+
+        <form method="POST" id="resetPasswordForm">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="block text-text-dark font-medium mb-2">
+                    <i class="fas fa-lock text-instagram-pink mr-2"></i>
+                    Nueva Contraseña
+                </label>
+                <input type="password" name="password" id="password" required minlength="8"
+                       class="w-full px-4 py-3 border border-border-color rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink focus:border-transparent transition-all"
+                       placeholder="Mínimo 8 caracteres">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-text-dark font-medium mb-2">
+                    <i class="fas fa-lock text-instagram-pink mr-2"></i>
+                    Confirmar Contraseña
+                </label>
+                <input type="password" name="password_confirm" id="password_confirm" required
+                       class="w-full px-4 py-3 border border-border-color rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink focus:border-transparent transition-all"
+                       placeholder="Repite tu contraseña">
+                <p id="passwordError" class="text-instagram-red text-sm mt-1 hidden"></p>
+            </div>
+
+            <button type="submit" 
+                    class="w-full py-3 px-4 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 mb-4">
+                <i class="fas fa-check-circle mr-2"></i>
+                Cambiar Contraseña
+            </button>
+
+            <div class="text-center">
+                <a href="{% url 'home' %}" class="text-instagram-pink hover:underline font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Volver al inicio
+                </a>
+            </div>
+        </form>
+
+        <script>
+        document.getElementById('resetPasswordForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const passwordConfirm = document.getElementById('password_confirm').value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (password !== passwordConfirm) {
+                e.preventDefault();
+                errorElement.textContent = 'Las contraseñas no coinciden';
+                errorElement.classList.remove('hidden');
+                return;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                errorElement.textContent = 'La contraseña debe tener al menos 8 caracteres';
+                errorElement.classList.remove('hidden');
+                return;
+            }
+            
+            errorElement.classList.add('hidden');
+        });
+        </script>
+
+        {% else %}
+        <div class="text-center">
+            <div class="bg-red-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-4xl text-instagram-red"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-text-dark mb-4">Enlace Inválido</h2>
+            <p class="text-text-light mb-6">
+                El enlace de recuperación es inválido o ha expirado.
+            </p>
+            <a href="{% url 'recuperar_contra' %}" 
+               class="inline-block py-3 px-6 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all">
+                Solicitar Nuevo Enlace
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

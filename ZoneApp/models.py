@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager, Group, Permission
+from django.utils import timezone
 # Create your models here.
 
 class UsuarioManager(BaseUserManager):
@@ -70,7 +71,7 @@ class Matrona(models.Model):
             default="#7436ad", 
             verbose_name='Color en Agenda'
         )
-    fecha_registro = models.DateTimeField(auto_now_add=True)
+    fecha_registro = models.DateTimeField(default=timezone.now)
     class Meta:
         verbose_name = 'Matrona'
         verbose_name_plural = 'Matronas'
@@ -155,7 +156,7 @@ class Reservas(models.Model):
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P', verbose_name='Estado de la Reserva')
 
     carrito_item = models.OneToOneField('CarritoItem', on_delete=models.SET_NULL, null=True, blank=True, related_name='reserva_asociada')
-    fechacreacion = models.DateTimeField(auto_now_add=True)
+    fechacreacion = models.DateTimeField(default=timezone.now)
 
     class Meta:
         constraints = [
@@ -188,7 +189,7 @@ class CarritoItem(models.Model):
 
 class Venta(models.Model):
     rut = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    fecha_venta = models.DateTimeField(auto_now_add=True)
+    fecha_venta = models.DateTimeField(default=timezone.now)
     total_venta = models.IntegerField()
     estado = models.CharField(
         max_length=20, 
@@ -199,7 +200,7 @@ class Venta(models.Model):
 class Pagos(models.Model):
     venta = models.OneToOneField(Venta, on_delete=models.CASCADE)
     monto_total = models.IntegerField()
-    fecha_pago = models.DateTimeField(auto_now_add=True)
+    fecha_pago = models.DateTimeField(default=timezone.now)
     metodo_pago = models.CharField(max_length=50, default='WEBPAY')
     #TRANSBANK
     token_ws = models.CharField(max_length=255, unique=True, null=True) # El token vital

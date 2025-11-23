@@ -29,6 +29,9 @@ urlpatterns = [
     path('pago/confirmar/', views.confirmar_pago, name='confirmar_pago'),
     path('pago/resultado/<str:resultado>/', views.resultado_pago, name='resultado_pago'),
     path('pago/resultado/<str:resultado>/<int:venta_id>/', views.resultado_pago, name='resultado_pago'),
+    ##RECUPERAR CONTRASEÑA
+ path('recuperar_contrasena/', views.recuperar_contra, name='recuperar_contra'),
+    path('reset_contrasena/<uidb64>/<token>/', views.restablecer_contra, name='restablecer_contra'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    

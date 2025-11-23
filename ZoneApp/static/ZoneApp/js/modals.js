@@ -32,22 +32,205 @@ function switchLoginTab(tab) {
   }
 }
 
-// Configurar límites de fecha de nacimiento
+// Calendario personalizado para fecha de nacimiento
+let calendarioAbierto = false;
+let fechaSeleccionada = null;
+
 function configurarFechaNacimiento() {
-  const fechaNacimientoInput = document.getElementById('fechaNacimiento');
-  if (fechaNacimientoInput && !fechaNacimientoInput.hasAttribute('data-configured')) {
-    const hoy = new Date();
-    const hace14Anos = new Date(hoy.getFullYear() - 14, hoy.getMonth(), hoy.getDate());
-    const hace100Anos = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate());
+    const input = document.getElementById('fechaNacimiento');
+    const hiddenInput = document.getElementById('fechaNacimientoHidden');
     
-    // Formato: YYYY-MM-DD
-    fechaNacimientoInput.max = hace14Anos.toISOString().split('T')[0];
-    fechaNacimientoInput.min = hace100Anos.toISOString().split('T')[0];
+    if (!input) return;
     
-    // Marcar como configurado
-    fechaNacimientoInput.setAttribute('data-configured', 'true');
-  }
+    // Crear contenedor del calendario si no existe
+    let calendarioDiv = document.getElementById('calendario-picker');
+    if (!calendarioDiv) {
+        calendarioDiv = document.createElement('div');
+        calendarioDiv.id = 'calendario-picker';
+        calendarioDiv.className = 'calendario-container hidden';
+        input.parentElement.appendChild(calendarioDiv);
+    }
+    
+    // Abrir calendario al hacer clic en el input
+    input.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (!calendarioAbierto) {
+            abrirCalendario();
+        }
+    });
+    
+    // Evitar que se cierre al hacer clic dentro del calendario
+    calendarioDiv.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
 }
+
+function abrirCalendario() {
+    const calendarioDiv = document.getElementById('calendario-picker');
+    const hoy = new Date();
+    const fechaMaxima = new Date(hoy.getFullYear() - 14, hoy.getMonth(), hoy.getDate());
+    
+    let mesActual = fechaMaxima.getMonth();
+    let añoActual = fechaMaxima.getFullYear();
+    
+    // Inicializar fecha seleccionada si no existe
+    if (!fechaSeleccionada) {
+        fechaSeleccionada = {
+            dia: null,
+            mes: mesActual,
+            año: añoActual
+        };
+    }
+    
+    function renderizarCalendario() {
+        const primerDia = new Date(añoActual, mesActual, 1);
+        const ultimoDia = new Date(añoActual, mesActual + 1, 0);
+        const diasEnMes = ultimoDia.getDate();
+        const primerDiaSemana = primerDia.getDay();
+        
+        const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        
+        let html = `
+            <div class="calendario-header">
+                <button type="button" class="calendario-nav" onclick="cambiarMes(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="calendario-title">
+                    <select id="mesSelect" onchange="cambiarMesSelect(this.value)">
+                        ${meses.map((mes, idx) => 
+                            `<option value="${idx}" ${idx === mesActual ? 'selected' : ''}>${mes}</option>`
+                        ).join('')}
+                    </select>
+                    <select id="añoSelect" onchange="cambiarAñoSelect(this.value)">
+                        ${Array.from({length: 100}, (_, i) => {
+                            const año = hoy.getFullYear() - 14 - i;
+                            return `<option value="${año}" ${año === añoActual ? 'selected' : ''}>${año}</option>`;
+                        }).join('')}
+                    </select>
+                </div>
+                <button type="button" class="calendario-nav" onclick="cambiarMes(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="calendario-dias-semana">
+                <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div>
+                <div>Jue</div><div>Vie</div><div>Sáb</div>
+            </div>
+            <div class="calendario-dias">
+        `;
+        
+        // Días vacíos al inicio
+        for (let i = 0; i < primerDiaSemana; i++) {
+            html += '<div class="calendario-dia vacio"></div>';
+        }
+        
+        // Días del mes
+        for (let dia = 1; dia <= diasEnMes; dia++) {
+            const fechaActual = new Date(añoActual, mesActual, dia);
+            const esSeleccionado = fechaSeleccionada.dia === dia && 
+                                  fechaSeleccionada.mes === mesActual && 
+                                  fechaSeleccionada.año === añoActual;
+            const esFuturo = fechaActual > fechaMaxima;
+            
+            html += `
+                <div class="calendario-dia ${esSeleccionado ? 'seleccionado' : ''} ${esFuturo ? 'deshabilitado' : ''}" 
+                     onclick="${esFuturo ? '' : `seleccionarDia(${dia})`}">
+                    ${dia}
+                </div>
+            `;
+        }
+        
+        html += `
+            </div>
+            <div class="calendario-footer">
+                <button type="button" class="calendario-btn-cancelar" onclick="cerrarCalendario()">
+                    Cancelar
+                </button>
+                <button type="button" class="calendario-btn-confirmar" onclick="confirmarFecha()">
+                    Confirmar
+                </button>
+            </div>
+        `;
+        
+        calendarioDiv.innerHTML = html;
+    }
+    
+    renderizarCalendario();
+    calendarioDiv.classList.remove('hidden');
+    calendarioAbierto = true;
+    
+    // Funciones globales para el calendario
+    window.cambiarMes = function(delta) {
+        mesActual += delta;
+        if (mesActual > 11) {
+            mesActual = 0;
+            añoActual++;
+        } else if (mesActual < 0) {
+            mesActual = 11;
+            añoActual--;
+        }
+        renderizarCalendario();
+    };
+    
+    window.cambiarMesSelect = function(mes) {
+        mesActual = parseInt(mes);
+        renderizarCalendario();
+    };
+    
+    window.cambiarAñoSelect = function(año) {
+        añoActual = parseInt(año);
+        renderizarCalendario();
+    };
+    
+    window.seleccionarDia = function(dia) {
+        fechaSeleccionada = {
+            dia: dia,
+            mes: mesActual,
+            año: añoActual
+        };
+        renderizarCalendario();
+    };
+    
+    window.confirmarFecha = function() {
+        if (fechaSeleccionada && fechaSeleccionada.dia) {
+            const input = document.getElementById('fechaNacimiento');
+            const hiddenInput = document.getElementById('fechaNacimientoHidden');
+            
+            const dia = String(fechaSeleccionada.dia).padStart(2, '0');
+            const mes = String(fechaSeleccionada.mes + 1).padStart(2, '0');
+            const año = fechaSeleccionada.año;
+            
+            // Formato para mostrar (DD/MM/YYYY)
+            input.value = `${dia}/${mes}/${año}`;
+            
+            // Formato para enviar al servidor (YYYY-MM-DD)
+            hiddenInput.value = `${año}-${mes}-${dia}`;
+            
+            cerrarCalendario();
+        } else {
+            alert('Por favor selecciona una fecha');
+        }
+    };
+    
+    window.cerrarCalendario = function() {
+        const calendarioDiv = document.getElementById('calendario-picker');
+        calendarioDiv.classList.add('hidden');
+        calendarioAbierto = false;
+    };
+}
+
+// Cerrar calendario al hacer clic fuera
+document.addEventListener('click', function(e) {
+    const calendarioDiv = document.getElementById('calendario-picker');
+    const input = document.getElementById('fechaNacimiento');
+    
+    if (calendarioAbierto && calendarioDiv && input && 
+        !calendarioDiv.contains(e.target) && 
+        !input.contains(e.target)) {
+        window.cerrarCalendario();
+    }
+});
 
 // Manejar el envío del formulario de registro
 document.addEventListener('DOMContentLoaded', function() {

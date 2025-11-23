@@ -23,13 +23,23 @@
             </label>
             <input type="email" name="username" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="tu@email.com">
           </div>
+          
+          <!-- CAMPO DE CONTRASEÑA ÚNICO -->
           <div class="form-group-modal mb-5">
             <label class="block mb-2 font-medium text-gray-700">
               <i class="fas fa-lock mr-2 text-instagram-pink"></i>Contraseña
             </label>
             <input type="password" name="password" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="••••••">
+            
+            <!-- Enlace de olvidé mi contraseña -->
+            <div class="text-right mt-2">
+           <a href="{% url 'recuperar_contra' %}" 
+                 class="text-sm text-instagram-pink hover:underline font-medium">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
           </div>
-          
+
           <button type="submit" class="w-full py-3 px-6 rounded-full font-bold bg-instagram-gradient text-white hover:shadow-lg transition-all">
              <i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión
           </button>
@@ -71,7 +81,7 @@
               <input type="text" id="fechaNacimientoDisplay" readonly class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink cursor-pointer bg-white" placeholder="Selecciona tu fecha de nacimiento">
               <input type="hidden" name="fecha_nacimiento" id="fechaNacimiento">
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                {% comment %} <i class="fas fa-calendar-alt text-instagram-pink"></i> {% endcomment %}
+                <i class="fas fa-calendar-alt text-instagram-pink"></i>
               </div>
             </div>
             <p class="text-xs text-gray-500 mt-1">Debe ser mayor de 14 años</p>
@@ -97,7 +107,7 @@
                     <option value="10">Noviembre</option>
                     <option value="11">Diciembre</option>
                   </select>
-                  <input type="number" id="anioNacimiento" min="1925" max="2007" class="w-20 px-2 py-1 border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-instagram-pink">
+                  <input type="number" id="anioNacimiento" min="1925" max="2010" class="w-20 px-2 py-1 border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-instagram-pink">
                 </div>
                 <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 transition-colors" onclick="cambiarMesNacimiento(1)">
                   <i class="fas fa-chevron-right"></i>
