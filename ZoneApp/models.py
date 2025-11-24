@@ -36,6 +36,7 @@ class Usuario(AbstractUser):
     fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name='Fecha de Nacimiento')
     USERNAME_FIELD = 'email' # Para que se pida el correo para iniciar sesión
     REQUIRED_FIELDS = ['first_name', 'rut']
+    # fichaclinica
     objects = UsuarioManager()
     ROLES_CHOICES = (('matrona', 'matrona'), ('usuario', 'usuario'),)
     rol = models.CharField(max_length=10,  choices=ROLES_CHOICES, default='usuario', verbose_name='Rol') # El rol default será cliente, la admin deberá dar rol Matrona
@@ -88,6 +89,7 @@ class Matrona(models.Model):
             default="#7436ad", 
             verbose_name='Color en Agenda'
         )
+    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de Perfil')
     fecha_registro = models.DateTimeField(default=timezone.now)
     class Meta:
         verbose_name = 'Matrona'
@@ -228,3 +230,5 @@ class Pagos(models.Model):
         choices=[('PENDIENTE', 'Pendiente'), ('APROBADO', 'Aprobado'), ('RECHAZADO', 'Rechazado')],
         default='PENDIENTE'
     )
+
+

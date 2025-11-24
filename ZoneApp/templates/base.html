@@ -97,18 +97,23 @@
         </div>
         
         <div class="py-2">
-            <a href="{% url 'home' %}" 
+          {%if user.rol  == 'matrona'%}
+           <a href="{% url 'perfil_matrona' %}" 
                class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
                 <i class="fas fa-user-circle text-instagram-pink w-5"></i>
                 <span>Mi Perfil</span>
             </a>
-            {%if user.rol  == 'matrona'%}
             <a href="{% url 'panel_matrona' %}" 
                class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
                 <i class="fas fa-calendar-alt text-instagram-pink w-5"></i>
                 <span>Panel Matrona</span>
             </a>
             {%else%}
+            <a href="{% url 'home' %}" 
+               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
+                <i class="fas fa-user-circle text-instagram-pink w-5"></i>
+                <span>Mi Perfil</span>
+            </a>
             <a href="#" 
                class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
                 <i class="fas fa-calendar-alt text-instagram-pink w-5"></i>

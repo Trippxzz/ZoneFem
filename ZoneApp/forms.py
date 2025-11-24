@@ -1,5 +1,5 @@
 from django import forms
-from .models import Usuario, Servicio, BloqueServicio, disponibilidadServicio
+from .models import Usuario, Servicio, BloqueServicio, disponibilidadServicio, Matrona
 from django.forms.models import inlineformset_factory
 from datetime import date
 from django.contrib.auth import authenticate
@@ -90,3 +90,50 @@ class ContactoForm(forms.Form):
     email = forms.EmailField(label='Correo Electrónico')
     phone = forms.CharField(max_length=15, required=False, label='Teléfono (Opcional)')
     message = forms.CharField(widget=forms.Textarea, label='Mensaje')
+
+class PerfilMatronaForm(forms.ModelForm):
+    # Estos campos son de Usuario
+    first_name = forms.CharField(label='Nombre', required=True)
+    email = forms.EmailField(label='Correo Electrónico', required=True)
+    fecha_nacimiento = forms.DateField(
+        label='Fecha de Nacimiento',
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    
+    class Meta:
+        model = Matrona
+        fields = ['telefono', 'descripcion', 'color_agenda', 'foto_perfil'] 
+        labels = {
+            'telefono': 'Teléfono',
+            'descripcion': 'Biografía Profesional',
+            'color_agenda': 'Color',
+            'foto_perfil': 'Foto de Perfil'
+        }
+        widgets = {
+            'descripcion': forms.Textarea(attrs={'rows': 4}),
+            'color_agenda': forms.TextInput(attrs={'type': 'color'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        if self.instance and self.instance.pk and self.instance.usuario:
+            self.fields['first_name'].initial = self.instance.usuario.first_name
+            self.fields['email'].initial = self.instance.usuario.email
+            self.fields['fecha_nacimiento'].initial = self.instance.usuario.fecha_nacimiento
+    
+    def save(self, commit=True):
+        # Guardar el perfil de Matrona
+        matrona = super().save(commit=False)
+        
+        # Actualizar datos del Usuario
+        usuario = matrona.usuario
+        usuario.first_name = self.cleaned_data['first_name']
+        usuario.fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+        
+        if commit:
+            usuario.save()
+            matrona.save()
+        
+        return matrona

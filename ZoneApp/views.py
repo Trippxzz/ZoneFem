@@ -5,7 +5,7 @@ from django.contrib.auth.views import LoginView as DjangoLoginView
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, JsonResponse, Http404
-from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm
+from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm, PerfilMatronaForm
 from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona, Venta, Pagos
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -228,7 +228,10 @@ def generarHoras(dsemana: int, fecha: datetime.date, servicioid: int):
         matrona_id = matrona_usuario.id
         
         matrona_nombre = matrona_usuario.get_full_name() or matrona_usuario.email 
-        
+        try:
+            color_matrona = matrona_usuario.perfil_matrona.color_agenda
+        except:
+            color_matrona = '#7436ad'
         start_time = datetime.combine(fecha, dispo.hora_inicio)
         end_time = datetime.combine(fecha, dispo.hora_fin)
         
@@ -248,7 +251,7 @@ def generarHoras(dsemana: int, fecha: datetime.date, servicioid: int):
                 'hora_inicio': slot_inicio_str,
                 'hora_fin': slot_fin.strftime("%H:%M"),
                 'fecha': fecha.isoformat(),
-                'colorm': f"#{matrona_id * 100 % 0xFFFFFF:06x}" 
+                'colorm': color_matrona
             })
             
             current_slot += timedelta(minutes=duracion)
@@ -683,7 +686,6 @@ def recuperar_contra(request):
     return render(request, 'ZoneUsuarios/recuperar_contra.html')
 
 def restablecer_contra(request, uidb64, token):
-    """Vista para restablecer la contraseña con el token"""
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         usuario = Usuario.objects.get(pk=uid)
@@ -763,6 +765,53 @@ def panel_matrona(request):
 
 @login_required
 def lista_pacientes(request):
-    pacientesc_reservas = Reservas.objects.filter(matrona = request.user, estado='C').select_related('usuario', 'servicio')
-    context = {'reservas':pacientesc_reservas, 'matrona' : request.user}
-    return render(request, 'ZoneMatronas/panelmatronas.html', context)  
+    if request.user.rol != 'matrona':
+        return redirect('home')
+    
+    pacientes_id = Reservas.objects.filter(
+        matrona = request.user,
+        estado = 'C'
+    ).values_list('usuario__id', flat=True).distinct()
+    pacientes = Usuario.objects.filter(id__in = pacientes_id)
+    context = {'pacientes':pacientes}
+    return render(request, 'ZoneMatronas/listaPacientes.html', context)
+
+# @login_required
+# def detalle_paciente(request, id):
+#     if request.user.rol != 'matrona':
+#         return redirect('home')
+#     paciente = get_object_or_404(Usuario, id=id)
+    
+    
+### IDEA PARA PERFIL DE USUARIO/VISTA DESDE MATRONA
+
+##TABLA DE USUARIOS CON BOTON DE VER PERFIL, AL ABRIR PERFIL, QUE SE PUEDA MODIFICAR DATOS Y AGREGAR (FICHA CLINICA)
+# TABLA CON RECETAS DADAS ¿?
+# Ficha CLINICA UN CAMPO DE MUCHO TEXTO O VARIAS FICHAS SEGUN CITAS HAYAN (ESTILO POSIT)
+
+@login_required
+def perfil_matrona(request):
+    if request.user.rol != 'matrona':
+        messages.error(request, 'No tienes permisos')
+        return redirect('home')
+    
+    perfil_matrona = request.user.perfil_matrona
+    
+    if request.method == 'POST':
+        form = PerfilMatronaForm(request.POST, request.FILES, instance=perfil_matrona)
+        
+        if form.is_valid():
+            form.save()
+            # Poner Notificacion
+            return redirect('perfil_matrona')
+        # else:
+            # Poner Notificacion
+    else:
+        form = PerfilMatronaForm(instance=perfil_matrona)
+    
+    context = {
+        'form': form,
+        'perfil_matrona': perfil_matrona
+    }
+    
+    return render(request, 'ZoneMatronas/perfilmatrona.html', context)

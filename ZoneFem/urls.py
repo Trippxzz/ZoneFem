@@ -32,7 +32,9 @@ urlpatterns = [
     ##RECUPERAR CONTRASEÑA
  path('recuperar_contrasena/', views.recuperar_contra, name='recuperar_contra'),
     path('reset_contrasena/<uidb64>/<token>/', views.restablecer_contra, name='restablecer_contra'),
-    path('panelmatrona', views.panel_matrona, name = 'panel_matrona')
+    path('panelmatrona', views.panel_matrona, name = 'panel_matrona'),
+    path('panelmatrona/lista_pacientes', views.lista_pacientes, name = 'lista_pacientes'),
+    path('panelmatrona/perfil/', views.perfil_matrona, name='perfil_matrona'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    
