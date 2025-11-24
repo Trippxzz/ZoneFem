@@ -672,12 +672,12 @@ def recuperar_contra(request):
                 html_message=message
             )
             
-            messages.success(request, 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña.')
+            # messages.success(request, 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña.')
             return redirect('home')
             
         except Usuario.DoesNotExist:
             # Por seguridad, mostramos el mismo mensaje aunque el usuario no exista
-            messages.success(request, 'Si el correo existe, te hemos enviado instrucciones para restablecer tu contraseña.')
+            # messages.success(request, 'Si el correo existe, te hemos enviado instrucciones para restablecer tu contraseña.')
             return redirect('home')
     
     return render(request, 'ZoneUsuarios/recuperar_contra.html')
@@ -696,21 +696,73 @@ def restablecer_contra(request, uidb64, token):
             password_confirm = request.POST.get('password_confirm')
             
             if password != password_confirm:
-                messages.error(request, 'Las contraseñas no coinciden.')
+                # messages.error(request, 'Las contraseñas no coinciden.')
                 return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': True})
             
             if len(password) < 8:
-                messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
+                # messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
                 return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': True})
             
             # Cambiar contraseña
             usuario.set_password(password)
             usuario.save()
             
-            messages.success(request, '¡Contraseña cambiada exitosamente! Ahora puedes iniciar sesión.')
+            # messages.success(request, '¡Contraseña cambiada exitosamente! Ahora puedes iniciar sesión.')
             return redirect('home')
         
         return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': True})
     else:
-        messages.error(request, 'El enlace de recuperación es inválido o ha expirado.')
+        # messages.error(request, 'El enlace de recuperación es inválido o ha expirado.')
         return render(request, 'ZoneUsuarios/restablecer_contra.html', {'validlink': False})
+
+
+@login_required
+def panel_matrona(request):
+    if request.user.rol != 'matrona':
+        messages.error(request, 'No tienes permisos')
+        return redirect('home')
+    
+    reservas_hoy = Reservas.objects.filter(
+        matrona=request.user,
+        fecha=datetime.now().date(),
+        estado='C'
+    ).count()
+    
+    reservas_mes = Reservas.objects.filter(
+        matrona=request.user,
+        fecha__month=datetime.now().month,
+        estado='C'
+    ).count()
+    
+    total_pacientes = Reservas.objects.filter(
+        matrona=request.user,
+        estado='C'
+    ).values('usuario').distinct().count()
+    
+    proximas_reservas = Reservas.objects.filter(
+        matrona=request.user,
+        estado='C',
+        fecha__gte=datetime.now().date()
+    ).select_related('usuario', 'servicio').order_by('fecha', 'hora_inicio')[:5] ## Para que solo sean 5 que se muestran en el resumen
+    
+    todas_reservas = Reservas.objects.filter(
+        matrona=request.user,
+        estado='C',
+        fecha__gte=datetime.now().date()
+    ).select_related('usuario', 'servicio').order_by('fecha', 'hora_inicio')
+    
+    context = {
+        'reservas_hoy': reservas_hoy,
+        'reservas_mes': reservas_mes,
+        'total_pacientes': total_pacientes,
+        'proximas_reservas': proximas_reservas,  # Solo 5
+        'todas_reservas': todas_reservas,         # Todas para el modal
+    }
+    
+    return render(request, 'ZoneMatronas/panelmatronas.html', context)
+
+@login_required
+def lista_pacientes(request):
+    pacientesc_reservas = Reservas.objects.filter(matrona = request.user, estado='C').select_related('usuario', 'servicio')
+    context = {'reservas':pacientesc_reservas, 'matrona' : request.user}
+    return render(request, 'ZoneMatronas/panelmatronas.html', context)  

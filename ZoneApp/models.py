@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager, Group, Permission
 from django.utils import timezone
+from datetime import date
 # Create your models here.
 
 class UsuarioManager(BaseUserManager):
@@ -60,6 +61,22 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    def calcular_edad(self):
+        if not self.fecha_nacimiento:
+            return None
+        
+        hoy = date.today()
+        edad = hoy.year - self.fecha_nacimiento.year
+        
+        if (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day):
+            edad -= 1
+        
+        return edad
+    
+    @property
+    def edad(self):
+        return self.calcular_edad()
     
 
 class Matrona(models.Model):
