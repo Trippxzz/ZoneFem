@@ -798,6 +798,29 @@ def lista_pacientes(request):
 # Ficha CLINICA UN CAMPO DE MUCHO TEXTO O VARIAS FICHAS SEGUN CITAS HAYAN (ESTILO POSIT)
 
 @login_required
+def perfil_usuario(request):  
+    perfil_usuario = request.user
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST, instance=perfil_usuario)
+        
+        if form.is_valid():
+            
+            # Poner Notificacion
+            return redirect('home')
+        # else:
+            # Poner Notificacion
+    else:
+        form = UsuarioForm(instance=perfil_usuario)
+    
+    context = {
+        'form': form,
+        'perfil_usuario': perfil_usuario
+    }
+    
+    return render(request, 'Zoneusuarios/perfilusuario.html', context)
+
+
+@login_required
 def perfil_matrona(request):
     if request.user.rol != 'matrona':
         messages.error(request, 'No tienes permisos')
@@ -823,6 +846,7 @@ def perfil_matrona(request):
     }
     
     return render(request, 'ZoneMatronas/perfilmatrona.html', context)
+
 
 
 ## ADMINISTRACIÓN

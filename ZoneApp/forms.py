@@ -9,7 +9,7 @@ class UsuarioForm(forms.ModelForm):
     password2 = forms.CharField(label='Confirmación de contraseña', widget=forms.PasswordInput)
     class Meta:
         model = Usuario
-        fields = ['first_name', 'email', 'rut', 'fecha_nacimiento']
+        fields = ['first_name', 'email', 'rut', 'fecha_nacimiento', 'telefono']
         widgets = {
             'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
             }

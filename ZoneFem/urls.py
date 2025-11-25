@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('registro/', views.RegistroUsuarios, name='registro'),
     path('login_ajax/', views.login_ajax, name='login_ajax'), 
+    path('miperfil/', views.perfil_usuario, name='miperfil'), 
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('crear_servicio/', views.crearServicio, name='crearservicio'),
     path('contacto/', views.contacto_view, name='contacto'),
@@ -35,6 +36,9 @@ urlpatterns = [
     path('panelmatrona', views.panel_matrona, name = 'panel_matrona'),
     path('panelmatrona/lista_pacientes', views.lista_pacientes, name = 'lista_pacientes'),
     path('panelmatrona/perfil/', views.perfil_matrona, name='perfil_matrona'),
+    #  Administración 
+    path('gestion/asignar_servicios/', views.admin_asignar_servicios, name='admin_asignar_servicios'),
+    path('gestion/lista_servicios/', views.admin_lista_servicios, name='admin_lista_servicios'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)    

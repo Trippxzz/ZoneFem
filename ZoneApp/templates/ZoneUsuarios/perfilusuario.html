@@ -1,0 +1,145 @@
+<!-- filepath: d:\dev\ZoneFem\ZoneApp\templates\ZoneMatronas\perfil_matrona.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil - ZONEFEM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-input {
+        margin-top:1%;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #a855f7;
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    }
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+    .btn-primary {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(to right, #a855f7, #ec4899);
+        color: white;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    .btn-primary:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">Mi Perfil</h1>
+                    {% comment %} <p class="text-gray-600 mt-1">Personaliza tu perfil profesional</p> {% endcomment %}
+                </div>
+                <a href="{% url 'home' %}" class="text-gray-600 hover:text-purple-600">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Volver al Menu
+                </a>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+
+            <!-- Información Personal -->
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-user text-purple-500 mr-2"></i>
+                    Información Personal
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                            {{ form.first_name.label }}
+                        </label>
+                        <input type="text" 
+                               name="{{ form.first_name.name }}" 
+                               id="{{ form.first_name.id_for_label }}"
+                               value="{{ form.first_name.value|default:'' }}"
+                               class="form-input"
+                               placeholder="Nombre">
+                        {% if form.first_name.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="form-label">
+                            {{ form.email.label }}
+                        </label>
+                        <input type="email" 
+                               name="{{ form.email.name }}" 
+                               id="{{ form.email.id_for_label }}"
+                               value="{{ form.email.value|default:'' }}"
+                               class="form-input bg-gray-100">
+                    </div>
+
+<div>
+                        <label for="id_telefono" class="form-label">
+                            Teléfono
+                        </label>
+                        <input type="text" 
+                               name="telefono" 
+                               id="id_telefono"
+                               value="{{ user.telefono|default:'' }}"
+                               class="form-input"
+                               placeholder="+56912345678"
+                               maxlength="15">
+                        <p class="text-xs text-gray-500 mt-1">Formato: +56912345678</p>
+                    </div>
+
+                    <!-- Fecha de Nacimiento (READONLY) -->
+                    <div>
+                        <label for="id_fecha_nacimiento" class="form-label">
+                            Fecha de Nacimiento
+                        </label>
+                        <input type="date" 
+                               name="fecha_nacimiento" 
+                               id="id_fecha_nacimiento"
+                               value="{{ user.fecha_nacimiento|date:'Y-m-d'|default:'' }}"
+                               class="form-input bg-gray-100"
+                               readonly>
+                        <p class="text-xs text-gray-500 mt-1">Este campo no se puede modificar</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-4">
+                <a href="{% url 'home' %}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    Cancelar
+                </a>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

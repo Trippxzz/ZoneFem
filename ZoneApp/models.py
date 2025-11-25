@@ -34,6 +34,7 @@ class Usuario(AbstractUser):
     first_name = models.CharField(max_length=150, blank=False, verbose_name='Nombre')
     rut = models.CharField(max_length=15, unique=True, verbose_name="RUT") # Esto cambia el nombre en el Admin
     fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name='Fecha de Nacimiento')
+    telefono = models.CharField(max_length=12,null=True, blank=True)
     USERNAME_FIELD = 'email' # Para que se pida el correo para iniciar sesión
     REQUIRED_FIELDS = ['first_name', 'rut']
     # fichaclinica

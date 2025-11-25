@@ -7,6 +7,7 @@
 {% block extra_css %}
 <style>
     .form-input {
+        margin-top:1%;
         width: 100%;
         padding: 0.75rem 1rem;
         border: 1px solid #d1d5db;
@@ -56,15 +57,6 @@
                 </a>
             </div>
         </div>
-
-        <!-- Mensajes -->
-        {% if messages %}
-        {% for message in messages %}
-        <div class="mb-6 p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
 
         <!-- Formulario -->
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -187,14 +179,14 @@
                 </div>
 
                 <!-- Biografía -->
-                <div class="mt-4">
+                <div class="mt-4 border-t border-white/10">
                     <label for="{{ form.descripcion.id_for_label }}" class="form-label">
                         {{ form.descripcion.label }}
                     </label>
                     <textarea name="{{ form.descripcion.name }}" 
                               id="{{ form.descripcion.id_for_label }}"
-                              rows="4"
-                              class="form-input"
+                              rows="6"
+                              class="form-input w-full"
                               placeholder="Cuéntanos sobre tu experiencia profesional...">{{ form.descripcion.value|default:'' }}</textarea>
                     {% if form.descripcion.errors %}
                     <p class="text-red-500 text-sm mt-1">{{ form.descripcion.errors.0 }}</p>
@@ -244,7 +236,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const preview = document.getElementById('foto-preview');
     const nombreArchivo = document.getElementById('nombre-archivo');
     
-    console.log('Input encontrado:', inputFoto); // ✅ DEBUG
     
     if (btnSubir && inputFoto) {
         // Al hacer click en el botón, activar el input file
@@ -283,9 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
             }
         });
-    } else {
-        console.error('❌ No se encontró el input o el botón');
-    }
+    } 
 });
 </script>
 {% endblock %}
