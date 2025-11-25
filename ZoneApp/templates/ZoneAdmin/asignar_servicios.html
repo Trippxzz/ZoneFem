@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Asignar Matronas a Servicios{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-user-nurse mr-2"></i>
+                Asignar Matronas a Servicios
+            </h1>
+            <p class="text-white/80">Gestiona qué matronas pueden realizar cada servicio</p>
+        </div>
+        <a href="{% url 'panel_matrona' %}" 
+           class="px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-all shadow-lg">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Volver al Panel
+        </a>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="bg-{% if message.tags == 'success' %}green{% elif message.tags == 'error' %}red{% else %}blue{% endif %}-500 text-white px-6 py-4 rounded-lg shadow-lg mb-3">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Contenido Principal -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
+        
+        {% if servicios %}
+            <div class="space-y-8">
+                {% for servicio in servicios %}
+                <div class="border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all">
+                    <form method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="servicio_id" value="{{ servicio.id }}">
+                        
+                        <!-- Header del Servicio -->
+                        <div class="flex items-start justify-between mb-4 pb-4 border-b border-gray-200">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-gray-800 mb-2">
+                                    {{ servicio.nombre }}
+                                </h3>
+                                <p class="text-gray-600 mb-2">{{ servicio.descripcion|truncatewords:20 }}</p>
+                                <div class="flex gap-4 text-sm text-gray-500">
+                                    <span>
+                                        <i class="fas fa-dollar-sign text-green-500 mr-1"></i>
+                                        ${{ servicio.precio|floatformat:0 }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-clock text-blue-500 mr-1"></i>
+                                        {{ servicio.duracion }} min
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selección de Matronas -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3">
+                                <i class="fas fa-users text-purple-500 mr-2"></i>
+                                Matronas que pueden realizar este servicio:
+                            </label>
+                            
+                            {% if matronas %}
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {% for matrona in matronas %}
+                                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 transition-all cursor-pointer">
+                                        <input type="checkbox" 
+                                               name="matronas" 
+                                               value="{{ matrona.id }}"
+                                               {% if matrona.id in servicio.matronas_asignadas %}checked{% endif %}
+                                               class="w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
+                                        <div class="ml-3 flex-1">
+                                            <span class="font-medium text-gray-800">{{ matrona.get_full_name }}</span>
+                                            <span class="text-xs text-gray-500 block">{{ matrona.email }}</span>
+                                        </div>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-500 italic">No hay matronas registradas en el sistema</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botón Guardar -->
+                        <div class="flex justify-end pt-4">
+                            <button type="submit" 
+                                    class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg">
+                                <i class="fas fa-save mr-2"></i>
+                                Guardar Asignación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">No hay servicios registrados en el sistema</p>
+                <a href="{% url 'crearservicio' %}" class="inline-block mt-4 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all">
+                    <i class="fas fa-plus mr-2"></i>
+                    Crear Primer Servicio
+                </a>
+            </div>
+        {% endif %}
+        
+    </div>
+</div>
+
+<!-- Template Tag Helper (necesario para el checkbox checked) -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Agregar efecto visual al seleccionar checkbox
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const label = this.closest('label');
+        if (this.checked) {
+            label.classList.add('bg-purple-50', 'border-purple-400');
+        } else {
+            label.classList.remove('bg-purple-50', 'border-purple-400');
+        }
+    });
+    
+    // Aplicar estado inicial
+    if (checkbox.checked) {
+        checkbox.closest('label').classList.add('bg-purple-50', 'border-purple-400');
+    }
+});
+</script>
+{% endblock %}

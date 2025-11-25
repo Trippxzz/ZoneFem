@@ -106,7 +106,7 @@ class PerfilMatronaForm(forms.ModelForm):
         fields = ['telefono', 'descripcion', 'color_agenda', 'foto_perfil'] 
         labels = {
             'telefono': 'Teléfono',
-            'descripcion': 'Biografía Profesional',
+            'descripcion': 'Biografía Profesional: ',
             'color_agenda': 'Color',
             'foto_perfil': 'Foto de Perfil'
         }

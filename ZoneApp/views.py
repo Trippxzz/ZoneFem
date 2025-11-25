@@ -377,6 +377,10 @@ def eliminarItemCarrito(request, item_id):
 def panelServicio(request):
     if request.user.rol != 'matrona':
         return redirect('home')
+    
+    # Obtener bloques directamente
+    bloques = BloqueServicio.objects.filter(matrona=request.user).select_related('servicio')
+    
     if request.method == 'POST':
         form = seleccionarServicioForm(matrona=request.user, data=request.POST)
         if form.is_valid():
@@ -384,7 +388,11 @@ def panelServicio(request):
             return redirect('editar_disponibilidad_servicio', bloque_id=bloque_id)
     else:
         form = seleccionarServicioForm(matrona=request.user)
-    return render(request, 'ZoneMatronas/panelservicio.html', {'form': form})
+    
+    return render(request, 'ZoneMatronas/panelservicio.html', {
+        'form': form,
+        'bloques': bloques
+    })
 
 @login_required
 def editardispoServicio(request, bloque_id):
@@ -815,3 +823,70 @@ def perfil_matrona(request):
     }
     
     return render(request, 'ZoneMatronas/perfilmatrona.html', context)
+
+
+## ADMINISTRACIÓN
+
+@login_required
+def admin_asignar_servicios(request):
+    if not request.user.is_superuser:
+        messages.error(request, 'No tienes permisos de administrador')
+        return redirect('panel_matrona')
+    
+    if request.method == 'POST':
+        servicio_id = request.POST.get('servicio_id')
+        matronas_ids = request.POST.getlist('matronas') 
+        
+        try:
+            servicio = Servicio.objects.get(id=servicio_id)
+            
+
+            BloqueServicio.objects.filter(servicio=servicio).delete()
+            
+            for matrona_id in matronas_ids:
+                matrona = Usuario.objects.get(id=matrona_id, rol='matrona')
+                BloqueServicio.objects.create(
+                    matrona=matrona,
+                    servicio=servicio
+                )
+            
+            # messages.success(request, f'Matronas asignadas correctamente al servicio {servicio.nombre}')
+            return redirect('admin_asignar_servicios')
+            
+        except Exception as e:
+            messages.error(request, f'Error al asignar matronas: {str(e)}')
+    
+    # Obtener todos los servicios y matronas
+    servicios = Servicio.objects.all().order_by('nombre')
+    matronas = Usuario.objects.filter(rol='matrona').order_by('first_name')
+    
+    # Obtener asignaciones actuales y agregarlas directamente al objeto servicio
+    for servicio in servicios:
+        servicio.matronas_asignadas = list(
+            BloqueServicio.objects.filter(servicio=servicio).values_list('matrona_id', flat=True)
+        )
+    
+    context = {
+        'servicios': servicios,
+        'matronas': matronas,
+    }
+    
+    return render(request, 'ZoneAdmin/asignar_servicios.html', context)
+
+
+@login_required
+def admin_lista_servicios(request):
+    """Vista para listar todos los servicios"""
+    if not request.user.is_superuser:
+        messages.error(request, 'No tienes permisos de administrador')
+        return redirect('panel_matrona')
+    
+    servicios = Servicio.objects.all().order_by('nombre')
+    
+    context = {
+        'servicios': servicios,
+    }
+    
+    return render(request, 'ZoneAdmin/lista_servicios.html', context)
+
+
