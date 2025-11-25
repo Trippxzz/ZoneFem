@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from ZoneApp import views
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls, name='admin'),
     path('', views.home, name='home'),
     path('registro/', views.RegistroUsuarios, name='registro'),
     path('login_ajax/', views.login_ajax, name='login_ajax'), 

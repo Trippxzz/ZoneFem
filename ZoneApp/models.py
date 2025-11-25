@@ -183,7 +183,7 @@ class Reservas(models.Model):
             models.UniqueConstraint(fields=['matrona', 'fecha', 'hora_inicio'], name = 'unique_reserva_slot')
         ]
     def __str__(self):
-        return f"Reserva de {self.servicio.nombre} por {self.usuario.nombre} el {self.fecha} a las {self.hora_inicio}"
+        return f"Reserva de {self.servicio.nombre} por {self.usuario.first_name} el {self.fecha} a las {self.hora_inicio}"
     
 class Carrito(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='carrito')
