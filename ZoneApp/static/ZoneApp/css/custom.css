@@ -6,6 +6,51 @@
   color: transparent;
 }
 
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
 /* Estilos para los pasos del seguimiento */
 .step-completed { background: #C13584; color: white; }
 .step-current { background: #833AB4; color: white; }
@@ -145,4 +190,253 @@
     flex-direction: column;
     background-color: white; /* Asegurar fondo blanco en la tarjeta */
     height: 100%;
+}
+
+/* Estilos personalizados para input type="date" */
+.custom-date-input {
+  position: relative;
+  font-family: inherit;
+  cursor: pointer;
+  color: #9ca3af;
+}
+
+.custom-date-input:valid {
+  color: #374151;
+}
+
+.custom-date-input::-webkit-calendar-picker-indicator {
+  background: transparent;
+  cursor: pointer;
+  color: #C13584;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  padding: 4px;
+}
+
+.custom-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.custom-date-input:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
+
+/* Estilos para el calendario desplegable en Chrome/Edge */
+.custom-date-input::-webkit-datetime-edit {
+  padding: 0;
+}
+
+.custom-date-input::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.custom-date-input::-webkit-datetime-edit-text {
+  color: #9ca3af;
+  padding: 0 2px;
+}
+
+.custom-date-input::-webkit-datetime-edit-month-field,
+.custom-date-input::-webkit-datetime-edit-day-field,
+.custom-date-input::-webkit-datetime-edit-year-field {
+  color: #9ca3af;
+  font-weight: 400;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.custom-date-input:valid::-webkit-datetime-edit-month-field,
+.custom-date-input:valid::-webkit-datetime-edit-day-field,
+.custom-date-input:valid::-webkit-datetime-edit-year-field {
+  color: #374151;
+  font-weight: 500;
+}
+
+.custom-date-input::-webkit-datetime-edit-month-field:hover,
+.custom-date-input::-webkit-datetime-edit-day-field:hover,
+.custom-date-input::-webkit-datetime-edit-year-field:hover {
+  background: rgba(193, 53, 132, 0.1);
+  color: #C13584;
+}
+
+.custom-date-input::-webkit-datetime-edit-month-field:focus,
+.custom-date-input::-webkit-datetime-edit-day-field:focus,
+.custom-date-input::-webkit-datetime-edit-year-field:focus {
+  background: linear-gradient(45deg, rgba(131, 58, 180, 0.1), rgba(193, 53, 132, 0.1));
+  color: #833AB4;
+  outline: none;
+}
+
+/* Placeholder para cuando no hay fecha seleccionada */
+.custom-date-input:invalid::-webkit-datetime-edit {
+  color: #9ca3af;
+}
+
+/* Estilos para Firefox */
+.custom-date-input {
+  -moz-appearance: none;
+}
+
+/* Para navegadores que soportan ::-moz-calendar-picker-indicator */
+.custom-date-input::-moz-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) saturate(5) hue-rotate(300deg);
+}
+
+/* Calendario personalizado */
+.calendario-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    background: white;
+    border: 2px solid #e91e63;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(233, 30, 99, 0.2);
+    z-index: 1000;
+    padding: 1rem;
+    max-width: 350px;
+}
+
+.calendario-container.hidden {
+    display: none;
+}
+
+.calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.calendario-title {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.calendario-title select {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    background: white;
+}
+
+.calendario-title select:focus {
+    outline: none;
+    border-color: #e91e63;
+    box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+}
+
+.calendario-nav {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.calendario-nav:hover {
+    background: #fce4ec;
+    color: #e91e63;
+}
+
+.calendario-dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+}
+
+.calendario-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.25rem;
+}
+
+.calendario-dia {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.calendario-dia:not(.vacio):not(.deshabilitado):hover {
+    background: #fce4ec;
+    color: #e91e63;
+    transform: scale(1.1);
+}
+
+.calendario-dia.seleccionado {
+    background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+    color: white;
+    font-weight: 700;
+}
+
+.calendario-dia.vacio {
+    cursor: default;
+}
+
+.calendario-dia.deshabilitado {
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.calendario-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 2px solid #f3f4f6;
+}
+
+.calendario-btn-cancelar,
+.calendario-btn-confirmar {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendario-btn-cancelar {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.calendario-btn-cancelar:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.calendario-btn-confirmar {
+    background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+    color: white;
+}
+
+.calendario-btn-confirmar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
 }

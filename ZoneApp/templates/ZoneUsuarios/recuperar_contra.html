@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Recuperar Contraseña{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <div class="bg-instagram-pink/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-key text-4xl text-instagram-pink"></i>
+            </div>
+            <h2 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange">
+                ¿Olvidaste tu contraseña?
+            </h2>
+            <p class="text-text-light mt-2">
+                Ingresa tu correo electrónico y te enviaremos instrucciones para recuperarla.
+            </p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-6">
+                <label class="block text-text-dark font-medium mb-2">
+                    <i class="fas fa-envelope text-instagram-pink mr-2"></i>
+                    Correo Electrónico
+                </label>
+                <input type="email" name="email" required
+                       class="w-full px-4 py-3 border border-border-color rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink focus:border-transparent transition-all"
+                       placeholder="tucorreo@ejemplo.com">
+            </div>
+
+            <button type="submit" 
+                    class="w-full py-3 px-4 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 mb-4">
+                <i class="fas fa-paper-plane mr-2"></i>
+                Enviar Instrucciones
+            </button>
+
+            <div class="text-center">
+                <a href="{% url 'home' %}" class="text-instagram-pink hover:underline font-medium">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Volver al inicio
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

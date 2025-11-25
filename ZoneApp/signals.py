@@ -12,16 +12,21 @@ def gestionarpMatrona(sender, instance, **kwargs):
     """
     
     if instance.rol == 'matrona':
-        # Crear o actualizar el perfil Matrona
+        # Crear o actualizar el perfil Matrona con valores por defecto
         Matrona.objects.update_or_create(
             usuario=instance,
-            defaults={}
+            defaults={
+                'telefono': instance.telefono if hasattr(instance, 'telefono') else '',
+                'descripcion': '',
+                'color_agenda': '#7436ad',  # Color por defecto
+                # foto_perfil se deja null por ahora
+            }
         )
         
-    # Si el rol NO es 'matrona' (es 'usuario')
+    # Si el rol NO es 'matrona' (es 'cliente')
     else:
         # Eliminar el perfil Matrona si existe
         try:
             Matrona.objects.get(usuario=instance).delete()
         except Matrona.DoesNotExist:
-            pass # No hay perfil Matrona para eliminar
+            pass  # No hay perfil Matrona para eliminar

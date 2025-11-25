@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager, Group, Permission
+from django.utils import timezone
+from datetime import date
 # Create your models here.
 
 class UsuarioManager(BaseUserManager):
@@ -31,8 +33,11 @@ class Usuario(AbstractUser):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=150, blank=False, verbose_name='Nombre')
     rut = models.CharField(max_length=15, unique=True, verbose_name="RUT") # Esto cambia el nombre en el Admin
+    fecha_nacimiento = models.DateField(null=True, blank=True, verbose_name='Fecha de Nacimiento')
+    telefono = models.CharField(max_length=12,null=True, blank=True)
     USERNAME_FIELD = 'email' # Para que se pida el correo para iniciar sesión
     REQUIRED_FIELDS = ['first_name', 'rut']
+    # fichaclinica
     objects = UsuarioManager()
     ROLES_CHOICES = (('matrona', 'matrona'), ('usuario', 'usuario'),)
     rol = models.CharField(max_length=10,  choices=ROLES_CHOICES, default='usuario', verbose_name='Rol') # El rol default será cliente, la admin deberá dar rol Matrona
@@ -58,6 +63,22 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    def calcular_edad(self):
+        if not self.fecha_nacimiento:
+            return None
+        
+        hoy = date.today()
+        edad = hoy.year - self.fecha_nacimiento.year
+        
+        if (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day):
+            edad -= 1
+        
+        return edad
+    
+    @property
+    def edad(self):
+        return self.calcular_edad()
     
 
 class Matrona(models.Model):
@@ -69,7 +90,8 @@ class Matrona(models.Model):
             default="#7436ad", 
             verbose_name='Color en Agenda'
         )
-    fecha_registro = models.DateTimeField(auto_now_add=True)
+    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de Perfil')
+    fecha_registro = models.DateTimeField(default=timezone.now)
     class Meta:
         verbose_name = 'Matrona'
         verbose_name_plural = 'Matronas'
@@ -154,14 +176,14 @@ class Reservas(models.Model):
     estado = models.CharField(max_length=1, choices=ESTADO_CHOICES, default='P', verbose_name='Estado de la Reserva')
 
     carrito_item = models.OneToOneField('CarritoItem', on_delete=models.SET_NULL, null=True, blank=True, related_name='reserva_asociada')
-    fechacreacion = models.DateTimeField(auto_now_add=True)
+    fechacreacion = models.DateTimeField(default=timezone.now)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['matrona', 'fecha', 'hora_inicio'], name = 'unique_reserva_slot')
         ]
     def __str__(self):
-        return f"Reserva de {self.servicio.nombre} por {self.usuario.nombre} el {self.fecha} a las {self.hora_inicio}"
+        return f"Reserva de {self.servicio.nombre} por {self.usuario.first_name} el {self.fecha} a las {self.hora_inicio}"
     
 class Carrito(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='carrito')
@@ -183,3 +205,31 @@ class CarritoItem(models.Model):
     @property
     def subtotal(self):
         return self.servicio.precio * self.cantidad
+
+
+class Venta(models.Model):
+    rut = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    fecha_venta = models.DateTimeField(default=timezone.now)
+    total_venta = models.IntegerField()
+    estado = models.CharField(
+        max_length=20, 
+        choices=[('PENDIENTE', 'Pendiente'), ('CONFIRMADA', 'Confirmada'), ('ANULADA', 'Anulada')],
+        default='PENDIENTE'
+    )###CAMPOS QUE FUNCIONAN CON LA INTEGRACIÓN DE TRANSBANK WEBPAY
+
+class Pagos(models.Model):
+    venta = models.OneToOneField(Venta, on_delete=models.CASCADE)
+    monto_total = models.IntegerField()
+    fecha_pago = models.DateTimeField(default=timezone.now)
+    metodo_pago = models.CharField(max_length=50, default='WEBPAY')
+    #TRANSBANK
+    token_ws = models.CharField(max_length=255, unique=True, null=True) # El token vital
+    tipo_pago = models.CharField(max_length=50, null=True, blank=True) # Crédito/Débito (te lo da TBK al volver)
+    codigo_autorizacion = models.CharField(max_length=50, null=True, blank=True)
+    estado = models.CharField(
+        max_length=20, 
+        choices=[('PENDIENTE', 'Pendiente'), ('APROBADO', 'Aprobado'), ('RECHAZADO', 'Rechazado')],
+        default='PENDIENTE'
+    )
+
+

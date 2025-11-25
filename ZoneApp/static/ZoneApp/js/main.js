@@ -19,18 +19,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // --- Gestión de Modales ---
 function openCart() {
-  const modal = document.getElementById('cartModal');
-  if (modal) {
-      modal.style.display = 'flex';
-      if(typeof updateCartDisplay === 'function') updateCartDisplay();
-  } else {
-      console.error("El modal de carrito no existe en el DOM.");
-  }
+  // El carrito ahora es una página completa, redirigir
+  window.location.href = '/carrito/';
 }
 
 function closeCart() {
-  const modal = document.getElementById('cartModal');
-  if (modal) modal.style.display = 'none';
+  // Función legacy - ya no se usa el modal del carrito
+  console.log('closeCart() is deprecated - cart is now a full page');
 }
 
 function openLoginModal() {

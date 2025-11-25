@@ -1,53 +1,188 @@
-{% comment %} {% extends "base.html" %}  {% endcomment %}
+{% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Editar Horarios - {{ bloque.servicio.nombre }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    .dia-row {
+        transition: all 0.2s ease;
+    }
+    .dia-row:hover {
+        background-color: #f9fafb;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-    <div class="container my-5">
-        <h2>📅 Editar Horarios para: {{ bloque.servicio.nombre }}</h2>
-        <p class="text-muted">Define tus rangos de inicio y fin para los días de la semana.</p>
-        <hr>
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-calendar-edit mr-2"></i>
+                Editar Horarios
+            </h1>
+            <p class="text-white/80">{{ bloque.servicio.nombre }}</p>
+        </div>
+        <a href="{% url 'panel_matrona_servicios' %}" 
+           class="px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-all shadow-lg">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Volver
+        </a>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
         
+        <div class="mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-clock text-purple-500 mr-2"></i>
+                Disponibilidad Horaria
+            </h2>
+            <p class="text-gray-600">Define tus rangos de inicio y fin para cada día de la semana</p>
+        </div>
+
         <form method="post">
             {% csrf_token %}
-            
             {{ formset.management_form }}
             
-            <table class="table table-bordered align-middle">
-                <thead>
-                    <tr>
-                        <th>Día</th>
-                        <th>Inicio (HH:MM)</th>
-                        <th>Fin (HH:MM)</th>
-                        <th>Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for form in formset %}
-                    <tr class="{% if form.instance.pk %}table-light{% else %}table-warning{% endif %}">
-                        <td>{{ form.dia_semana }}</td>
-                        <td>{{ form.hora_inicio }}</td>
-                        <td>{{ form.hora_fin }}</td>
-                        <td class="text-center">
-                            {% if form.instance.pk %}
-                                {{ form.DELETE }}
-                            {% else %}
-                                Nuevo
+            <!-- Tabla de Horarios -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                            <th class="px-4 py-3 text-left rounded-tl-lg">
+                                <i class="fas fa-calendar-day mr-2"></i>Día
+                            </th>
+                            <th class="px-4 py-3 text-left">
+                                <i class="fas fa-clock mr-2"></i>Hora Inicio
+                            </th>
+                            <th class="px-4 py-3 text-left">
+                                <i class="fas fa-clock mr-2"></i>Hora Fin
+                            </th>
+                            <th class="px-4 py-3 text-center rounded-tr-lg">
+                                <i class="fas fa-trash-alt mr-2"></i>Eliminar
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for form in formset %}
+                        <tr class="dia-row {% if form.instance.pk %}bg-white{% else %}bg-yellow-50{% endif %}">
+                            <td class="px-4 py-4">
+                                {{ form.dia_semana }}
+                                {% if form.dia_semana.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ form.dia_semana.errors.0 }}</p>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-4">
+                                {{ form.hora_inicio }}
+                                {% if form.hora_inicio.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ form.hora_inicio.errors.0 }}</p>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-4">
+                                {{ form.hora_fin }}
+                                {% if form.hora_fin.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ form.hora_fin.errors.0 }}</p>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-4 text-center">
+                                {% if form.instance.pk %}
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        {{ form.DELETE }}
+                                        <span class="ml-2 text-sm text-gray-600">Eliminar</span>
+                                    </label>
+                                {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                                        <i class="fas fa-plus-circle mr-1"></i>Nuevo
+                                    </span>
+                                {% endif %}
+                            </td>
+                            {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if formset.errors or formset.non_form_errors %}
+                <div class="mt-6 bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-exclamation-circle text-red-600 text-xl mt-1"></i>
+                        <div>
+                            {% comment %} <h3 class="font-bold text-red-800 mb-1">¡Error de validación!</h3> {% endcomment %}
+                            <p class="text-red-700 text-sm">Revisa los campos marcados en rojo.</p>
+                            {% if formset.non_form_errors %}
+                                <ul class="mt-2 text-sm text-red-600">
+                                    {% for error in formset.non_form_errors %}
+                                        <li>• {{ error }}</li>
+                                    {% endfor %}
+                                </ul>
                             {% endif %}
-                        </td>
-                        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            
-            {% if formset.errors %}
-                <div class="alert alert-danger">
-                    <strong>¡Error de validación!</strong> Revisa los campos marcados.
+                        </div>
+                    </div>
                 </div>
             {% endif %}
 
-            <button type="submit" class="btn btn-success me-2">Guardar Disponibilidad</button>
-            <a href="{% url 'panel_matrona_servicios' %}" class="btn btn-secondary">Volver al Panel</a>
+            <!-- Info de Ayuda -->
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-blue-600 text-xl mt-1"></i>
+                    <div>
+                        <h3 class="font-bold text-blue-800 mb-1">Consejos:</h3>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>• Usa formato 24 horas (ej: 14:30 para 2:30 PM)</li>
+                            <li>• La hora de fin debe ser mayor que la hora de inicio</li>
+                            <li>• Marca "Eliminar" para quitar un horario existente</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-between pt-6 mt-6 border-t border-gray-200">
+                <a href="{% url 'panel_matrona_servicios' %}" 
+                   class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg">
+                    <i class="fas fa-save mr-2"></i>
+                    Guardar Disponibilidad
+                </button>
+            </div>
+
         </form>
+        
     </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Agregar clases de Tailwind a los campos del formulario
+    const selects = document.querySelectorAll('select');
+    selects.forEach(select => {
+        select.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-lg', 'focus:ring-2', 'focus:ring-purple-500', 'focus:border-purple-500', 'transition-all');
+    });
+
+    const timeInputs = document.querySelectorAll('input[type="time"]');
+    timeInputs.forEach(input => {
+        input.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-lg', 'focus:ring-2', 'focus:ring-purple-500', 'focus:border-purple-500', 'transition-all');
+    });
+
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.classList.add('w-4', 'h-4', 'text-red-600', 'rounded', 'focus:ring-red-500');
+    });
+});
+</script>
 {% endblock %}

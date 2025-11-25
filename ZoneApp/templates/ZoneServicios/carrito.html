@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Carrito de Compras{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-center bg-clip-text text-transparent bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange">
+        <i class="fas fa-shopping-cart"></i> Tu Carrito
+    </h1>
+
+    {% if items %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Items del carrito -->
+        <div class="lg:col-span-2 space-y-4">
+            {% for item in items %}
+            <div class="bg-white rounded-xl shadow-md p-6 border border-border-color hover:shadow-lg transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-text-dark mb-2">{{ item.servicio.nombre }}</h3>
+                        <p class="text-text-light mb-3">{{ item.servicio.descripcion|truncatewords:20 }}</p>
+                        
+                        {% if item.reserva_asociada %}
+                        <div class="bg-blue-50 rounded-lg p-3 mb-3 border border-blue-200">
+                            <p class="text-sm text-blue-800 font-medium mb-1">
+                                <i class="fas fa-calendar-alt"></i> 
+                                Fecha: {{ item.reserva_asociada.fecha|date:"d/m/Y" }}
+                            </p>
+                            <p class="text-sm text-blue-800 font-medium mb-1">
+                                <i class="fas fa-clock"></i> 
+                                Hora: {{ item.reserva_asociada.hora_inicio|time:"H:i" }} - {{ item.reserva_asociada.hora_fin|time:"H:i" }}
+                            </p>
+                            <p class="text-sm text-blue-800 font-medium">
+                                <i class="fas fa-user-md"></i> 
+                                Matrona: {{ item.reserva_asociada.matrona.first_name }}
+                            </p>
+                        </div>
+                        {% endif %}
+                        
+                        <p class="text-2xl font-bold text-instagram-pink">
+                            ${{ item.servicio.precio|floatformat:0 }} CLP
+                        </p>
+                    </div>
+                    
+                    <form method="POST" action="{% url 'eliminaritemcarrito' item.id %}" class="ml-4 delete-item-form">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="text-instagram-red hover:bg-red-50 p-2 rounded-full transition-all"
+                                onclick="return confirm('¿Eliminar este servicio del carrito?')">
+                            <i class="fas fa-trash text-xl"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Resumen del carrito -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-md p-6 border border-border-color sticky top-24">
+                <h3 class="text-xl font-bold mb-4 text-text-dark">Resumen del Pedido</h3>
+                
+                <div class="border-t border-border-color pt-4 mb-4">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-text-light">Servicios ({{ items.count }})</span>
+                        <span class="font-medium">${{ carrito.total|floatformat:0 }} CLP</span>
+                    </div>
+                </div>
+                
+                <div class="border-t-2 border-border-color pt-4 mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-bold">Total:</span>
+                        <span class="text-2xl font-bold text-instagram-pink">${{ carrito.total|floatformat:0 }} CLP</span>
+                    </div>
+                </div>
+                
+                <form method="POST" action="{% url 'iniciar_pago' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1 mb-3">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Pagar con Webpay
+                    </button>
+                </form>
+                
+                <a href="{% url 'verservicio' %}" 
+                   class="block w-full py-3 px-6 bg-gray-200 text-text-dark font-medium rounded-xl text-center hover:bg-gray-300 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Seguir Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-16">
+        <div class="mb-6">
+            <i class="fas fa-shopping-cart text-9xl text-gray-300"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-text-dark mb-4">Tu carrito está vacío</h2>
+        <p class="text-text-light mb-8">¡Agrega servicios para comenzar tu reserva!</p>
+        <a href="{% url 'verservicio' %}" 
+           class="inline-block py-4 px-8 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1">
+            <i class="fas fa-plus mr-2"></i>
+            Explorar Servicios
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Manejar eliminación de items con AJAX
+document.querySelectorAll('.delete-item-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('¿Eliminar este servicio del carrito?')) {
+            return;
+        }
+        
+        const formData = new FormData(this);
+        const url = this.action;
+        const itemCard = this.closest('.bg-white');
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Animar y remover el item
+                itemCard.style.transition = 'all 0.3s ease';
+                itemCard.style.opacity = '0';
+                itemCard.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    itemCard.remove();
+                    
+                    // Actualizar contador del header
+                    const cartCount = document.getElementById('cartCount');
+                    if (cartCount) {
+                        const currentCount = parseInt(cartCount.textContent);
+                        const newCount = currentCount - 1;
+                        if (newCount > 0) {
+                            cartCount.textContent = newCount;
+                        } else {
+                            cartCount.remove();
+                        }
+                    }
+                    
+                    // Si no quedan items, mostrar mensaje vacío y recargar
+                    const itemsContainer = document.querySelector('.lg\\:col-span-2');
+                    if (itemsContainer && itemsContainer.querySelectorAll('.bg-white').length === 0) {
+                        window.location.reload();
+                    } else {
+                        // Actualizar el total
+                        location.reload();
+                    }
+                }, 300);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar el item');
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -30,7 +30,7 @@
         <div class="p-6">
           <h1 class="text-2xl font-bold text-text-dark mb-2">{{ serv.nombre }}</h1>
           <p class="text-2xl font-extrabold text-instagram-gradient mb-4">
-            ${{ serv.precio|default:"0" }} <span class="text-sm text-text-light font-normal">CLP</span>
+            ${{ serv.precio|floatformat:0  }} <span class="text-sm text-text-light font-normal">CLP</span>
           </p>
           
           <div class="h-px bg-gray-100 my-4"></div>
@@ -113,7 +113,8 @@
                 <input type="hidden" name="hora_inicio" id="inputHoraInicio">
 
                 <button type="submit" class="w-full py-3.5 rounded-full bg-instagram-gradient text-white font-bold shadow-lg shadow-instagram-pink/30 hover:-translate-y-1 hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                  Confirmar Reserva <i class="fas fa-arrow-right"></i>
+                  <span id="btnReservaText">Confirmar Reserva</span>
+                  <i id="btnReservaIcon" class="fas fa-arrow-right"></i>
                 </button>
               </form>
             </div>
@@ -250,8 +251,8 @@
                   const btn = document.createElement('button');
                   btn.className = 'slot-item py-3 px-4 rounded-xl border border-border-color bg-white text-text-dark hover:border-instagram-pink hover:bg-pink-50 transition-all text-sm font-medium flex flex-col justify-center items-center group relative w-full text-center shadow-sm';
                   
-                    /// ESTO SE MODIFICARÁ EN BREVE SEGUN EL COLOR QUE ESCOJA LA MATRONA EN SU PERFIL
-                  btn.style.borderLeft = `4px solid ${slot.colorm}`;
+                    /// ESTO SE MODIFICARÁ SEGUN EL COLOR QUE ESCOJA LA MATRONA EN SU PERFIL
+                  btn.style.borderLeft = `14px solid ${slot.colorm}`;
                   
                   btn.innerHTML = `
                     <span class="text-base font-bold">${slot.hora_inicio}</span>
@@ -314,5 +315,71 @@
 
 
   renderCalendar();
+
+  // Manejar envío del formulario con AJAX
+  document.getElementById('reservationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const btnText = document.getElementById('btnReservaText');
+    const btnIcon = document.getElementById('btnReservaIcon');
+    
+    // Deshabilitar botón y mostrar cargando
+    submitBtn.disabled = true;
+    btnText.textContent = 'Agregando...';
+    btnIcon.className = 'fas fa-spinner fa-spin';
+    
+    // Obtener datos del formulario
+    const formData = new FormData(this);
+    
+    // Enviar con fetch
+    fetch(this.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Mostrar éxito
+        btnText.textContent = '¡Agregado al carrito!';
+        btnIcon.className = 'fas fa-check';
+        submitBtn.className = 'w-full py-3.5 rounded-full bg-green-500 text-white font-bold shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2';
+        
+        // Actualizar contador del carrito en el header
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) {
+          const currentCount = parseInt(cartCount.textContent);
+          cartCount.textContent = currentCount + 1;
+        } else {
+          // Si no existe el badge, crearlo
+          const cartIcon = document.querySelector('a[href="{% url 'ver_carrito' %}"]');
+          if (cartIcon) {
+            const badge = document.createElement('span');
+            badge.id = 'cartCount';
+            badge.className = 'cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold';
+            badge.textContent = '1';
+            cartIcon.appendChild(badge);
+          }
+        }
+        
+      } else {
+        // Mostrar error
+        alert(data.error || 'Error al agregar al carrito');
+        btnText.textContent = 'Confirmar Reserva';
+        btnIcon.className = 'fas fa-arrow-right';
+        submitBtn.disabled = false;
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al procesar la reserva');
+      btnText.textContent = 'Confirmar Reserva';
+      btnIcon.className = 'fas fa-arrow-right';
+      submitBtn.disabled = false;
+    });
+  });
 </script>
 {% endblock %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Servicios{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white mb-2">
+                <i class="fas fa-clipboard-list mr-2"></i>
+                Lista de Servicios
+            </h1>
+            <p class="text-white/80">Gestiona y edita todos los servicios disponibles</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'crearservicio' %}" 
+               class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all shadow-lg">
+                <i class="fas fa-plus mr-2"></i>
+                Nuevo Servicio
+            </a>
+            <a href="{% url 'panel_matrona' %}" 
+               class="px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-all shadow-lg">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Volver al Panel
+            </a>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="bg-{% if message.tags == 'success' %}green{% elif message.tags == 'error' %}red{% else %}blue{% endif %}-500 text-white px-6 py-4 rounded-lg shadow-lg mb-3">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Contenido Principal -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        {% if servicios %}
+            <!-- Tabla de Servicios -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-hashtag mr-2"></i>ID
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-stethoscope mr-2"></i>Nombre
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-align-left mr-2"></i>Descripción
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-dollar-sign mr-2"></i>Precio
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-clock mr-2"></i>Duración
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold">
+                                <i class="fas fa-cogs mr-2"></i>Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for servicio in servicios %}
+                        <tr class="hover:bg-purple-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-gray-600 font-mono">
+                                #{{ servicio.id }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    {% if servicio.imagen_principal %}
+                                        <img src="{{ servicio.imagen_principal.imagen.url }}" 
+                                             alt="{{ servicio.nombre }}"
+                                             class="w-12 h-12 rounded-lg object-cover">
+                                    {% else %}
+                                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-image text-white"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="font-semibold text-gray-800">{{ servicio.nombre }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 max-w-xs">
+                                <p class="truncate">{{ servicio.descripcion|truncatewords:15 }}</p>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-semibold text-green-600">
+                                ${{ servicio.precio|floatformat:0 }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">
+                                <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    {{ servicio.duracion }} min
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{% url 'editarservicio' servicio.id %}" 
+                                       class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all text-sm">
+                                        <i class="fas fa-edit mr-1"></i>
+                                        Editar/Imágenes
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg mb-4">No hay servicios registrados en el sistema</p>
+                <a href="{% url 'crearservicio' %}" 
+                   class="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>
+                    Crear Primer Servicio
+                </a>
+            </div>
+        {% endif %}
+        
+    </div>
+</div>
+{% endblock %}

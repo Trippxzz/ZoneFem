@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Resultado del Pago{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+    {% if resultado == 'exito' %}
+    <!-- Pago Exitoso -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border-t-4 border-green-500">
+        <div class="mb-6">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-4">
+                <i class="fas fa-check-circle text-6xl text-green-500"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">¡Pago Exitoso!</h1>
+            <p class="text-gray-600 text-lg">Tu reserva ha sido confirmada</p>
+        </div>
+
+        {% if venta %}
+        <div class="bg-gray-50 rounded-xl p-6 mb-6 text-left">
+            <h3 class="text-xl font-bold mb-4 text-gray-800">Detalles de la Transacción</h3>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between border-b border-gray-200 pb-2">
+                    <span class="text-gray-600">N° de Venta:</span>
+                    <span class="font-bold text-gray-800">#{{ venta.id }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b border-gray-200 pb-2">
+                    <span class="text-gray-600">Fecha:</span>
+                    <span class="font-medium text-gray-800">{{ venta.fecha_venta|date:"d/m/Y H:i" }}</span>
+                </div>
+                
+                <div class="flex justify-between border-b border-gray-200 pb-2">
+                    <span class="text-gray-600">Método de Pago:</span>
+                    <span class="font-medium text-gray-800">Webpay</span>
+                </div>
+                
+                {% if pago.codigo_autorizacion %}
+                <div class="flex justify-between border-b border-gray-200 pb-2">
+                    <span class="text-gray-600">Código Autorización:</span>
+                    <span class="font-medium text-gray-800">{{ pago.codigo_autorizacion }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="flex justify-between pt-2">
+                    <span class="text-lg font-bold text-gray-800">Total Pagado:</span>
+                    <span class="text-2xl font-bold text-green-600">${{ venta.total_venta|floatformat:0 }} CLP</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bg-blue-50 rounded-xl p-4 mb-6">
+            <p class="text-sm text-blue-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                Se ha enviado un comprobante a tu correo electrónico
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'home' %}" 
+               class="flex-1 py-3 px-6 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all text-center">
+                <i class="fas fa-home mr-2"></i>
+                Volver al Inicio
+            </a>
+            <a href="{% url 'verservicio' %}" 
+               class="flex-1 py-3 px-6 bg-gray-200 text-gray-800 font-medium rounded-xl hover:bg-gray-300 transition-all text-center">
+                <i class="fas fa-calendar-check mr-2"></i>
+                Ver Más Servicios
+            </a>
+        </div>
+    </div>
+
+    {% elif resultado == 'rechazado' %}
+    <!-- Pago Rechazado -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border-t-4 border-red-500">
+        <div class="mb-6">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mb-4">
+                <i class="fas fa-times-circle text-6xl text-red-500"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Pago Rechazado</h1>
+            <p class="text-gray-600 text-lg">Tu transacción no pudo ser procesada</p>
+        </div>
+
+        <div class="bg-red-50 rounded-xl p-6 mb-6">
+            <p class="text-red-800 mb-2">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>Posibles razones:</strong>
+            </p>
+            <ul class="text-sm text-red-700 text-left list-disc list-inside space-y-1">
+                <li>Fondos insuficientes</li>
+                <li>Tarjeta bloqueada o vencida</li>
+                <li>Datos incorrectos</li>
+                <li>Límite de transacción excedido</li>
+            </ul>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'ver_carrito' %}" 
+               class="flex-1 py-3 px-6 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all text-center">
+                <i class="fas fa-redo mr-2"></i>
+                Intentar Nuevamente
+            </a>
+            <a href="{% url 'home' %}" 
+               class="flex-1 py-3 px-6 bg-gray-200 text-gray-800 font-medium rounded-xl hover:bg-gray-300 transition-all text-center">
+                <i class="fas fa-home mr-2"></i>
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Error General -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 text-center border-t-4 border-yellow-500">
+        <div class="mb-6">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-yellow-100 rounded-full mb-4">
+                <i class="fas fa-exclamation-circle text-6xl text-yellow-500"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Error en la Transacción</h1>
+            <p class="text-gray-600 text-lg">Ocurrió un problema al procesar tu pago</p>
+        </div>
+
+        <div class="bg-yellow-50 rounded-xl p-6 mb-6">
+            <p class="text-yellow-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                Por favor, intenta nuevamente o contacta a soporte si el problema persiste.
+            </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'ver_carrito' %}" 
+               class="flex-1 py-3 px-6 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-orange text-white font-bold rounded-xl hover:shadow-lg transition-all text-center">
+                <i class="fas fa-redo mr-2"></i>
+                Volver al Carrito
+            </a>
+            <a href="{% url 'contacto' %}" 
+               class="flex-1 py-3 px-6 bg-gray-200 text-gray-800 font-medium rounded-xl hover:bg-gray-300 transition-all text-center">
+                <i class="fas fa-headset mr-2"></i>
+                Contactar Soporte
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
