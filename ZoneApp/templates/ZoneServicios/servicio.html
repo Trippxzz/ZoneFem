@@ -4,127 +4,185 @@
 {% block title %}{{ serv.nombre }} - Reserva{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto my-10 px-5 animate-fadeIn">
+<div class="max-w-7xl mx-auto my-10 px-5 animate-fadeIn">
 
-  <a href="{% url 'verservicio' %}" class="inline-flex items-center gap-2 text-text-light font-medium mb-6 transition-colors hover:text-instagram-pink">
+  <a href="{% url 'verservicio' %}" class="inline-flex items-center gap-2 text-gray-600 hover:text-instagram-purple font-medium mb-6 transition-colors">
     <i class="fas fa-arrow-left"></i> Volver a Servicios
   </a>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     
-    <div class="lg:col-span-1 space-y-6">
-      <div class="bg-card-bg rounded-3xl shadow-medium border border-border-color overflow-hidden sticky top-24">
-        <div class="h-48 bg-gray-200 relative overflow-hidden group">
-          {% if serv.imagen_principal %}
-            <img src="{{ serv.imagen_principal.imagen.url }}" alt="{{ serv.nombre }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+    <!-- COLUMNA IZQUIERDA: INFORMACIÓN DEL SERVICIO -->
+    <div class="space-y-6">
+      
+      <!-- GALERÍA DE IMÁGENES -->
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+        <!-- Imagen principal -->
+        <div class="relative h-80 bg-gradient-to-br from-instagram-yellow to-instagram-purple overflow-hidden">
+          {% if serv.imagenes.all %}
+            {% with imagen_principal=serv.imagenes.all|first %}
+              {% for imagen in serv.imagenes.all %}
+                {% if imagen.es_principal %}
+                  <img id="mainImage" src="{{ imagen.imagen.url }}" alt="{{ serv.nombre }}" class="w-full h-full object-cover">
+                {% endif %}
+              {% endfor %}
+              
+              <!-- Si no hay imagen principal, mostrar la primera -->
+              {% if not serv.imagenes.all.0.es_principal %}
+                <img id="mainImage" src="{{ imagen_principal.imagen.url }}" alt="{{ serv.nombre }}" class="w-full h-full object-cover">
+              {% endif %}
+            {% endwith %}
           {% else %}
-            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100 text-instagram-pink text-4xl">
+            <div class="w-full h-full flex items-center justify-center text-instagram-purple text-5xl">
               <i class="fas fa-stethoscope"></i>
             </div>
           {% endif %}
-          <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-instagram-pink shadow-sm">
+          
+          <!-- Badge de duración -->
+          <div class="absolute top-4 right-4 bg-gradient-to-r from-instagram-orange to-instagram-pink px-4 py-2 rounded-full text-sm font-bold text-white shadow-lg flex items-center gap-2">
+            <i class="far fa-clock"></i>
             {{ serv.duracion }} min
           </div>
         </div>
 
-        <div class="p-6">
-          <h1 class="text-2xl font-bold text-text-dark mb-2">{{ serv.nombre }}</h1>
-          <p class="text-2xl font-extrabold text-instagram-gradient mb-4">
-            ${{ serv.precio|floatformat:0  }} <span class="text-sm text-text-light font-normal">CLP</span>
-          </p>
-          
-          <div class="h-px bg-gray-100 my-4"></div>
-          
-          <h3 class="font-bold text-sm text-text-dark mb-2 uppercase tracking-wider opacity-70">Descripción</h3>
-          <p class="text-text-light leading-relaxed text-sm mb-6">
-            {{ serv.descripcion|default:"Descripción detallada del servicio." }}
-          </p>
+        <!-- Miniaturas de imágenes -->
+        {% if serv.imagenes.all.count > 1 %}
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+          <div class="grid grid-cols-4 gap-3">
+            {% for imagen in serv.imagenes.all %}
+            <div class="thumb-container aspect-square rounded-xl overflow-hidden border-2 hover:border-instagram-purple transition-all cursor-pointer group relative {% if imagen.es_principal %}ring-2 ring-instagram-pink border-instagram-pink{% else %}border-gray-200{% endif %}" data-image="{{ imagen.imagen.url }}">
+              <img src="{{ imagen.imagen.url }}" alt="{{ serv.nombre }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300 pointer-events-none">
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all pointer-events-none"></div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
 
-          <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 items-start">
-            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
-            <p class="text-sm text-blue-800">
-              Selecciona fecha y hora para continuar. El pago se realiza al finalizar.
+        <!-- Información del servicio -->
+        <div class="p-6 space-y-4">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ serv.nombre }}</h1>
+            <div class="flex items-baseline gap-2">
+              <span class="text-4xl font-extrabold bg-gradient-to-r from-instagram-purple to-instagram-pink bg-clip-text text-transparent">
+                ${{ serv.precio|floatformat:0 }}
+              </span>
+              <span class="text-sm text-gray-500 font-medium">CLP</span>
+            </div>
+          </div>
+          
+          <div class="h-px bg-gray-200"></div>
+          
+          <div>
+            <h3 class="font-bold text-sm text-gray-700 mb-2 uppercase tracking-wider flex items-center gap-2">
+              <i class="fas fa-info-circle text-instagram-purple"></i>
+              Descripción
+            </h3>
+            <p class="text-gray-600 leading-relaxed">
+              {{ serv.descripcion|default:"Descripción detallada del servicio." }}
             </p>
           </div>
+
+          <!-- Info box -->
+          {% comment %} <div class="bg-gradient-to-r from-instagram-purple/10 to-instagram-pink/10 border-l-4 border-instagram-purple rounded-lg p-4 flex gap-3 items-start">
+            <i class="fas fa-lightbulb text-instagram-orange mt-1 text-lg"></i>
+            <div class="text-sm text-gray-700">
+              <p class="font-semibold mb-1">¿Cómo funciona?</p>
+              <p>Selecciona fecha y hora disponible. Al confirmar, se agregará al carrito y podrás proceder al pago.</p>
+            </div>
+          </div> {% endcomment %}
         </div>
       </div>
     </div>
 
-    <div class="lg:col-span-2">
-      <div class="bg-card-bg rounded-3xl shadow-heavy border border-border-color p-6 md:p-8">
+    <!-- COLUMNA DERECHA: CALENDARIO Y HORAS -->
+    <div class="lg:sticky lg:top-24 h-fit">
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-200 p-6 md:p-8">
         
-        <h2 class="text-xl font-bold text-text-dark mb-6 flex items-center gap-2">
-          <i class="fas fa-calendar-alt text-instagram-pink"></i> Selecciona tu fecha y hora
-        </h2>
+        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200">
+          <div class="w-12 h-12 bg-gradient-to-br from-instagram-purple to-instagram-pink rounded-xl flex items-center justify-center text-white text-xl">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Reserva tu hora</h2>
+            <p class="text-sm text-gray-500">Selecciona fecha y horario disponible</p>
+          </div>
+        </div>
 
-        <div class="flex flex-col md:flex-row gap-8">
+        <!-- CALENDARIO -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center mb-4">
+            <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-instagram-purple/10 text-gray-600 hover:text-instagram-purple transition-all" onclick="cambiarMes(-1)">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <h3 class="font-bold text-lg text-gray-800 capitalize" id="currentMonthLabel">Cargando...</h3>
+            <button type="button" class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-instagram-purple/10 text-gray-600 hover:text-instagram-purple transition-all" onclick="cambiarMes(1)">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Días de la semana -->
+          <div class="grid grid-cols-7 gap-2 mb-2">
+            {% for dia in "DLMMJVS" %}
+            <div class="text-xs font-bold text-gray-500 text-center py-2">{{ dia }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Grid de días -->
+          <div class="grid grid-cols-7 gap-2" id="calendarDays"></div>
+        </div>
+
+        <div class="h-px bg-gray-200 my-6"></div>
+
+        <!-- HORAS DISPONIBLES -->
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+              <i class="far fa-clock text-instagram-purple"></i>
+              Horarios disponibles
+            </h3>
+            <p class="text-xs text-gray-500" id="selectedDateLabel">Selecciona un día</p>
+          </div>
           
-          <div class="flex-1">
-             <div class="flex justify-between items-center mb-4">
-               <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors" onclick="cambiarMes(-1)">
-                 <i class="fas fa-chevron-left"></i>
-               </button>
-               <h3 class="font-bold text-lg capitalize" id="currentMonthLabel">Cargando...</h3>
-               <button type="button" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors" onclick="cambiarMes(1)">
-                 <i class="fas fa-chevron-right"></i>
-               </button>
-             </div>
-
-             <div class="grid grid-cols-7 text-center mb-2">
-               <span class="text-xs font-bold text-gray-400 py-2">Do</span>
-               <span class="text-xs font-bold text-gray-400 py-2">Lu</span>
-               <span class="text-xs font-bold text-gray-400 py-2">Ma</span>
-               <span class="text-xs font-bold text-gray-400 py-2">Mi</span>
-               <span class="text-xs font-bold text-gray-400 py-2">Ju</span>
-               <span class="text-xs font-bold text-gray-400 py-2">Vi</span>
-               <span class="text-xs font-bold text-gray-400 py-2">Sa</span>
-             </div>
-
-             <div class="grid grid-cols-7 gap-1 text-sm" id="calendarDays">
-                </div>
+          <div id="slots-container" class="grid grid-cols-2 gap-2 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
+            <div class="col-span-2 py-12 text-center">
+              <i class="fas fa-hand-pointer text-4xl text-gray-300 mb-3"></i>
+              <p class="text-gray-400 text-sm">Selecciona una fecha en el calendario</p>
+            </div>
           </div>
+        </div>
 
-          <div class="hidden md:block w-px bg-gray-200"></div>
+        <div class="h-px bg-gray-200 my-6"></div>
 
-          <div class="flex-1 flex flex-col">
-            <div class="mb-4">
-              <h3 class="font-bold text-text-dark mb-1">Horas disponibles</h3>
-              <p class="text-xs text-text-light" id="selectedDateLabel">Selecciona un día</p>
-            </div>
-            
-            <div id="slots-container" class="grid grid-cols-2 gap-3 mb-6 overflow-y-auto max-h-[300px] pr-1 custom-scrollbar min-h-[150px]">
-               <p class="text-gray-400 text-sm col-span-2 text-center py-10">
-                   <i class="fas fa-mouse-pointer mb-2 block text-2xl"></i>
-                   Selecciona una fecha en el calendario
-               </p>
-            </div>
-
-            <div class="mt-auto bg-gray-50 rounded-xl p-4 transition-all duration-300" id="reservationSummary" style="opacity: 0.5; pointer-events: none;">
-              <div class="flex justify-between items-center mb-4 text-sm">
-                <span class="text-gray-500">Seleccionado:</span>
-                <span class="font-bold text-text-dark" id="summaryText">--/--/-- --:--</span>
+        <!-- RESUMEN Y BOTÓN -->
+        <div id="reservationSummary" class="opacity-50 pointer-events-none transition-all duration-300">
+          <div class="bg-gradient-to-br from-instagram-purple/10 to-instagram-pink/10 rounded-2xl p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-instagram-purple text-xl mt-0.5"></i>
+              <div class="flex-1 text-sm">
+                <p class="text-gray-600 mb-1">Has seleccionado:</p>
+                <p class="font-bold text-gray-800" id="summaryText">--/--/-- a las --:--</p>
               </div>
-              
-              <form id="reservationForm" method="POST" action="{% url 'reservar_hora' %}">
-                {% csrf_token %}
-                <input type="hidden" name="servicio_id" value="{{ serv.id }}">
-                <input type="hidden" name="matrona_id" id="inputMatronaId">
-                <input type="hidden" name="fecha" id="inputFecha">
-                <input type="hidden" name="hora_inicio" id="inputHoraInicio">
-
-                <button type="submit" class="w-full py-3.5 rounded-full bg-instagram-gradient text-white font-bold shadow-lg shadow-instagram-pink/30 hover:-translate-y-1 hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                  <span id="btnReservaText">Confirmar Reserva</span>
-                  <i id="btnReservaIcon" class="fas fa-arrow-right"></i>
-                </button>
-              </form>
             </div>
-
           </div>
+          
+          <form id="reservationForm" method="POST" action="{% url 'reservar_hora' %}">
+            {% csrf_token %}
+            <input type="hidden" name="servicio_id" value="{{ serv.id }}">
+            <input type="hidden" name="matrona_id" id="inputMatronaId">
+            <input type="hidden" name="fecha" id="inputFecha">
+            <input type="hidden" name="hora_inicio" id="inputHoraInicio">
+
+            <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-instagram-purple to-instagram-pink text-white font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group">
+              <span id="btnReservaText">Agregar al carrito</span>
+              <i id="btnReservaIcon" class="fas fa-shopping-cart group-hover:translate-x-1 transition-transform"></i>
+            </button>
+          </form>
         </div>
       </div>
       
-      <p class="text-center text-xs text-gray-400 mt-6">
-        <i class="fas fa-lock"></i> Tus datos están protegidos.
+      <p class="text-center text-xs text-gray-400 mt-4 flex items-center justify-center gap-1">
+        <i class="fas fa-shield-alt"></i> Transacción segura con Webpay
       </p>
     </div>
 
@@ -132,19 +190,48 @@
 </div>
 
 <style>
+  /* Scrollbar personalizado */
   .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f3f4f6; border-radius: 10px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
   
-  /* Estilos para estado seleccionado y hoy */
-  .day-btn:hover:not(:disabled) { background-color: #fce7f3; color: #C13584; }
-  .day-btn.selected { background: linear-gradient(45deg, #833AB4, #C13584, #E1306C); color: white; transform: scale(1.1); font-weight: bold; box-shadow: 0 4px 10px rgba(193, 53, 132, 0.3); border: none; }
-  .day-btn.today { border: 1px solid #C13584; color: #C13584; font-weight: bold; }
+  /* Estilos del calendario */
+  .day-btn {
+    @apply aspect-square rounded-xl flex items-center justify-center transition-all text-sm font-medium cursor-pointer;
+  }
+  
+  .day-btn:hover:not(:disabled) {
+    @apply bg-instagram-purple/10 text-instagram-purple scale-105;
+  }
+  
+  .day-btn.selected {
+    @apply bg-gradient-to-br from-instagram-purple to-instagram-pink text-white scale-110 font-bold shadow-lg;
+  }
+  
+  .day-btn.today {
+    @apply border-2 border-instagram-purple font-bold;
+  }
+  
+  .day-btn:disabled {
+    @apply text-gray-300 cursor-not-allowed;
+  }
   
   /* Animación de carga */
-  .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #C13584; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  .loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #833AB4;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 </style>
 
 <script>
@@ -156,167 +243,183 @@
   const reservationSummary = document.getElementById('reservationSummary');
   const summaryText = document.getElementById('summaryText');
 
-  // Inputs del formulario
   const inputMatronaId = document.getElementById('inputMatronaId');
   const inputFecha = document.getElementById('inputFecha');
   const inputHoraInicio = document.getElementById('inputHoraInicio');
 
-
   let currDate = new Date();
   let currYear = currDate.getFullYear();
   let currMonth = currDate.getMonth();
-  let selectedDateObj = null; 
+  let selectedDateObj = null;
 
   const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
+  // ===== GALERÍA DE IMÁGENES =====
+  
+  // Esperar a que el DOM esté completamente cargado
+  window.addEventListener('DOMContentLoaded', function() {
+    
+    // Event listeners para miniaturas
+    const thumbnails = document.querySelectorAll('.thumb-container');
+    thumbnails.forEach(thumb => {
+      thumb.addEventListener('click', function() {
+        const imageUrl = this.getAttribute('data-image');
+        changeMainImage(imageUrl, this);
+      });
+    });
+  });
 
+  function changeMainImage(imageUrl, thumbElement) {
+    const mainImage = document.getElementById('mainImage');
+    if (mainImage) {
+      mainImage.src = imageUrl;
+    }
+    
+    // Actualizar borde activo en miniaturas
+    document.querySelectorAll('.thumb-container').forEach(thumb => {
+      thumb.classList.remove('ring-2', 'ring-instagram-pink', 'border-instagram-pink');
+      thumb.classList.add('border-gray-200');
+    });
+    thumbElement.classList.remove('border-gray-200');
+    thumbElement.classList.add('ring-2', 'ring-instagram-pink', 'border-instagram-pink');
+  }
+
+  // ===== CALENDARIO =====
   function renderCalendar() {
-      let firstDayofMonth = new Date(currYear, currMonth, 1).getDay(); 
-      let lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate(); 
-      let lastDayofMonth = new Date(currYear, currMonth, lastDateofMonth).getDay(); 
-      let lastDateofLastMonth = new Date(currYear, currMonth, 0).getDate(); 
+    let firstDayofMonth = new Date(currYear, currMonth, 1).getDay();
+    let lastDateofMonth = new Date(currYear, currMonth + 1, 0).getDate();
+    let lastDateofLastMonth = new Date(currYear, currMonth, 0).getDate();
+    
+    let liTag = "";
+
+    // Días del mes anterior
+    for (let i = firstDayofMonth; i > 0; i--) {
+      liTag += `<div class="aspect-square text-gray-300 text-center py-2 opacity-30 text-sm">${lastDateofLastMonth - i + 1}</div>`;
+    }
+
+    // Días del mes actual
+    for (let i = 1; i <= lastDateofMonth; i++) {
+      let isToday = i === new Date().getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "today" : "";
+      let isSelected = selectedDateObj && i === selectedDateObj.getDate() && currMonth === selectedDateObj.getMonth() && currYear === selectedDateObj.getFullYear() ? "selected" : "";
       
-      let liTag = "";
+      let checkDate = new Date(currYear, currMonth, i);
+      let todayDate = new Date();
+      todayDate.setHours(0,0,0,0);
+      
+      let isDisabled = checkDate < todayDate ? 
+        `disabled class='aspect-square rounded-xl flex items-center justify-center text-gray-300 cursor-not-allowed text-sm'` : 
+        `class='day-btn ${isToday} ${isSelected}' onclick="selectDay(${i})"`;
 
+      liTag += `<button ${isDisabled}>${i}</button>`;
+    }
 
-      for (let i = firstDayofMonth; i > 0; i--) { 
-          liTag += `<div class="aspect-square text-gray-300 text-center py-2 opacity-30">${lastDateofLastMonth - i + 1}</div>`;
-      }
-
-
-      for (let i = 1; i <= lastDateofMonth; i++) { 
-          let isToday = i === new Date().getDate() && currMonth === new Date().getMonth() && currYear === new Date().getFullYear() ? "today" : "";
-          let isSelected = selectedDateObj && i === selectedDateObj.getDate() && currMonth === selectedDateObj.getMonth() && currYear === selectedDateObj.getFullYear() ? "selected" : "";
-          
-
-          let checkDate = new Date(currYear, currMonth, i);
-          let todayDate = new Date();
-          todayDate.setHours(0,0,0,0);
-          
-          let isDisabled = checkDate < todayDate ? "disabled class='aspect-square rounded-full flex items-center justify-center text-gray-300 cursor-not-allowed'" : `class='day-btn aspect-square rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer font-medium ${isToday} ${isSelected}' onclick="selectDay(${i})"`;
-
-          liTag += `<button ${isDisabled}>${i}</button>`;
-      }
-
-      currentMonthLabel.innerText = `${months[currMonth]} ${currYear}`;
-      calendarDays.innerHTML = liTag;
+    currentMonthLabel.innerText = `${months[currMonth]} ${currYear}`;
+    calendarDays.innerHTML = liTag;
   }
 
   function cambiarMes(direction) {
-      currMonth = currMonth + direction;
-      if(currMonth < 0 || currMonth > 11) { 
-          currDate = new Date(currYear, currMonth, new Date().getDate());
-          currYear = currDate.getFullYear(); 
-          currMonth = currDate.getMonth(); 
-      } else {
-          currDate = new Date(); 
-      }
-      renderCalendar();
+    currMonth = currMonth + direction;
+    if(currMonth < 0 || currMonth > 11) {
+      currDate = new Date(currYear, currMonth, new Date().getDate());
+      currYear = currDate.getFullYear();
+      currMonth = currDate.getMonth();
+    } else {
+      currDate = new Date();
+    }
+    renderCalendar();
   }
 
- 
   function selectDay(day) {
+    selectedDateObj = new Date(currYear, currMonth, day);
+    renderCalendar();
 
-      selectedDateObj = new Date(currYear, currMonth, day);
-      renderCalendar(); 
+    const offset = selectedDateObj.getTimezoneOffset();
+    const dateLocal = new Date(selectedDateObj.getTime() - (offset*60*1000));
+    const dateString = dateLocal.toISOString().split('T')[0];
 
-      const offset = selectedDateObj.getTimezoneOffset();
-      const dateLocal = new Date(selectedDateObj.getTime() - (offset*60*1000));
-      const dateString = dateLocal.toISOString().split('T')[0];
-
-
-      selectedDateLabel.innerText = `Para el ${day} de ${months[currMonth]}`;
-      
-
-      disableReservation();
-
-
-      loadSlots(dateString);
+    selectedDateLabel.innerText = `${day} de ${months[currMonth]}`;
+    disableReservation();
+    loadSlots(dateString);
   }
 
   function loadSlots(dateString) {
-      slotsContainer.innerHTML = '<div class="col-span-2 py-10"><div class="loading-spinner"></div><p class="text-center text-xs text-gray-400 mt-2">Buscando horas...</p></div>';
+    slotsContainer.innerHTML = '<div class="col-span-2 py-10"><div class="loading-spinner"></div><p class="text-center text-xs text-gray-500 mt-3">Buscando horarios...</p></div>';
 
-      fetch(`/seleccionar_hora/${servicioId}/?fecha=${dateString}`)
-      .then(response => {
-          if (!response.ok) throw new Error('Error de red');
-          return response.json();
-      })
-      .then(data => {
-          slotsContainer.innerHTML = ''; 
+    fetch(`/seleccionar_hora/${servicioId}/?fecha=${dateString}`)
+    .then(response => {
+      if (!response.ok) throw new Error('Error de red');
+      return response.json();
+    })
+    .then(data => {
+      slotsContainer.innerHTML = '';
+      
+      if (data.slots && data.slots.length > 0) {
+        data.slots.forEach(slot => {
+          const btn = document.createElement('button');
+          btn.className = 'slot-item py-3 px-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 hover:border-instagram-purple hover:bg-instagram-purple/5 transition-all text-sm font-medium flex flex-col justify-center items-center group relative shadow-sm hover:shadow-md';
           
-          if (data.slots && data.slots.length > 0) {
-              data.slots.forEach(slot => {
+          btn.style.borderLeft = `4px solid ${slot.colorm}`;
+          
+          btn.innerHTML = `
+            <span class="text-base font-bold mb-1">${slot.hora_inicio}</span>
+            <span class="text-xs text-gray-500 flex items-center gap-1">
+              <i class="fas fa-user-nurse" style="color:${slot.colorm}"></i> 
+              ${slot.matrona_nombre.split(' ')[0]}
+            </span>
+            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-instagram-purple">
+              <i class="far fa-check-circle"></i>
+            </div>
+          `;
 
-                  const btn = document.createElement('button');
-                  btn.className = 'slot-item py-3 px-4 rounded-xl border border-border-color bg-white text-text-dark hover:border-instagram-pink hover:bg-pink-50 transition-all text-sm font-medium flex flex-col justify-center items-center group relative w-full text-center shadow-sm';
-                  
-                    /// ESTO SE MODIFICARÁ SEGUN EL COLOR QUE ESCOJA LA MATRONA EN SU PERFIL
-                  btn.style.borderLeft = `14px solid ${slot.colorm}`;
-                  
-                  btn.innerHTML = `
-                    <span class="text-base font-bold">${slot.hora_inicio}</span>
-                    <span class="text-xs text-text-light mt-1 flex items-center gap-1">
-                       <i class="fas fa-user-nurse text-xs" style="color:${slot.colorm}"></i> ${slot.matrona_nombre.split(' ')[0]}
-                    </span>
-                    <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-instagram-pink">
-                        <i class="far fa-check-circle"></i>
-                    </div>
-                  `;
-
-       
-                  btn.onclick = () => selectHour(btn, slot, dateString);
-                  
-                  slotsContainer.appendChild(btn);
-              });
-          } else {
-              slotsContainer.innerHTML = '<div class="col-span-2 py-8 text-center text-gray-400 bg-gray-50 rounded-xl"><i class="far fa-calendar-times text-2xl mb-2 block"></i>No hay horas disponibles para esta fecha.</div>';
-          }
-      })
-      .catch(error => {
-          console.error(error);
-          slotsContainer.innerHTML = '<div class="col-span-2 text-red-500 text-center text-sm">Error al cargar disponibilidad.</div>';
-      });
+          btn.onclick = () => selectHour(btn, slot, dateString);
+          slotsContainer.appendChild(btn);
+        });
+      } else {
+        slotsContainer.innerHTML = `
+          <div class="col-span-2 py-10 text-center">
+            <i class="far fa-calendar-times text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-400 text-sm">No hay horarios disponibles</p>
+          </div>
+        `;
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      slotsContainer.innerHTML = '<div class="col-span-2 text-red-500 text-center text-sm py-10">Error al cargar disponibilidad</div>';
+    });
   }
 
-
   function selectHour(btnElement, slotData, dateString) {
+    document.querySelectorAll('.slot-item').forEach(b => {
+      b.classList.remove('ring-2', 'ring-instagram-purple', 'bg-instagram-purple/5', 'border-instagram-purple');
+      b.classList.add('border-gray-200');
+    });
 
-      document.querySelectorAll('.slot-item').forEach(b => {
-          b.classList.remove('ring-2', 'ring-instagram-pink', 'bg-pink-50');
-          b.classList.add('border-border-color');
-      });
+    btnElement.classList.remove('border-gray-200');
+    btnElement.classList.add('ring-2', 'ring-instagram-purple', 'bg-instagram-purple/5', 'border-instagram-purple');
 
+    inputMatronaId.value = slotData.matrona_id;
+    inputFecha.value = slotData.fecha;
+    inputHoraInicio.value = slotData.hora_inicio;
 
-      btnElement.classList.remove('border-border-color');
-      btnElement.classList.add('ring-2', 'ring-instagram-pink', 'bg-pink-50');
+    summaryText.innerText = `${dateString} a las ${slotData.hora_inicio} con ${slotData.matrona_nombre.split(' ')[0]}`;
 
-
-      inputMatronaId.value = slotData.matrona_id;
-      inputFecha.value = slotData.fecha; 
-      inputHoraInicio.value = slotData.hora_inicio;
-
-   
-      summaryText.innerText = `${dateString} a las ${slotData.hora_inicio} con ${slotData.matrona_nombre.split(' ')[0]}`;
-      
-
-      reservationSummary.style.opacity = "1";
-      reservationSummary.style.pointerEvents = "auto";
+    reservationSummary.style.opacity = "1";
+    reservationSummary.style.pointerEvents = "auto";
   }
 
   function disableReservation() {
-      reservationSummary.style.opacity = "0.5";
-      reservationSummary.style.pointerEvents = "none";
-      summaryText.innerText = "--/--/-- --:--";
-      inputMatronaId.value = "";
-      inputFecha.value = "";
-      inputHoraInicio.value = "";
+    reservationSummary.style.opacity = "0.5";
+    reservationSummary.style.pointerEvents = "none";
+    summaryText.innerText = "--/--/-- a las --:--";
+    inputMatronaId.value = "";
+    inputFecha.value = "";
+    inputHoraInicio.value = "";
   }
-
 
   renderCalendar();
 
-  // Manejar envío del formulario con AJAX
+  // ===== ENVÍO DEL FORMULARIO =====
   document.getElementById('reservationForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -324,15 +427,12 @@
     const btnText = document.getElementById('btnReservaText');
     const btnIcon = document.getElementById('btnReservaIcon');
     
-    // Deshabilitar botón y mostrar cargando
     submitBtn.disabled = true;
     btnText.textContent = 'Agregando...';
     btnIcon.className = 'fas fa-spinner fa-spin';
     
-    // Obtener datos del formulario
     const formData = new FormData(this);
     
-    // Enviar con fetch
     fetch(this.action, {
       method: 'POST',
       body: formData,
@@ -343,41 +443,37 @@
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // Mostrar éxito
         btnText.textContent = '¡Agregado al carrito!';
         btnIcon.className = 'fas fa-check';
-        submitBtn.className = 'w-full py-3.5 rounded-full bg-green-500 text-white font-bold shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2';
+        submitBtn.className = 'w-full py-4 rounded-xl bg-green-500 text-white font-bold shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2';
         
-        // Actualizar contador del carrito en el header
+        // Actualizar contador del carrito
         const cartCount = document.getElementById('cartCount');
         if (cartCount) {
-          const currentCount = parseInt(cartCount.textContent);
-          cartCount.textContent = currentCount + 1;
-        } else {
-          // Si no existe el badge, crearlo
-          const cartIcon = document.querySelector('a[href="{% url 'ver_carrito' %}"]');
-          if (cartIcon) {
-            const badge = document.createElement('span');
-            badge.id = 'cartCount';
-            badge.className = 'cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold';
-            badge.textContent = '1';
-            cartIcon.appendChild(badge);
-          }
+          cartCount.textContent = parseInt(cartCount.textContent) + 1;
         }
         
+        // Resetear después de 2 segundos
+        setTimeout(() => {
+          btnText.textContent = 'Agregar al carrito';
+          btnIcon.className = 'fas fa-shopping-cart';
+          submitBtn.className = 'w-full py-4 rounded-xl bg-gradient-to-r from-instagram-purple to-instagram-pink text-white font-bold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group';
+          submitBtn.disabled = false;
+          disableReservation();
+        }, 2000);
+        
       } else {
-        // Mostrar error
         alert(data.error || 'Error al agregar al carrito');
-        btnText.textContent = 'Confirmar Reserva';
-        btnIcon.className = 'fas fa-arrow-right';
+        btnText.textContent = 'Agregar al carrito';
+        btnIcon.className = 'fas fa-shopping-cart';
         submitBtn.disabled = false;
       }
     })
     .catch(error => {
       console.error('Error:', error);
       alert('Error al procesar la reserva');
-      btnText.textContent = 'Confirmar Reserva';
-      btnIcon.className = 'fas fa-arrow-right';
+      btnText.textContent = 'Agregar al carrito';
+      btnIcon.className = 'fas fa-shopping-cart';
       submitBtn.disabled = false;
     });
   });

@@ -5,28 +5,35 @@ from django.dispatch import receiver
 from .models import Usuario, Matrona
 
 @receiver(post_save, sender=Usuario)
-def gestionarpMatrona(sender, instance, **kwargs):
+def gestionarpMatrona(sender, instance, created, **kwargs):
     """
-    Se dispara después de guardar un Usuario (cuando el admin cambia el rol).
-    Crea, actualiza o elimina el perfil Matrona según el valor del campo 'rol'.
+    Signal que gestiona la creación/actualización del perfil de matrona
+    Se ejecuta cuando:
+    1. Se crea un nuevo usuario con rol='matrona'
+    2. Se cambia el rol de un usuario existente a 'matrona'
     """
     
+    # Si el usuario tiene rol de matrona
     if instance.rol == 'matrona':
-        # Crear o actualizar el perfil Matrona con valores por defecto
-        Matrona.objects.update_or_create(
+        # Intentar obtener o crear el perfil de matrona
+        perfil_matrona, perfil_created = Matrona.objects.get_or_create(
             usuario=instance,
             defaults={
-                'telefono': instance.telefono if hasattr(instance, 'telefono') else '',
+                'telefono': instance.telefono if instance.telefono else '',
                 'descripcion': '',
-                'color_agenda': '#7436ad',  # Color por defecto
-                # foto_perfil se deja null por ahora
+                'color_agenda': '#7436ad'
             }
         )
         
-    # Si el rol NO es 'matrona' (es 'cliente')
-    else:
-        # Eliminar el perfil Matrona si existe
+        # Si ya existía el perfil, actualizar el teléfono por si cambió
+        if not perfil_created and instance.telefono:
+            perfil_matrona.telefono = instance.telefono
+            perfil_matrona.save(update_fields=['telefono'])
+    
+    # Si el usuario cambió de matrona a cliente, podríamos eliminar el perfil
+    elif instance.rol == 'cliente':
         try:
-            Matrona.objects.get(usuario=instance).delete()
+            perfil_matrona = Matrona.objects.get(usuario=instance)
+            # perfil_matrona.delete()  # Descomentar si quieres eliminar
         except Matrona.DoesNotExist:
-            pass  # No hay perfil Matrona para eliminar
+            pass

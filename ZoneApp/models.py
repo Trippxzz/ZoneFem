@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser,BaseUserManager, Group, Permission
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+import magic
 from datetime import date
 # Create your models here.
 
@@ -79,7 +81,16 @@ class Usuario(AbstractUser):
     @property
     def edad(self):
         return self.calcular_edad()
+
+def validate_image(file): ##PARA VALIDAR IMAGENES | SEGURIDAD
+    file_type = magic.from_buffer(file.read(1024), mime=True)
+    if file_type not in ['image/jpeg', 'image/png', 'image/gif']:
+        raise ValidationError('Solo se permiten imágenes JPG, PNG o GIF')
+    file.seek(0)
     
+    # Validar tamaño
+    if file.size > 5 * 1024 * 1024:  # 5MB
+        raise ValidationError('La imagen no puede superar 5MB')
 
 class Matrona(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='perfil_matrona', verbose_name='Usuario Matrona')
@@ -90,7 +101,7 @@ class Matrona(models.Model):
             default="#7436ad", 
             verbose_name='Color en Agenda'
         )
-    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de Perfil')
+    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True, verbose_name='Foto de Perfil', validators=[validate_image])
     fecha_registro = models.DateTimeField(default=timezone.now)
     class Meta:
         verbose_name = 'Matrona'
@@ -111,10 +122,11 @@ class Servicio(models.Model):
         return self.nombre
     def imagen_principal(self):
         return self.imagenes.filter(es_principal=True).first()
-
+    
+    
 class ImagenServicio(models.Model):
     servicio = models.ForeignKey(Servicio, related_name='imagenes', on_delete=models.CASCADE)
-    imagen = models.ImageField(upload_to='servicios/')
+    imagen = models.ImageField(upload_to='servicios/', validators=[validate_image])
     es_principal = models.BooleanField(default=False, verbose_name='¿Imagen Principal?')
 
     def __str__(self):

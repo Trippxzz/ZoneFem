@@ -1,6 +1,6 @@
 /* Estilos para el degradado del texto */
 .text-instagram-gradient {
-  background: linear-gradient(45deg, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45);
+  background: #C6A4EE;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -90,7 +90,7 @@
 .logo-text {
   font-size: 2rem; /* Ajusta el tamaño del texto */
   font-weight: bold;
-  background: linear-gradient(45deg, #ff2ea9, #ff6ab8, #ffb72a); /* Degradado del texto */
+  background: #C6A4EE;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -116,7 +116,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, #833AB4, #C13584, #E1306C, #FD1D1D, #F56040, #F77737, #FCAF45);
+  background: linear-gradient(45deg, #E982F2, #C6A4EE, #9CDCF8, #B1F2D1);
   color: white;
 }
 

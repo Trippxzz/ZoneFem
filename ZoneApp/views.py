@@ -2,10 +2,11 @@ from urllib import request
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.views import LoginView as DjangoLoginView
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, JsonResponse, Http404
-from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm, PerfilMatronaForm
+from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm, PerfilMatronaForm, EditarPerfilUsuarioForm
 from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona, Venta, Pagos
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -24,6 +25,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
+from django_ratelimit.decorators import ratelimit
 # Create your views here.
 
 def home(request):
@@ -48,7 +50,7 @@ def RegistroUsuarios(request):
         form = UsuarioForm()
     return render(request, 'ZoneUsuarios/registrousers.html', {'form': form})
 
-@require_POST       
+@ratelimit(key='ip', rate='5/m', method='POST') ###METODO DE SEGUIRDAD 
 def login_ajax(request):
     form = EmailAuthenticationForm(request, data=request.POST)
     if form.is_valid():
@@ -412,7 +414,7 @@ def editardispoServicio(request, bloque_id):
     return render(request, 'ZoneMatronas/editardisponibilidad.html', context)
 
 
-### ========== SECCIÓN WEBPAY ==========
+###  SECCIÓN WEBPAY
 
 @login_required
 def iniciar_pago(request):
@@ -801,23 +803,23 @@ def lista_pacientes(request):
 def perfil_usuario(request):  
     perfil_usuario = request.user
     if request.method == 'POST':
-        form = UsuarioForm(request.POST, instance=perfil_usuario)
+        form = EditarPerfilUsuarioForm(request.POST, instance=perfil_usuario)
         
         if form.is_valid():
-            
-            # Poner Notificacion
-            return redirect('home')
-        # else:
-            # Poner Notificacion
+            form.save()
+            # messages.success(request, 'Perfil actualizado correctamente')
+            return redirect('miperfil')
+        else:
+            messages.error(request, 'Error al actualizar el perfil')
     else:
-        form = UsuarioForm(instance=perfil_usuario)
+        form = EditarPerfilUsuarioForm(instance=perfil_usuario)
     
     context = {
         'form': form,
         'perfil_usuario': perfil_usuario
     }
     
-    return render(request, 'Zoneusuarios/perfilusuario.html', context)
+    return render(request, 'ZoneUsuarios/perfilusuario.html', context)
 
 
 @login_required
@@ -825,9 +827,16 @@ def perfil_matrona(request):
     if request.user.rol != 'matrona':
         messages.error(request, 'No tienes permisos')
         return redirect('home')
-    
-    perfil_matrona = request.user.perfil_matrona
-    
+
+    try:
+        perfil_matrona = request.user.perfil_matrona
+    except ObjectDoesNotExist:
+        perfil_matrona = Matrona.objects.create(
+            usuario=request.user,
+            color_agenda='#7436ad' # Valor por defecto
+        )
+    # -------------------
+
     if request.method == 'POST':
         form = PerfilMatronaForm(request.POST, request.FILES, instance=perfil_matrona)
         

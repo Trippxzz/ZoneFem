@@ -32,6 +32,22 @@ class UsuarioForm(forms.ModelForm):
 
 
 
+class EditarPerfilUsuarioForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['first_name', 'telefono', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border-2 border-pink-200 rounded-lg focus:outline-none focus:border-pink-400'}),
+            'telefono': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border-2 border-pink-200 rounded-lg focus:outline-none focus:border-pink-400'}),
+            'email': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border-2 border-pink-200 rounded-lg focus:outline-none focus:border-pink-400'}),
+        }
+        labels = {
+            'first_name': 'Nombre',
+            'telefono': 'Teléfono',
+            'email': 'Correo:',
+        }
+
+
 class EmailAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
