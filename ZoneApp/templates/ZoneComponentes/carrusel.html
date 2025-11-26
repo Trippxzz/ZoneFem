@@ -1,63 +1,70 @@
 {% load static %}
 
+<!-- Carrusel de Promociones -->
 <div class="carousel-container relative max-w-6xl mx-auto my-8 overflow-hidden bg-card-bg p-5 rounded-2xl shadow-medium border border-border-color">
+  
+  <!-- Slides del carrusel -->
   <div class="carousel flex transition-transform duration-500 ease-in-out">
     
+    <!-- Slide 1 -->
     <div class="carousel-item min-w-full flex items-center p-5 gap-8">
-      <img src="{% static 'ZoneApp/img/mujer_embarazada.jpg' %}" class="carousel-image w-80 h-80 object-cover rounded-xl shadow-medium transition-all duration-300 hover:scale-102" alt="Mujer embarazada recibiendo atención">
       <div class="carousel-text flex-1">
-        <h2 class="text-3xl text-text-dark mb-4 text-instagram-gradient flex items-center gap-3">
-          <i class="fas fa-venus"></i> Control prenatal
-        </h2>
-        <p class="text-lg leading-relaxed mb-6 text-text-light">
-          Seguimiento y cuidados especializados durante todo tu embarazo. Nuestras matronas te acompañarán en cada etapa para garantizar tu bienestar y el de tu bebé.
-        </p>
-        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('¡Consulta agendada! Te contactaremos para confirmar la fecha.')">
-          <i class="fas fa-calendar-plus"></i> Agendar consulta
-        </button>
-      </div>
-    </div>
-
-    <div class="carousel-item min-w-full flex items-center p-5 gap-8">
-      <img src="{% static 'ZoneApp/img/matrona.jpg' %}" class="carousel-image w-80 h-80 object-cover rounded-xl shadow-medium transition-all duration-300 hover:scale-102" alt="Matrona atendiendo a una paciente">
-      <div class="carousel-text flex-1">
-        <h2 class="text-3xl text-text-dark mb-4 text-instagram-gradient flex items-center gap-3">
-          <i class="fas fa-user-md"></i> Atención especializada
-        </h2>
-        <p class="text-lg leading-relaxed mb-6 text-text-light">
-          Con nuestras matronas experimentadas y certificadas. Contamos con profesionales altamente capacitadas para brindarte la mejor atención durante tu embarazo, parto y postparto.
-        </p>
+        <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-instagram-purple to-instagram-pink bg-clip-text text-transparent">Agenda tu consulta hoy</h2>
+        <p class="text-lg text-text-secondary mb-6">Atención personalizada con profesionales capacitadas. Tu bienestar es nuestra prioridad.</p>
         <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('¡Consulta agendada!')">
           <i class="fas fa-calendar-plus"></i> Agendar consulta
         </button>
       </div>
+      <div class="carousel-image flex-1 flex justify-center">
+        <img src="/media/imgs/carrusel2.jpg" alt="Consulta" class="rounded-xl shadow-xl w-96 h-auto object-cover border-2 border-instagram-pink/30">
+      </div>
     </div>
 
+    <!-- Slide 2 -->
     <div class="carousel-item min-w-full flex items-center p-5 gap-8">
-      <img src="{% static 'ZoneApp/img/preparacion_parto.jpg' %}" class="carousel-image w-80 h-80 object-cover rounded-xl shadow-medium transition-all duration-300 hover:scale-102" alt="Clase de preparación al parto">
       <div class="carousel-text flex-1">
-        <h2 class="text-3xl text-text-dark mb-4 text-instagram-gradient flex items-center gap-3">
-          <i class="fas fa-baby"></i> Preparación al parto
-        </h2>
-        <p class="text-lg leading-relaxed mb-6 text-text-light">
-          Clases y talleres especializados para tu proceso de parto. Aprende técnicas de respiración, relajación y posiciones que te ayudarán durante el trabajo de parto y nacimiento.
-        </p>
-        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('¡Clase agendada!')">
-          <i class="fas fa-calendar-plus"></i> Agendar clase
+        <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-instagram-orange to-instagram-yellow bg-clip-text text-transparent">Promociones especiales</h2>
+        <p class="text-lg text-text-secondary mb-6">Aprovecha nuestros descuentos en servicios seleccionados. ¡Consulta disponibilidad!</p>
+        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('Ver promociones')">
+          <i class="fas fa-tags"></i> Ver promociones
         </button>
+      </div>
+      <div class="carousel-image flex-1 flex justify-center">
+        <img src="/media/imgs/carrusel2.jpg" alt="Promoción" class="rounded-xl shadow-xl w-96 h-auto object-cover border-2 border-instagram-orange/30">
+      </div>
+    </div>
+
+    <!-- Slide 3 -->
+    <div class="carousel-item min-w-full flex items-center p-5 gap-8">
+      <div class="carousel-text flex-1">
+        <h2 class="text-4xl font-bold mb-4 bg-gradient-to-r from-instagram-pink to-instagram-red bg-clip-text text-transparent">Cuidado integral</h2>
+        <p class="text-lg text-text-secondary mb-6">Servicios completos para tu salud reproductiva y bienestar emocional.</p>
+        <button class="btn btn-primary py-3 px-6 border-none rounded-full cursor-pointer font-bold transition-all duration-300 inline-flex items-center gap-2 text-base bg-instagram-gradient text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/40" onclick="alert('Conocer más')">
+          <i class="fas fa-heart"></i> Conocer más
+        </button>
+      </div>
+      <div class="carousel-image flex-1 flex justify-center">
+        <img src="/media/imgs/carrusel2.jpg" alt="Cuidado" class="rounded-xl shadow-xl w-96 h-auto object-cover border-2 border-instagram-red/30">
       </div>
     </div>
 
   </div>
 
-  <div class="carousel-controls absolute top-1/2 transform -translate-y-1/2 w-full flex justify-between px-5">
-    <button class="carousel-arrow bg-white bg-opacity-90 border-none text-2xl py-3 px-4 rounded-full cursor-pointer transition-all duration-300 shadow-light text-instagram-pink hover:bg-white hover:text-instagram-purple hover:scale-110" onclick="moveCarousel(-1)">❮</button>
-    <button class="carousel-arrow bg-white bg-opacity-90 border-none text-2xl py-3 px-4 rounded-full cursor-pointer transition-all duration-300 shadow-light text-instagram-pink hover:bg-white hover:text-instagram-purple hover:scale-110" onclick="moveCarousel(1)">❯</button>
+  <!-- Botones de navegación -->
+  <button onclick="moveCarousel(-1)" class="carousel-btn prev absolute top-1/2 left-5 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-instagram-purple w-12 h-12 rounded-full flex items-center justify-center cursor-pointer border-2 border-instagram-purple/20 transition-all hover:bg-instagram-purple hover:text-white hover:scale-110 shadow-lg z-10">
+    <i class="fas fa-chevron-left text-xl"></i>
+  </button>
+  <button onclick="moveCarousel(1)" class="carousel-btn next absolute top-1/2 right-5 -translate-y-1/2 bg-white/90 backdrop-blur-sm text-instagram-purple w-12 h-12 rounded-full flex items-center justify-center cursor-pointer border-2 border-instagram-purple/20 transition-all hover:bg-instagram-purple hover:text-white hover:scale-110 shadow-lg z-10">
+    <i class="fas fa-chevron-right text-xl"></i>
+  </button>
+
+  <!-- Indicadores (dots) -->
+  <div class="carousel-indicators absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+    <span class="dot w-3 h-3 rounded-full bg-instagram-pink scale-120 cursor-pointer transition-all" onclick="goToSlide(0)"></span>
+    <span class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all hover:bg-instagram-pink/50" onclick="goToSlide(1)"></span>
+    <span class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all hover:bg-instagram-pink/50" onclick="goToSlide(2)"></span>
   </div>
-  
-  <div class="carousel-dots flex justify-center mt-5 gap-3">
-    <div class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all duration-300 active bg-instagram-pink scale-120" onclick="goToSlide(0)"></div>
-    <div class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all duration-300 hover:bg-instagram-purple" onclick="goToSlide(1)"></div>
-    <div class="dot w-3 h-3 rounded-full bg-gray-300 cursor-pointer transition-all duration-300 hover:bg-instagram-purple" onclick="goToSlide(2)"></div>
-  </div>
+
 </div>
+
+<script src="{% static 'ZoneJS/carousel.js' %}"></script>

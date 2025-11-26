@@ -208,27 +208,9 @@ function generateBotResponse(userMessage) {
   } else if (lowerMessage.includes('postparto') || lowerMessage.includes('postparto')) {
     return 'Ofrecemos consultas y cursos de recuperación postparto que incluyen cuidado del recién nacido, lactancia materna y recuperación física. Puedes encontrar más información en nuestra página.';
   } else if (lowerMessage.includes('contacto') || lowerMessage.includes('teléfono') || lowerMessage.includes('email')) {
-    return 'Puedes contactarnos a través del formulario en la sección "Contacto", llamando al (123) 456-7890, o enviando un WhatsApp al mismo número. Estamos aquí para ayudarte.';
+    return 'Puedes contactarnos a través del formulario en la sección "Contacto", estamos aquí para ayudarte.';
   } else if (lowerMessage.includes('gracias') || lowerMessage.includes('thank')) {
     return '¡De nada! Estoy aquí para ayudarte. ¿Hay algo más en lo que pueda asistirte?';
-  } else if (lowerMessage.includes('seguimiento') || lowerMessage.includes('envío') || lowerMessage.includes('entrega') || lowerMessage.includes('pedido') || lowerMessage.includes('estado')) {
-    isTrackingRequested = true;
-    return `
-      <div class="tracking-form bg-white rounded-xl p-5 mt-4 shadow-sm border border-gray-300">
-        <p>Para consultar el estado de tu pedido, por favor ingresa:</p>
-        <div class="tracking-form-group mb-4">
-          <label for="trackingOrderNumber" class="block mb-2 text-sm font-medium text-gray-600">Número de pedido:</label>
-          <input type="text" id="trackingOrderNumber" class="w-full py-2.5 px-3.5 border border-gray-300 rounded-lg text-sm outline-none transition-all duration-300 focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="Ej: ZF123456">
-        </div>
-        <div class="tracking-form-group mb-4">
-          <label for="trackingEmail" class="block mb-2 text-sm font-medium text-gray-600">Correo electrónico:</label>
-          <input type="email" id="trackingEmail" class="w-full py-2.5 px-3.5 border border-gray-300 rounded-lg text-sm outline-none transition-all duration-300 focus:border-instagram-pink focus:shadow-lg focus:shadow-instagram-pink/10" placeholder="tu@email.com">
-        </div>
-        <button class="tracking-submit-btn bg-instagram-gradient text-white border-none py-2.5 px-4.5 rounded-xl text-sm font-bold cursor-pointer transition-all duration-300 w-full flex items-center justify-center gap-2 hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="processTrackingForm()">
-          <i class="fas fa-search"></i> Consultar estado
-        </button>
-      </div>
-    `;
   } else {
     return 'Entiendo que quieres información sobre: "' + userMessage + '". Te recomiendo visitar nuestras secciones de Consultas o Cursos, o contactarnos directamente para una atención personalizada. ¿Hay algo específico sobre lo que te gustaría saber más?';
   }

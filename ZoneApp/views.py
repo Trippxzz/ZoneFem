@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, JsonResponse, Http404
 from .forms import UsuarioForm, EmailAuthenticationForm, ServicioForm, ServicioImagenForm, seleccionarServicioForm, disponibilidadServicioFormSet, ContactoForm, PerfilMatronaForm, EditarPerfilUsuarioForm
-from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona, Venta, Pagos
+from .models import BloqueServicio, Usuario, Servicio, ImagenServicio, disponibilidadServicio, Reservas, Carrito, CarritoItem, Matrona, Venta, Pagos, FichaClinica
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import AuthenticationForm
@@ -26,6 +26,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.contrib.sites.shortcuts import get_current_site
 from django_ratelimit.decorators import ratelimit
+from django.utils import timezone
 # Create your views here.
 
 def home(request):
@@ -57,7 +58,10 @@ def login_ajax(request):
         user = form.get_user()
         login(request, user)
         return redirect('home')
-    return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        print("error en login")
+        # messages.error(request, 'Credenciales inválidas. Por favor, verifica tu email y contraseña.')
+        return redirect('home')
 
 ####Sección CRUD Servicios
 
@@ -676,16 +680,20 @@ def recuperar_contra(request):
                 'domain': current_site.domain,
             })
             
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-                html_message=message
-            )
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                    html_message=message
+                )
+                messages.success(request, 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña.')
+            except Exception as e:
+                print(f"Error al enviar correo: {e}")
+                messages.error(request, 'Error al enviar el correo. Verifica la configuración de email.')
             
-            # messages.success(request, 'Te hemos enviado un correo con instrucciones para restablecer tu contraseña.')
             return redirect('home')
             
         except Usuario.DoesNotExist:
@@ -923,3 +931,212 @@ def admin_lista_servicios(request):
     return render(request, 'ZoneAdmin/lista_servicios.html', context)
 
 
+@login_required
+def lista_pacientes_matrona(request):
+    """Vista para listar los pacientes de una matrona"""
+    # Verificar si el usuario tiene perfil de matrona
+    try:
+        matrona_perfil = request.user.perfil_matrona
+    except:
+
+        return redirect('home')
+    
+    # Obtener pacientes únicos que tienen reservas con esta matrona
+    reservas = Reservas.objects.filter(matrona=request.user, estado='C').select_related('usuario')
+    pacientes_ids = reservas.values_list('usuario_id', flat=True).distinct()
+    pacientes = Usuario.objects.filter(id__in=pacientes_ids)
+    
+    # Agregar campo calculado para verificar si tiene ficha clínica
+    for paciente in pacientes:
+        paciente.tiene_ficha_clinica = FichaClinica.objects.filter(paciente=paciente).exists()
+    
+    # Estadísticas
+    hoy = timezone.now().date()
+    reservas_hoy = Reservas.objects.filter(
+        matrona=request.user,
+        fecha=hoy,
+        estado='C'
+    ).count()
+    
+    primer_dia_mes = hoy.replace(day=1)
+    reservas_mes = Reservas.objects.filter(
+        matrona=request.user,
+        fecha__gte=primer_dia_mes,
+        fecha__lte=hoy,
+        estado='C'
+    ).count()
+    
+    context = {
+        'pacientes': pacientes,
+        'reservas_hoy': reservas_hoy,
+        'reservas_mes': reservas_mes,
+        'total_pacientes': pacientes.count(),
+    }
+    
+    return render(request, 'ZoneMatronas/listaPacientes.html', context)
+
+
+@login_required
+def crear_ficha_clinica(request):
+    """Vista para crear una ficha clínica"""
+    if request.method == 'POST':
+        # Verificar si el usuario tiene perfil de matrona
+        try:
+            matrona_perfil = request.user.perfil_matrona
+        except:
+            messages.error(request, 'No tienes permisos para realizar esta acción')
+            return redirect('home')
+        
+        paciente_id = request.POST.get('paciente_id')
+        paciente = get_object_or_404(Usuario, id=paciente_id)
+        
+        # Verificar que no exista ya una ficha clínica
+        if FichaClinica.objects.filter(paciente=paciente).exists():
+            messages.warning(request, 'Este paciente ya tiene una ficha clínica')
+            return redirect('lista_pacientes_matrona')
+        
+        # Crear la ficha clínica
+        ficha = FichaClinica.objects.create(
+            paciente=paciente,
+            matrona=matrona_perfil,
+            antecedentes_medicos=request.POST.get('antecedentes_medicos', ''),
+            medicacion_actual=request.POST.get('medicacion_actual', ''),
+            observaciones=request.POST.get('observaciones', '')
+        )
+        
+        return redirect('lista_pacientes_matrona')
+    
+    return redirect('lista_pacientes_matrona')
+
+
+@login_required
+def ver_ficha_clinica(request, paciente_id):
+    """Vista para ver la ficha clínica de un paciente"""
+    # Verificar si el usuario tiene perfil de matrona
+    try:
+        matrona_perfil = request.user.perfil_matrona
+    except:
+
+        return redirect('home')
+    
+    paciente = get_object_or_404(Usuario, id=paciente_id)
+    ficha = get_object_or_404(FichaClinica, paciente=paciente)
+    
+    context = {
+        'paciente': paciente,
+        'ficha': ficha
+    }
+    
+    return render(request, 'ZoneMatronas/fichaClinica.html', context)
+
+
+@login_required
+def editar_ficha_clinica(request, paciente_id):
+    """Vista para editar la ficha clínica de un paciente"""
+    # Verificar si el usuario tiene perfil de matrona
+    try:
+        matrona_perfil = request.user.perfil_matrona
+    except:
+
+        return redirect('home')
+    
+    paciente = get_object_or_404(Usuario, id=paciente_id)
+    ficha = get_object_or_404(FichaClinica, paciente=paciente)
+    
+    if request.method == 'POST':
+        # Actualizar la ficha clínica
+        ficha.antecedentes_medicos = request.POST.get('antecedentes_medicos', '')
+        ficha.medicacion_actual = request.POST.get('medicacion_actual', '')
+        ficha.observaciones = request.POST.get('observaciones', '')
+        ficha.save()
+        
+        return redirect('ver_ficha_clinica', paciente_id=paciente.id)
+    
+    context = {
+        'paciente': paciente,
+        'ficha': ficha
+    }
+    
+    return render(request, 'ZoneMatronas/editarFichaClinica.html', context)
+
+
+@login_required
+def detalle_paciente(request, paciente_id):
+    """Vista para ver el detalle de un paciente"""
+    # Verificar si el usuario tiene perfil de matrona
+    try:
+        matrona_perfil = request.user.perfil_matrona
+    except:
+
+        return redirect('home')
+    
+    paciente = get_object_or_404(Usuario, id=paciente_id)
+    
+    # Verificar que el paciente tenga reservas con esta matrona
+    tiene_reservas = Reservas.objects.filter(
+        usuario=paciente,
+        matrona=request.user,
+        estado='C'
+    ).exists()
+    
+    if not tiene_reservas:
+        messages.error(request, 'No tienes acceso a este paciente')
+        return redirect('lista_pacientes_matrona')
+    
+    # Obtener reservas del paciente con esta matrona
+    reservas = Reservas.objects.filter(
+        usuario=paciente,
+        matrona=request.user
+    ).select_related('servicio').order_by('-fecha', '-hora_inicio')
+    
+    # Verificar si tiene ficha clínica
+    tiene_ficha = FichaClinica.objects.filter(paciente=paciente).exists()
+    
+    context = {
+        'paciente': paciente,
+        'reservas': reservas,
+        'tiene_ficha': tiene_ficha
+    }
+    
+    return render(request, 'ZoneMatronas/detallePaciente.html', context)
+
+
+@login_required
+def historial_paciente(request, paciente_id):
+    """Vista para ver el historial médico de un paciente"""
+    # Verificar si el usuario tiene perfil de matrona
+    try:
+        matrona_perfil = request.user.perfil_matrona
+    except:
+
+        return redirect('home')
+    
+    paciente = get_object_or_404(Usuario, id=paciente_id)
+    
+    # Verificar acceso
+    tiene_acceso = Reservas.objects.filter(
+        usuario=paciente,
+        matrona=request.user,
+        estado='C'
+    ).exists()
+    
+    if not tiene_acceso:
+        messages.error(request, 'No tienes acceso a este paciente')
+        return redirect('lista_pacientes_matrona')
+    
+    # Obtener todas las reservas
+    reservas = Reservas.objects.filter(
+        usuario=paciente,
+        matrona=request.user
+    ).select_related('servicio').order_by('-fecha', '-hora_inicio')
+    
+    # Obtener ficha clínica si existe
+    ficha_clinica = FichaClinica.objects.filter(paciente=paciente).first()
+    
+    context = {
+        'paciente': paciente,
+        'reservas': reservas,
+        'ficha_clinica': ficha_clinica
+    }
+    
+    return render(request, 'ZoneMatronas/historialPaciente.html', context)

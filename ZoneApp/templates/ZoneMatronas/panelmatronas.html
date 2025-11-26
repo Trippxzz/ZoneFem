@@ -55,7 +55,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex h-screen overflow-hidden bg-gray-50">
+<div class="flex h-screen overflow-hidden ">
     
     <!-- Overlay para cerrar sidebar en móvil -->
     <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -83,7 +83,7 @@
                 <span class="font-medium text-sm md:text-base">Inicio</span>
             </a>
 
-            <a href="{%url 'lista_pacientes'%}" 
+            <a href="{%url 'lista_pacientes_matrona'%}" 
                class="flex items-center gap-2 md:gap-3 px-2 md:px-4 py-2 md:py-3 rounded-xl hover:bg-white/10 transition-all group">
                 <i class="fas fa-users text-lg md:text-xl group-hover:scale-110 transition-transform"></i>
                 <span class="font-medium text-sm md:text-base">Pacientes</span>

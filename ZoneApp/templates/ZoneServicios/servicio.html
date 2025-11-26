@@ -450,7 +450,9 @@
         // Actualizar contador del carrito
         const cartCount = document.getElementById('cartCount');
         if (cartCount) {
-          cartCount.textContent = parseInt(cartCount.textContent) + 1;
+          const currentCount = parseInt(cartCount.textContent) || 0;
+          cartCount.textContent = currentCount + 1;
+          cartCount.style.display = 'flex';
         }
         
         // Resetear después de 2 segundos

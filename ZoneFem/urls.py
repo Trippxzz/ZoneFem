@@ -34,7 +34,12 @@ urlpatterns = [
  path('recuperar_contrasena/', views.recuperar_contra, name='recuperar_contra'),
     path('reset_contrasena/<uidb64>/<token>/', views.restablecer_contra, name='restablecer_contra'),
     path('panelmatrona', views.panel_matrona, name = 'panel_matrona'),
-    path('panelmatrona/lista_pacientes', views.lista_pacientes, name = 'lista_pacientes'),
+    path('matrona/pacientes/', views.lista_pacientes_matrona, name='lista_pacientes_matrona'),
+    path('matrona/ficha/crear/', views.crear_ficha_clinica, name='crear_ficha_clinica'),
+    path('matrona/ficha/<int:paciente_id>/', views.ver_ficha_clinica, name='ver_ficha_clinica'),
+    path('matrona/ficha/<int:paciente_id>/editar/', views.editar_ficha_clinica, name='editar_ficha_clinica'),
+    path('matrona/paciente/<int:paciente_id>/', views.detalle_paciente, name='detallePaciente'),
+    path('matrona/paciente/<int:paciente_id>/historial/', views.historial_paciente, name='historial_paciente'),
     path('panelmatrona/perfil/', views.perfil_matrona, name='perfil_matrona'),
     #  Administración 
     path('gestion/asignar_servicios/', views.admin_asignar_servicios, name='admin_asignar_servicios'),

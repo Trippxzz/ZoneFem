@@ -139,19 +139,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 ###SECCION PARA CONFIGURACIÓN DE SISTEMA DE EMAILS
 
 # Configuración de Email
-if config('DEBUG', default=False, cast=bool):
-    # En desarrollo: guardar emails en archivos
-    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-    EMAIL_FILE_PATH = BASE_DIR / 'emails'
-else:
+# if config('DEBUG', default=False, cast=bool):
+#     # En desarrollo: guardar emails en archivos
+#     EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#     EMAIL_FILE_PATH = BASE_DIR / 'emails'
+# else:
     # En producción: enviar emails reales
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.gmail.com'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = f'ZoneFem <{EMAIL_HOST_USER}>'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = f'ZoneFem <{EMAIL_HOST_USER}>'
 
 # Configuración de Webpay (Transbank)
 WEBPAY_COMMERCE_CODE = config('WEBPAY_COMMERCE_CODE')

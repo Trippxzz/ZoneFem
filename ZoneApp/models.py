@@ -245,3 +245,21 @@ class Pagos(models.Model):
     )
 
 
+class FichaClinica(models.Model):
+    paciente = models.OneToOneField('Usuario', on_delete=models.CASCADE, related_name='ficha_clinica')
+    matrona = models.ForeignKey('Matrona', on_delete=models.SET_NULL, null=True, related_name='fichas_creadas')
+    
+    # Campos de la ficha
+    observaciones = models.TextField(blank=True, help_text='Notas adicionales')
+    
+    # Metadata
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Ficha Clínica'
+        verbose_name_plural = 'Fichas Clínicas'
+        ordering = ['-fecha_creacion']
+    
+    def __str__(self):
+        return f'Ficha de {self.paciente.get_full_name()}'

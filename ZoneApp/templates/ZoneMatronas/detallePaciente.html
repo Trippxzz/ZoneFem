@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Detalle Paciente - Zone Fem{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+                <a href="{% url 'panel_matrona' %}" class="inline-flex items-center px-6 py-3 bg-white text-purple-600 font-semibold rounded-xl hover:shadow-lg transition-all duration-300 border-2 border-purple-200">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Volver al Panel
+                </a>
+
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+            <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-6">
+                    {% comment %} <div class="w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-3xl font-bold">
+                        {{ paciente.first_name|first }}{{ paciente.last_name|first }}
+                    </div> {% endcomment %}
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ paciente.get_full_name }}</h1>
+                        <div class="flex flex-wrap gap-4 text-gray-600">
+                            <span class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                {{ paciente.email }}
+                            </span>
+                            {% if paciente.telefono %}
+                            <span class="flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                {{ paciente.telefono }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% if tiene_ficha %}
+                <a href="{% url 'ver_ficha_clinica' paciente.id %}" class="inline-flex items-center px-6 py-3 bg-instagram-gradient text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-instagram-pink/30 transition-all duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Ver Ficha Clínica
+                </a>
+                {% else %}
+                <button onclick="document.getElementById('modalCrearFicha').classList.remove('hidden')" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#B1F2D1] to-[#C6A4EE] text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Crear Ficha Clínica
+                </button>
+                {% endif %}
+            </div>
+
+            <!-- Info Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div class="bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-purple-800 mb-1">RUT</p>
+                            <p class="text-2xl font-bold text-purple-900">{{ paciente.rut }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-300 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-pink-100 to-orange-100 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-pink-800 mb-1">Edad</p>
+                            <p class="text-2xl font-bold text-pink-900">
+                                {% if paciente.edad %}
+                                    {{ paciente.edad }} años
+                                {% else %}
+                                    No registrada
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-pink-300 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-orange-100 to-yellow-100 rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-orange-800 mb-1">Total Reservas</p>
+                            <p class="text-2xl font-bold text-orange-900">{{ reservas.count }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-300 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de Reservas -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Historial de Reservas</h2>
+                {% comment %} <a href="{% url 'historial_paciente' paciente.id %}" class="text-purple-600 hover:text-purple-800 font-medium flex items-center">
+                    Ver historial completo
+                    <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a> {% endcomment %}
+            </div>
+
+            {% if reservas %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-purple-50 to-pink-50">
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Hora</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Servicio</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for reserva in reservas|slice:":5" %}
+                        <tr class="hover:bg-purple-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm font-medium text-gray-900">{{ reserva.fecha|date:"d/m/Y" }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="text-sm text-gray-600">{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-sm text-gray-900">{{ reserva.servicio.nombre }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                    {% if reserva.estado == 'C' %}bg-green-100 text-green-800
+                                    {% elif reserva.estado == 'P' %}bg-yellow-100 text-yellow-800
+                                    {% elif reserva.estado == 'X' %}bg-red-100 text-red-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {% if reserva.estado == 'C' %}Completada
+                                    {% elif reserva.estado == 'P' %}Pendiente
+                                    {% elif reserva.estado == 'X' %}Cancelada
+                                    {% else %}{{ reserva.get_estado_display }}{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <p class="mt-4 text-gray-500">No hay reservas registradas</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear Ficha Clínica -->
+{% if not tiene_ficha %}
+<div id="modalCrearFicha" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 p-6 rounded-t-2xl">
+            <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-bold text-white">Crear Ficha Clínica</h3>
+                <button onclick="document.getElementById('modalCrearFicha').classList.add('hidden')" class="text-white hover:text-gray-200 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'crear_ficha_clinica' %}" class="p-6 space-y-6">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ paciente.id }}">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Paciente</label>
+                <p class="text-lg font-medium text-gray-900 bg-gray-50 rounded-lg px-4 py-3">{{ paciente.get_full_name }}</p>
+            </div>
+
+            <div>
+                <label for="antecedentes_medicos" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Antecedentes Médicos <span class="text-red-500">*</span>
+                </label>
+                <textarea id="antecedentes_medicos" name="antecedentes_medicos" rows="4" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Ej: Alergias, cirugías previas, condiciones crónicas..."></textarea>
+            </div>
+
+            <div>
+                <label for="medicacion_actual" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Medicación Actual
+                </label>
+                <textarea id="medicacion_actual" name="medicacion_actual" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Medicamentos que toma actualmente..."></textarea>
+            </div>
+
+            <div>
+                <label for="observaciones" class="block text-sm font-semibold text-gray-700 mb-2">
+                    Observaciones
+                </label>
+                <textarea id="observaciones" name="observaciones" rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Notas adicionales u observaciones..."></textarea>
+            </div>
+
+            <div class="flex space-x-4 pt-4">
+                <button type="submit" class="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold">
+                    Crear Ficha
+                </button>
+                <button type="button" onclick="document.getElementById('modalCrearFicha').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-300 transition-colors font-semibold">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

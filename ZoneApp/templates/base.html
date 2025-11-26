@@ -47,7 +47,8 @@
 <body class="bg-light-bg text-text-dark font-sans leading-relaxed">
 
 <header class="bg-card-bg py-4 px-5 flex flex-wrap justify-between items-center shadow-light border-b border-border-color sticky top-0 z-50">
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-3">
+        <img src="/media/logo/logo.png" alt="ZONEFEM Logo" class="h-10 w-10 object-contain">
         <a href="{% url 'home' %}" class="logo-text font-bold text-2xl text-instagram-gradient no-underline">ZONEFEM</a> 
     </div>
     
@@ -145,11 +146,9 @@
         {% if user.is_authenticated %}
         <a href="{% url 'ver_carrito' %}" class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" title="Carrito de compras">
             <i class="fas fa-shopping-cart"></i>
-            {% if total_carrito > 0 %}
-            <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount">
-                {{ total_carrito }}
+            <span class="cart-count absolute -top-2 -right-2 bg-instagram-red text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold" id="cartCount" style="display: {% if total_carrito > 0 %}flex{% else %}none{% endif %}">
+                {{ total_carrito|default:0 }}
             </span>
-            {% endif %}
         </a>
         {% endif %}
 
@@ -188,6 +187,68 @@
       {% block content %}
       {% endblock %}
   </main>
+
+  <!-- Botón flotante del chat -->
+  <button onclick="toggleChat()" class="fixed bottom-6 right-6 w-16 h-16 bg-instagram-gradient text-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center z-50 group">
+    <i class="fas fa-comments text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+  </button>
+
+  <!-- Contenedor del chat -->
+  <div id="chatContainer" class="fixed bottom-24 right-6 w-96 bg-white rounded-2xl shadow-2xl z-50 flex-col overflow-hidden" style="display: none; max-height: 600px;">
+    <!-- Header del chat -->
+    <div class="bg-instagram-gradient text-white p-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+          <i class="fas fa-robot text-instagram-pink text-xl"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-base">Asistente ZONEFEM</h3>
+          <p class="text-xs opacity-90">En línea</p>
+        </div>
+      </div>
+      <button onclick="toggleChat()" class="hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Mensajes del chat -->
+    <div id="chatMessages" class="flex-1 p-4 overflow-y-auto bg-gray-50" style="height: 400px;">
+      <div class="message bot-message self-start bg-white text-gray-800 rounded-bl-md shadow-sm max-w-[85%] py-3 px-5 rounded-2xl text-base leading-relaxed">
+        ¡Hola! Soy tu asistente de ZONEFEM. ¿En qué puedo ayudarte hoy?
+      </div>
+    </div>
+
+    <!-- Indicador de escritura -->
+    <div id="typingIndicator" class="px-4 py-2 bg-gray-50" style="display: none;">
+      <div class="flex items-center gap-2 text-gray-500 text-sm">
+        <div class="flex gap-1">
+          <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s;"></span>
+          <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></span>
+          <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></span>
+        </div>
+        <span>Escribiendo...</span>
+      </div>
+    </div>
+
+    <!-- Input del chat -->
+    <div class="border-t border-gray-200 p-4 bg-white">
+      <div class="flex gap-2">
+        <input 
+          type="text" 
+          id="chatInput" 
+          placeholder="Escribe tu mensaje..." 
+          class="flex-1 px-4 py-3 border border-gray-300 rounded-full outline-none focus:border-instagram-pink transition-colors text-sm"
+          onkeypress="handleChatKeyPress(event)"
+        >
+        <button 
+          onclick="sendMessage()" 
+          class="bg-instagram-gradient text-white w-12 h-12 rounded-full flex items-center justify-center hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+        >
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 
  <footer class="bg-card-bg py-10 px-5 mt-12 border-t border-border-color">
     <p class="text-center text-gray-500">© 2025 ZONEFEM</p>
