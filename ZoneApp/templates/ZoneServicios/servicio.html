@@ -78,9 +78,9 @@
               <i class="fas fa-info-circle text-instagram-purple"></i>
               Descripción
             </h3>
-            <p class="text-gray-600 leading-relaxed">
-              {{ serv.descripcion|default:"Descripción detallada del servicio." }}
-            </p>
+            <div class="text-gray-600 leading-relaxed">
+              {{ serv.descripcion|default:"Descripción detallada del servicio."|linebreaks }}
+            </div>
           </div>
 
           <!-- Info box -->
@@ -187,6 +187,145 @@
     </div>
 
   </div>
+</div>
+
+<!-- SECCIÓN DE OPINIONES -->
+<div class="max-w-7xl mx-auto mt-12 px-5">
+  <div class="bg-white rounded-3xl shadow-xl border border-gray-200 p-6 md:p-8">
+    
+    <!-- Header de Opiniones -->
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+          <i class="fas fa-star text-instagram-yellow"></i>
+          Opiniones de Clientes
+        </h2>
+        {% if serv.total_opiniones > 0 %}
+        <div class="flex items-center gap-2 mt-2">
+          <div class="flex text-instagram-yellow">
+            {% with promedio=serv.calificacion_promedio %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= promedio %}
+                  <i class="fas fa-star"></i>
+                {% elif forloop.counter|add:"-0.5" <= promedio %}
+                  <i class="fas fa-star-half-alt"></i>
+                {% else %}
+                  <i class="far fa-star"></i>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <span class="text-lg font-bold text-gray-700">{{ serv.calificacion_promedio }}</span>
+          <span class="text-sm text-gray-500">({{ serv.total_opiniones }} opinión{% if serv.total_opiniones != 1 %}es{% endif %})</span>
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-500 mt-1">Aún no hay opiniones</p>
+        {% endif %}
+      </div>
+      
+      <!-- Botón para opinar -->
+      {% if user.is_authenticated %}
+        {% if puede_opinar %}
+        <button onclick="mostrarFormOpinion()" class="px-6 py-3 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-full font-bold hover:shadow-xl transform hover:scale-105 transition-all">
+          <i class="fas fa-pencil-alt mr-2"></i>
+          Escribir Opinión
+        </button>
+        {% elif ya_opino %}
+        <span class="px-6 py-3 bg-gray-100 text-gray-500 rounded-full font-medium">
+          <i class="fas fa-check mr-2"></i>
+          Ya opinaste
+        </span>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <!-- Formulario para crear opinión -->
+    {% if puede_opinar %}
+    <div id="formOpinion" class="hidden mb-8 p-6 bg-gradient-to-r from-instagram-purple/5 to-instagram-pink/5 rounded-2xl border border-instagram-purple/20">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">Tu Opinión</h3>
+      <form id="opinionForm">
+        {% csrf_token %}
+        
+        <!-- Calificación con estrellas -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Calificación *</label>
+          <div class="flex gap-2">
+            {% for i in "12345" %}
+            <button type="button" class="star-btn text-3xl text-gray-300 hover:text-instagram-yellow transition-colors" data-rating="{{ i }}">
+              <i class="far fa-star"></i>
+            </button>
+            {% endfor %}
+          </div>
+          <input type="hidden" id="calificacion" name="calificacion" required>
+        </div>
+
+        <!-- Comentario -->
+        <div class="mb-4">
+          <label for="comentario" class="block text-sm font-medium text-gray-700 mb-2">Comentario *</label>
+          <textarea id="comentario" name="comentario" rows="4" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent resize-none"
+                    placeholder="Cuéntanos tu experiencia con este servicio..."></textarea>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-3">
+          <button type="submit" class="px-6 py-3 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-full font-bold hover:shadow-xl transition-all">
+            <i class="fas fa-paper-plane mr-2"></i>
+            Publicar Opinión
+          </button>
+          <button type="button" onclick="ocultarFormOpinion()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-full font-bold hover:bg-gray-300 transition-all">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- Lista de opiniones -->
+    {% if opiniones %}
+    <div class="space-y-4">
+      {% for opinion in opiniones %}
+      <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-instagram-purple to-instagram-pink flex items-center justify-center text-white font-bold">
+              {{ opinion.usuario.first_name|first|upper }}{{ opinion.usuario.last_name|first|upper }}
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">{{ opinion.usuario.first_name }} {{ opinion.usuario.last_name }}</p>
+              <div class="flex items-center gap-2">
+                <div class="flex text-instagram-yellow text-sm">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= opinion.calificacion %}
+                      <i class="fas fa-star"></i>
+                    {% else %}
+                      <i class="far fa-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                <span class="text-xs text-gray-500">{{ opinion.fecha_creacion|date:"d/m/Y" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-gray-700 leading-relaxed">{{ opinion.comentario }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      {% if not puede_opinar and not ya_opino %}
+      <div class="text-center py-12">
+        <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+        <p class="text-gray-500">Aún no hay opiniones sobre este servicio</p>
+        {% if not user.is_authenticated %}
+        <p class="text-sm text-gray-400 mt-2">Inicia sesión y contrata el servicio para dejar tu opinión</p>
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
 </div>
 
 <style>
@@ -479,5 +618,101 @@
       submitBtn.disabled = false;
     });
   });
+
+  // ===== MANEJO DE OPINIONES =====
+  function mostrarFormOpinion() {
+    document.getElementById('formOpinion').classList.remove('hidden');
+  }
+
+  function ocultarFormOpinion() {
+    document.getElementById('formOpinion').classList.add('hidden');
+  }
+
+  // Manejo de estrellas
+  const starButtons = document.querySelectorAll('.star-btn');
+  const calificacionInput = document.getElementById('calificacion');
+
+  starButtons.forEach((btn, index) => {
+    btn.addEventListener('click', function() {
+      const rating = this.dataset.rating;
+      calificacionInput.value = rating;
+      
+      // Actualizar visualización de estrellas
+      starButtons.forEach((star, i) => {
+        const icon = star.querySelector('i');
+        if (i < rating) {
+          icon.className = 'fas fa-star';
+          star.classList.add('text-instagram-yellow');
+          star.classList.remove('text-gray-300');
+        } else {
+          icon.className = 'far fa-star';
+          star.classList.remove('text-instagram-yellow');
+          star.classList.add('text-gray-300');
+        }
+      });
+    });
+
+    // Efecto hover
+    btn.addEventListener('mouseenter', function() {
+      const rating = this.dataset.rating;
+      starButtons.forEach((star, i) => {
+        if (i < rating) {
+          star.classList.add('text-instagram-yellow');
+        }
+      });
+    });
+
+    btn.addEventListener('mouseleave', function() {
+      if (!calificacionInput.value) {
+        starButtons.forEach(star => {
+          star.classList.remove('text-instagram-yellow');
+        });
+      }
+    });
+  });
+
+  // Envío del formulario de opinión
+  const opinionForm = document.getElementById('opinionForm');
+  if (opinionForm) {
+    opinionForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const calificacion = calificacionInput.value;
+      const comentario = document.getElementById('comentario').value.trim();
+      
+      if (!calificacion) {
+        alert('Por favor selecciona una calificación');
+        return;
+      }
+      
+      if (!comentario) {
+        alert('Por favor escribe un comentario');
+        return;
+      }
+      
+      const formData = new FormData(this);
+      
+      fetch('{% url "crear_opinion_servicio" serv.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+          location.reload();
+        } else {
+          alert(data.message || 'Error al guardar la opinión');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error al enviar la opinión');
+      });
+    });
+  }
 </script>
 {% endblock %}
