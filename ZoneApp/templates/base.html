@@ -44,7 +44,10 @@
   </script>
   <link rel="stylesheet" href="{% static 'ZoneApp/css/custom.css' %}">
 </head>
-<body class="bg-light-bg text-text-dark font-sans leading-relaxed">
+<body class="bg-light-bg text-text-dark font-sans leading-relaxed overflow-x-hidden">
+
+<!-- Banner de Anuncios Superior -->
+{% block anuncios_banner %}{% endblock %}
 
 <header class="bg-card-bg py-4 px-5 flex flex-wrap justify-between items-center shadow-light border-b border-border-color sticky top-0 z-50">
     <div class="flex items-center gap-3">
@@ -65,6 +68,11 @@
           </a>
         </li>
         <li class="ml-5">
+          <a href="{% url 'lista_cursos' %}" class="nav-link text-text-dark font-medium transition-all duration-300 relative cursor-pointer py-2 px-3 rounded flex items-center gap-2 hover:text-instagram-pink hover:bg-opacity-10 hover:bg-instagram-pink">
+            <i class="fas fa-graduation-cap"></i> Cursos
+          </a>
+        </li>
+        <li class="ml-5">
           <a href="{% url 'contacto' %}" class="nav-link text-text-dark font-medium transition-all duration-300 relative cursor-pointer py-2 px-3 rounded flex items-center gap-2 hover:text-instagram-pink hover:bg-opacity-10 hover:bg-instagram-pink">
             <i class="fas fa-address-book"></i> Contacto
           </a>
@@ -73,9 +81,6 @@
     </nav>
     
     <div class="header-icons flex items-center gap-3 relative">
-        <div class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="openSearch()" title="Buscar">
-            <i class="fas fa-search"></i>
-        </div>
 
         {% if not user.is_authenticated %}
         <div class="icon text-xl cursor-pointer text-text-dark transition-all duration-300 relative w-10 h-10 flex items-center justify-center rounded-full hover:bg-instagram-gradient hover:text-white hover:-translate-y-1 hover:shadow-lg hover:shadow-instagram-pink/30" onclick="openLoginModal()" title="Iniciar sesión">
@@ -109,16 +114,21 @@
                 <i class="fas fa-calendar-alt text-instagram-pink w-5"></i>
                 <span>Panel Matrona</span>
             </a>
+            <a href="{% url 'cursos_matrona' %}" 
+               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
+                <i class="fas fa-graduation-cap text-instagram-cyan w-5"></i>
+                <span>Mis Cursos</span>
+            </a>
             {%else%}
+            <a href="{% url 'panel_usuario' %}" 
+               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
+                <i class="fas fa-th-large text-instagram-purple w-5"></i>
+                <span>Mi Panel</span>
+            </a>
             <a href="{% url 'miperfil' %}" 
                class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
                 <i class="fas fa-user-circle text-instagram-pink w-5"></i>
                 <span>Mi Perfil</span>
-            </a>
-            <a href="#" 
-               class="flex items-center gap-3 px-4 py-3 text-sm text-text-dark hover:bg-gray-50 transition-colors">
-                <i class="fas fa-calendar-alt text-instagram-pink w-5"></i>
-                <span>Mis Reservas</span>
             </a>
             {%endif%}
             
@@ -192,6 +202,85 @@
   <button onclick="toggleChat()" class="fixed bottom-6 right-6 w-16 h-16 bg-instagram-gradient text-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center z-50 group">
     <i class="fas fa-comments text-2xl group-hover:scale-110 transition-transform duration-300"></i>
   </button>
+
+  <!-- Botón flotante de la ruleta (solo si está autenticado y no ha girado) -->
+  {% if user.is_authenticated %}
+  <button onclick="abrirRuleta()" id="botonRuleta" class="fixed bottom-6 right-24 w-16 h-16 bg-gradient-to-r from-yellow-400 via-orange-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center z-50 group animate-pulse" style="display: none;">
+    <i class="fas fa-gift text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+  </button>
+  {% endif %}
+
+  <!-- Modal de la Ruleta -->
+  <div id="ruletaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 items-center justify-center" style="display: none;">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden animate-modalFadeIn">
+      
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 text-white p-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-3xl font-bold flex items-center gap-3">
+              <i class="fas fa-gift"></i>
+              ¡Gira y Gana!
+            </h2>
+            <p class="text-white/90 mt-1">Una oportunidad única para ganar premios</p>
+          </div>
+          <button onclick="cerrarRuleta()" class="hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center transition-colors">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cuerpo del modal -->
+      <div class="p-8">
+        
+        <!-- Contenedor de la ruleta -->
+        <div id="ruletaContainer" class="mb-6">
+          <div class="relative mx-auto" style="width: 400px; height: 400px;">
+            
+            <!-- SVG de la ruleta -->
+            <svg id="ruletaSvg" viewBox="0 0 400 400" class="w-full h-full transition-transform duration-[3000ms] ease-out" style="transform: rotate(0deg);">
+              <!-- Los sectores se generarán dinámicamente aquí -->
+            </svg>
+
+            <!-- Indicador/flecha -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-10">
+              <div class="w-0 h-0 border-l-[20px] border-l-transparent border-r-[20px] border-r-transparent border-t-[30px] border-t-red-500 drop-shadow-lg"></div>
+            </div>
+
+            <!-- Botón central -->
+            <button id="btnGirar" onclick="girarRuleta()" 
+                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-white rounded-full shadow-2xl flex items-center justify-center text-purple-600 font-bold text-lg border-4 border-purple-600 hover:scale-110 transition-transform z-20">
+              <span>GIRAR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Resultado -->
+        <div id="resultadoRuleta" class="hidden">
+          <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-2xl p-6 text-center">
+            <i class="fas fa-trophy text-5xl mb-4"></i>
+            <h3 class="text-2xl font-bold mb-2">¡Felicidades!</h3>
+            <p id="mensajePremio" class="text-lg mb-4"></p>
+            <div id="codigoCupon" class="bg-white/20 rounded-lg p-4 mb-4 hidden">
+              <p class="text-sm mb-1">Tu código de cupón:</p>
+              <p class="font-mono text-2xl font-bold" id="textoCupon"></p>
+            </div>
+            <button onclick="cerrarRuleta()" class="px-6 py-3 bg-white text-purple-600 rounded-lg font-bold hover:bg-gray-100 transition-colors">
+              ¡Entendido!
+            </button>
+          </div>
+        </div>
+
+        <!-- Mensaje si ya giró -->
+        <div id="yaGiro" class="hidden text-center py-8">
+          <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">Ya participaste</h3>
+          <p class="text-gray-600">Solo puedes girar la ruleta una vez. ¡Gracias por participar!</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
   <!-- Contenedor del chat -->
   <div id="chatContainer" class="fixed bottom-24 right-6 w-96 bg-white rounded-2xl shadow-2xl z-50 flex-col overflow-hidden" style="display: none; max-height: 600px;">
@@ -274,15 +363,192 @@
         dropdown.classList.toggle('hidden');
     }
 
-    // Cerrar dropdown al hacer clic fuera
+    // Cerrar dropdown al hacer clic fuera (pero no cuando hay modales abiertos)
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('user-dropdown');
         const button = document.getElementById('user-menu-button');
+        
+        // No cerrar si hay un modal abierto
+        const modalAbierto = document.querySelector('.modal:not([style*="display: none"])');
+        const calendarioAbierto = document.getElementById('customCalendar') && 
+                                   !document.getElementById('customCalendar').classList.contains('hidden');
+        
+        if (modalAbierto || calendarioAbierto) {
+            return;
+        }
         
         if (dropdown && button && !button.contains(event.target) && !dropdown.contains(event.target)) {
             dropdown.classList.add('hidden');
         }
     });
+
+    // ==================== FUNCIONES DE RULETA ====================
+    
+    let beneficiosRuleta = [];
+    let puedeGirar = false;
+    
+    // Verificar si el usuario puede girar la ruleta al cargar la página
+    {% if user.is_authenticated %}
+    document.addEventListener('DOMContentLoaded', function() {
+        verificarRuleta();
+    });
+    {% endif %}
+
+    function verificarRuleta() {
+        fetch('/ruleta/verificar/')
+            .then(response => response.json())
+            .then(data => {
+                puedeGirar = data.puede_girar;
+                beneficiosRuleta = data.beneficios;
+                
+                if (puedeGirar && beneficiosRuleta.length > 0) {
+                    document.getElementById('botonRuleta').style.display = 'flex';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function abrirRuleta() {
+        const modal = document.getElementById('ruletaModal');
+        modal.style.display = 'flex';
+        
+        if (!puedeGirar) {
+            document.getElementById('ruletaContainer').style.display = 'none';
+            document.getElementById('yaGiro').classList.remove('hidden');
+        } else {
+            generarRuleta();
+        }
+    }
+
+    function cerrarRuleta() {
+        document.getElementById('ruletaModal').style.display = 'none';
+        document.getElementById('resultadoRuleta').classList.add('hidden');
+        document.getElementById('yaGiro').classList.add('hidden');
+        document.getElementById('ruletaContainer').style.display = 'block';
+    }
+
+    function generarRuleta() {
+        const svg = document.getElementById('ruletaSvg');
+        svg.innerHTML = '';
+        
+        const cx = 200;
+        const cy = 200;
+        const radius = 180;
+        const numSectores = beneficiosRuleta.length;
+        const anglePerSector = 360 / numSectores;
+        
+        beneficiosRuleta.forEach((beneficio, index) => {
+            const startAngle = index * anglePerSector - 90;
+            const endAngle = (index + 1) * anglePerSector - 90;
+            
+            const startRad = (startAngle * Math.PI) / 180;
+            const endRad = (endAngle * Math.PI) / 180;
+            
+            const x1 = cx + radius * Math.cos(startRad);
+            const y1 = cy + radius * Math.sin(startRad);
+            const x2 = cx + radius * Math.cos(endRad);
+            const y2 = cy + radius * Math.sin(endRad);
+            
+            const largeArc = anglePerSector > 180 ? 1 : 0;
+            
+            const pathData = [
+                `M ${cx} ${cy}`,
+                `L ${x1} ${y1}`,
+                `A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`,
+                'Z'
+            ].join(' ');
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', beneficio.color);
+            path.setAttribute('stroke', '#fff');
+            path.setAttribute('stroke-width', '2');
+            svg.appendChild(path);
+            
+            // Texto
+            const midAngle = (startAngle + endAngle) / 2;
+            const midRad = (midAngle * Math.PI) / 180;
+            const textRadius = radius * 0.7;
+            const textX = cx + textRadius * Math.cos(midRad);
+            const textY = cy + textRadius * Math.sin(midRad);
+            
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', textX);
+            text.setAttribute('y', textY);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.setAttribute('fill', '#fff');
+            text.setAttribute('font-weight', 'bold');
+            text.setAttribute('font-size', '14');
+            text.setAttribute('transform', `rotate(${midAngle + 90}, ${textX}, ${textY})`);
+            text.textContent = beneficio.texto.substring(0, 20);
+            svg.appendChild(text);
+        });
+    }
+
+    function girarRuleta() {
+        const btnGirar = document.getElementById('btnGirar');
+        btnGirar.disabled = true;
+        btnGirar.textContent = '...';
+        
+        fetch('/ruleta/girar/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const beneficioIndex = beneficiosRuleta.findIndex(b => b.id === data.beneficio.id);
+                const anglePerSector = 360 / beneficiosRuleta.length;
+                const targetAngle = beneficioIndex * anglePerSector;
+                const spins = 360 * 5; // 5 vueltas completas
+                const finalAngle = spins + (360 - targetAngle) + (anglePerSector / 2);
+                
+                const svg = document.getElementById('ruletaSvg');
+                svg.style.transform = `rotate(${finalAngle}deg)`;
+                
+                setTimeout(() => {
+                    document.getElementById('ruletaContainer').style.display = 'none';
+                    document.getElementById('mensajePremio').textContent = data.beneficio.mensaje;
+                    
+                    if (data.beneficio.codigo_cupon) {
+                        document.getElementById('codigoCupon').classList.remove('hidden');
+                        document.getElementById('textoCupon').textContent = data.beneficio.codigo_cupon;
+                    }
+                    
+                    document.getElementById('resultadoRuleta').classList.remove('hidden');
+                    document.getElementById('botonRuleta').style.display = 'none';
+                }, 3500);
+            } else {
+                alert(data.message);
+                btnGirar.disabled = false;
+                btnGirar.textContent = 'GIRAR';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            btnGirar.disabled = false;
+            btnGirar.textContent = 'GIRAR';
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 
 </body>

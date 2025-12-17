@@ -3,38 +3,421 @@
 
 {% block title %}Inicio - ZONEFEM{% endblock %}
 
+{% block anuncios_banner %}
+    <!-- Banner de Anuncios Superior -->
+    {% if anuncios %}
+    <div class="w-full bg-gradient-to-r from-instagram-purple to-instagram-pink text-white overflow-hidden relative">
+        <div class="relative h-12 flex items-center">
+            <!-- Contenedor del carrusel de textos -->
+            <div id="bannerAnuncios" class="flex transition-transform duration-700 ease-in-out w-full">
+                {% for anuncio in anuncios %}
+                <div class="min-w-full flex items-center justify-center gap-3 px-4">
+                    {% if anuncio.enlace %}
+                    <a href="{{ anuncio.enlace }}" target="_blank" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <span class="text-sm md:text-base">{{ anuncio.texto }}</span>
+                        <span class="font-bold text-sm">{{ anuncio.texto_enlace }}</span>
+                        <i class="fas fa-arrow-right text-sm"></i>
+                    </a>
+                    {% else %}
+                    <span class="text-sm md:text-base">{{ anuncio.texto }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Flechas de navegación -->
+            {% if anuncios|length > 1 %}
+            <button id="prevBanner" class="absolute left-2 bg-white/20 hover:bg-white/30 rounded-full w-8 h-8 flex items-center justify-center transition-all backdrop-blur-sm">
+                <i class="fas fa-chevron-left text-sm"></i>
+            </button>
+            <button id="nextBanner" class="absolute right-2 bg-white/20 hover:bg-white/30 rounded-full w-8 h-8 flex items-center justify-center transition-all backdrop-blur-sm">
+                <i class="fas fa-chevron-right text-sm"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
+
     <div class="max-w-6xl mx-auto my-8 p-5 animate-fadeIn">
         
         {% include 'ZoneComponentes/carrusel.html' %} 
-        
-        <div class="sections flex justify-around py-10 px-5 flex-wrap gap-6 max-w-6xl mx-auto">
-            <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
-                <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
-                    <i class="fas fa-info-circle text-2xl"></i> Quien Somos
-                </h3>
-                <p class="leading-relaxed text-base mb-4 text-text-light">
-                    Somos un equipo de matronas dedicadas al cuidado integral de la mujer durante el embarazo, parto y postparto. Nuestra misión es acompañarte en esta etapa tan especial con profesionalismo y calidez humana.
-                </p>
+
+        <!-- Sección Misión y Visión -->
+        <section class="my-16">
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Misión -->
+                <div class="bg-gradient-to-br from-pink-50 to-purple-50 p-8 rounded-2xl shadow-light border border-border-color">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-bullseye text-3xl text-pink-500"></i>
+                        <h3 class="text-2xl font-bold text-instagram-gradient">Nuestra Misión</h3>
+                    </div>
+                    <p class="text-text-light leading-relaxed">
+                        Brindar acompañamiento profesional y humano a mujeres, familias y adolescentes en todas las etapas de su salud sexual y reproductiva, a través de consultas online personalizadas, centradas en el respeto, la contención emocional y la toma de decisiones informadas. Como matrona, mi compromiso es ofrecer un espacio seguro, sin juicios y basado en evidencia científica, donde cada persona se sienta escuchada, acogida y empoderada.
+                    </p>
+                </div>
+
+                <!-- Visión -->
+                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-2xl shadow-light border border-border-color">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fas fa-eye text-3xl text-purple-500"></i>
+                        <h3 class="text-2xl font-bold text-instagram-gradient">Nuestra Visión</h3>
+                    </div>
+                    <p class="text-text-light leading-relaxed">
+                        Ser un referente en atención de matronería online, reconocida por promover una experiencia de salud consciente, amorosa y respetuosa. Aspiro a contribuir a una cultura donde el embarazo, parto, lactancia y adolescencia sean vividos con autonomía, información clara y acompañamiento profesional cercano, accesible y de calidad.
+                      </p>
+                </div>
             </div>
-                    <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
-          <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
-            <i class="fas fa-user-nurse text-2xl"></i> Matronas
-          </h3>
-          <p class="leading-relaxed text-base mb-4 text-text-light">
-            Nuestras matronas cuentan con formación especializada y amplia experiencia en el acompañamiento de embarazos. Estamos comprometidas con tu bienestar y el de tu bebé en cada consulta.
-          </p>
-        </div>
-        <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
-          <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
-            <i class="fas fa-baby-carriage text-2xl"></i> Preparación al parto
-          </h3>
-          <p class="leading-relaxed text-base mb-4 text-text-light">
-            Ofrecemos cursos y talleres para prepararte física y emocionalmente para el parto y la maternidad. Aprende con expertas y comparte experiencias con otras futuras mamás.
-          </p>
-        </div>
+        </section>
+
+        <!-- Sección de Servicios Destacados -->
+        <section class="my-16">
+            <h2 class="text-3xl font-bold text-center text-instagram-gradient mb-8">
+                <i class="fas fa-star mr-3"></i>Nuestros Servicios
+            </h2>
+            <div class="sections flex justify-around px-5 flex-wrap gap-6 max-w-6xl mx-auto">
+                <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
+                    <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
+                        <i class="fas fa-user-nurse text-2xl"></i> Atención Prenatal
+                    </h3>
+                    <p class="leading-relaxed text-base mb-4 text-text-light">
+                        Nuestras matronas cuentan con formación especializada y amplia experiencia en el acompañamiento de embarazos. Estamos comprometidas con tu bienestar y el de tu bebé en cada consulta.
+                    </p>
+                </div>
+                <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
+                    <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
+                        <i class="fas fa-baby-carriage text-2xl"></i> Preparación al Parto
+                    </h3>
+                    <p class="leading-relaxed text-base mb-4 text-text-light">
+                        Ofrecemos cursos y talleres para prepararte física y emocionalmente para el parto y la maternidad. Aprende con expertas y comparte experiencias con otras futuras mamás.
+                    </p>
+                </div>
+                <div class="section bg-card-bg p-6 rounded-2xl shadow-light flex-1 min-w-80 max-w-sm border border-border-color transition-all duration-300 text-center hover:-translate-y-2 hover:shadow-medium">
+                    <h3 class="text-xl text-instagram-gradient mb-5 flex items-center justify-center gap-3">
+                        <i class="fas fa-heart text-2xl"></i> Cuidado Postparto
+                    </h3>
+                    <p class="leading-relaxed text-base mb-4 text-text-light">
+                        Acompañamiento integral durante el puerperio, lactancia materna y adaptación a la maternidad. Estamos aquí para apoyarte en cada paso de esta nueva etapa.
+                    </p>
+                </div>
             </div>
+        </section>
+
+        <!-- Sección Quiénes Somos - Carrusel de Matronas -->
+        <section class="my-16">
+            <h2 class="text-3xl font-bold text-center text-instagram-gradient mb-8">
+                <i class="fas fa-user-nurse mr-3"></i>Quiénes Somos
+            </h2>
             
+            <div class="relative overflow-hidden">
+                <!-- Contenedor del carrusel de matronas -->
+                <div id="matronasCarousel" class="flex transition-transform duration-500 ease-in-out gap-6">
+                    {% for matrona in matronas %}
+                    <div class="min-w-full sm:min-w-[calc(50%-12px)] lg:min-w-[calc(33.333%-16px)] flex-shrink-0">
+                        <div class="bg-card-bg p-6 rounded-2xl shadow-light border border-border-color transition-all duration-300 hover:-translate-y-2 hover:shadow-medium h-full flex flex-col items-center text-center">
+                            <div class="w-32 h-32 rounded-full overflow-hidden mb-4 border-4 border-instagram-gradient">
+                                {% if matrona.foto_perfil %}
+                                    <img src="{{ matrona.foto_perfil.url }}" alt="{{ matrona.usuario.get_full_name }}" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center">
+                                        <i class="fas fa-user-nurse text-5xl text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <h3 class="text-xl font-bold text-instagram-gradient mb-4">
+                                {{ matrona.usuario.get_full_name }}
+                            </h3>
+                            <button onclick="abrirModalMatrona({{ matrona.id }})" 
+                                    class="px-6 py-2 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-full font-medium hover:shadow-lg transition-all duration-300">
+                                <i class="fas fa-info-circle mr-2"></i>Ver más
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="min-w-full text-center py-10">
+                        <p class="text-text-light">No hay matronas disponibles en este momento.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Controles del carrusel -->
+                {% if matronas|length > 1 %}
+                <button id="prevMatrona" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-md transition-all duration-300 z-10">
+                    <i class="fas fa-chevron-left text-instagram-gradient"></i>
+                </button>
+                <button id="nextMatrona" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-md transition-all duration-300 z-10">
+                    <i class="fas fa-chevron-right text-instagram-gradient"></i>
+                </button>
+                
+                <!-- Indicadores -->
+                <div id="matronasIndicators" class="flex justify-center gap-2 mt-6">
+                    <!-- Se generarán dinámicamente con JavaScript -->
+                </div>
+                {% endif %}
+            </div>
+        </section>
+            
+    </div>
+
+    <!-- Script para el carrusel de matronas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousel = document.getElementById('matronasCarousel');
+            const prevBtn = document.getElementById('prevMatrona');
+            const nextBtn = document.getElementById('nextMatrona');
+            const indicatorsContainer = document.getElementById('matronasIndicators');
+            
+            if (!carousel) return;
+            
+            // Seleccionar solo las tarjetas de matronas (las que tienen el botón de ver más)
+            const cards = Array.from(carousel.children).filter(div => 
+                div.querySelector('button[onclick^="abrirModalMatrona"]')
+            );
+            const totalCards = cards.length;
+            
+            if (totalCards === 0) return;
+            
+            let currentIndex = 0;
+            let cardsPerView = 1;
+            
+            // Determinar cuántas tarjetas mostrar según el tamaño de pantalla
+            function updateCardsPerView() {
+                if (window.innerWidth >= 1024) {
+                    cardsPerView = Math.min(3, totalCards);
+                } else if (window.innerWidth >= 640) {
+                    cardsPerView = Math.min(2, totalCards);
+                } else {
+                    cardsPerView = 1;
+                }
+            }
+            
+            // Crear indicadores
+            function createIndicators() {
+                if (!indicatorsContainer) return;
+                indicatorsContainer.innerHTML = '';
+                const totalPages = Math.ceil(totalCards / cardsPerView);
+                for (let i = 0; i < totalPages; i++) {
+                    const indicator = document.createElement('button');
+                    indicator.className = 'w-2 h-2 rounded-full transition-all duration-300 ' + 
+                        (i === 0 ? 'bg-instagram-gradient w-8' : 'bg-gray-300');
+                    indicator.addEventListener('click', () => goToSlide(i));
+                    indicatorsContainer.appendChild(indicator);
+                }
+            }
+            
+            // Actualizar indicadores
+            function updateIndicators() {
+                if (!indicatorsContainer) return;
+                const indicators = indicatorsContainer.querySelectorAll('button');
+                const currentPage = Math.floor(currentIndex / cardsPerView);
+                indicators.forEach((indicator, index) => {
+                    if (index === currentPage) {
+                        indicator.className = 'w-8 h-2 rounded-full transition-all duration-300 bg-instagram-gradient';
+                    } else {
+                        indicator.className = 'w-2 h-2 rounded-full transition-all duration-300 bg-gray-300';
+                    }
+                });
+            }
+            
+            // Mover el carrusel
+            function moveCarousel() {
+                const cardWidth = cards[0].offsetWidth;
+                const gap = 24; // 1.5rem = 24px
+                const offset = (cardWidth + gap) * currentIndex;
+                carousel.style.transform = `translateX(-${offset}px)`;
+                updateIndicators();
+            }
+            
+            // Ir a un slide específico
+            function goToSlide(pageIndex) {
+                currentIndex = pageIndex * cardsPerView;
+                if (currentIndex >= totalCards) {
+                    currentIndex = totalCards - cardsPerView;
+                }
+                moveCarousel();
+            }
+            
+            // Siguiente
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    currentIndex += cardsPerView;
+                    if (currentIndex >= totalCards) {
+                        currentIndex = 0;
+                    }
+                    moveCarousel();
+                });
+            }
+            
+            // Anterior
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    currentIndex -= cardsPerView;
+                    if (currentIndex < 0) {
+                        currentIndex = Math.max(0, totalCards - cardsPerView);
+                    }
+                    moveCarousel();
+                });
+            }
+            
+            // Inicializar
+            updateCardsPerView();
+            createIndicators();
+            
+            // Actualizar en resize
+            window.addEventListener('resize', () => {
+                updateCardsPerView();
+                createIndicators();
+                currentIndex = 0;
+                moveCarousel();
+            });
+            
+            // Auto-play opcional (cada 5 segundos)
+            setInterval(() => {
+                if (nextBtn) nextBtn.click();
+            }, 5000);
+        });
+        
+        // Modal de matrona
+        function abrirModalMatrona(matronaId) {
+            const modal = document.getElementById('modalMatrona');
+            const modalContent = document.getElementById('modalMatronaContent');
+            
+            // Buscar datos de la matrona
+            fetch(`/matrona/${matronaId}/info/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Aplicar color de fondo personalizado
+                    const modalBody = modal.querySelector('.bg-white.rounded-2xl');
+                    if (data.color_agenda) {
+                        modalBody.style.backgroundColor = data.color_agenda;
+                    }
+                    
+                    modalContent.innerHTML = `
+                        <div class="flex flex-col items-center text-center">
+                            <div class="w-40 h-40 rounded-full overflow-hidden mb-6 border-4 shadow-xl" style="border-color:  '#a855f7'}">
+                                ${data.foto_perfil ? 
+                                    `<img src="${data.foto_perfil}" alt="${data.nombre}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full flex items-center justify-center" style="background-color: '#a855f7'}">
+                                        <i class="fas fa-user-nurse text-7xl text-white"></i>
+                                    </div>`
+                                }
+                            </div>
+                            
+                            <h2 class="text-3xl font-bold mb-6" style="color:  '#a855f7'}">${data.nombre}</h2>
+                            
+                            ${data.descripcion ? `
+                                <div class="mb-6 max-w-2xl">
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-3">
+                                        <i class="fas fa-user-circle mr-2" style="color: '#a855f7'}"></i>Biografía
+                                    </h3>
+                                    <div class="text-gray-700 leading-relaxed whitespace-pre-line text-left bg-white/50 p-4 rounded-xl">${data.descripcion}</div>
+                                </div>
+                            ` : ''}
+                            
+                            ${data.email ? `
+                                <div class="flex items-center gap-3 px-6 py-3 rounded-full" style="background-color: ${data.color_agenda}20">
+                                    <i class="fas fa-envelope text-xl" style="color: ${data.color_agenda || '#a855f7'}"></i>
+                                    <a href="mailto:${data.email}" class="font-medium hover:underline" style="color: ${data.color_agenda || '#a855f7'}">${data.email}</a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    modal.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar información de la matrona');
+                });
+        }
+        
+        function cerrarModalMatrona() {
+            document.getElementById('modalMatrona').classList.add('hidden');
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modalMatrona')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModalMatrona();
+            }
+        });
+
+        // ===== CARRUSEL DE ANUNCIOS =====
+        const bannerAnuncios = document.getElementById('bannerAnuncios');
+        if (bannerAnuncios) {
+            const slides = bannerAnuncios.children;
+            const prevBtn = document.getElementById('prevBanner');
+            const nextBtn = document.getElementById('nextBanner');
+            let currentIndex = 0;
+            let autoPlayInterval;
+
+            function showSlide(index) {
+                const slideWidth = bannerAnuncios.offsetWidth;
+                bannerAnuncios.style.transform = `translateX(-${index * slideWidth}px)`;
+                currentIndex = index;
+            }
+
+            function nextSlide() {
+                let next = (currentIndex + 1) % slides.length;
+                showSlide(next);
+            }
+
+            function prevSlide() {
+                let prev = (currentIndex - 1 + slides.length) % slides.length;
+                showSlide(prev);
+            }
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    prevSlide();
+                    resetAutoPlay();
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    nextSlide();
+                    resetAutoPlay();
+                });
+            }
+
+            function startAutoPlay() {
+                autoPlayInterval = setInterval(nextSlide, 4000);
+            }
+
+            function resetAutoPlay() {
+                clearInterval(autoPlayInterval);
+                startAutoPlay();
+            }
+
+            if (slides.length > 1) {
+                startAutoPlay();
+            }
+
+            // Ajustar en resize
+            window.addEventListener('resize', () => {
+                showSlide(currentIndex);
+            });
+        }
+    </script>
+    
+    <!-- Modal de información de matrona -->
+    <div id="modalMatrona" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-instagram-gradient">Información de la Matrona</h2>
+                <button onclick="cerrarModalMatrona()" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="modalMatronaContent" class="p-6">
+                <div class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-4xl text-instagram-purple"></i>
+                    <p class="text-gray-600 mt-4">Cargando...</p>
+                </div>
+            </div>
+        </div>
     </div>
 
 {% endblock %}

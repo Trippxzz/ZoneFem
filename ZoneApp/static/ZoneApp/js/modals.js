@@ -232,32 +232,68 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// Manejar el envío del formulario de registro
+// Manejar el envío del formulario de registro con AJAX
 document.addEventListener('DOMContentLoaded', function() {
   const registroForm = document.getElementById('registroFormModal');
   if (registroForm) {
     registroForm.addEventListener('submit', function(e) {
-      const password1 = document.getElementById('password1').value;
-      const password2 = document.getElementById('password2').value;
+      e.preventDefault();
+      
+      const password1 = document.getElementById('passwordModal1').value;
+      const password2 = document.getElementById('passwordModal2').value;
       const errorsDiv = document.getElementById('registroErrors');
       
       // Validar que las contraseñas coincidan
       if (password1 !== password2) {
-        e.preventDefault();
-        errorsDiv.textContent = 'Las contraseñas no coinciden.';
+        errorsDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Las contraseñas no coinciden.';
         errorsDiv.classList.remove('hidden');
         return false;
       }
       
-      // Validar longitud mínima
-      if (password1.length < 8) {
-        e.preventDefault();
-        errorsDiv.textContent = 'La contraseña debe tener al menos 8 caracteres.';
-        errorsDiv.classList.remove('hidden');
-        return false;
-      }
+      // Enviar formulario con AJAX
+      const formData = new FormData(registroForm);
       
-      errorsDiv.classList.add('hidden');
+      fetch(registroForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        if (response.redirected) {
+          // Si hay redirect, significa que el registro fue exitoso
+          window.location.href = response.url;
+          return null;
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data && !data.success) {
+          // Mostrar errores sin borrar el formulario
+          let errorHtml = '<i class="fas fa-exclamation-circle mr-2"></i>';
+          for (let field in data.errors) {
+            errorHtml += data.errors[field].join(', ') + '<br>';
+          }
+          errorsDiv.innerHTML = errorHtml;
+          errorsDiv.classList.remove('hidden');
+          
+          // Mantener los datos del formulario (excepto contraseñas)
+          if (data.data) {
+            document.querySelector('input[name="first_name"]').value = data.data.first_name || '';
+            document.querySelector('input[name="email"]').value = data.data.email || '';
+            document.getElementById('rutModalInput').value = data.data.rut || '';
+            document.querySelector('input[name="telefono"]').value = data.data.telefono || '';
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        errorsDiv.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>Ocurrió un error. Por favor intenta nuevamente.';
+        errorsDiv.classList.remove('hidden');
+      });
+      
+      return false;
     });
   }
 });
@@ -297,7 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const calendario = document.getElementById('customCalendar');
   
   if (displayInput && calendario) {
-    displayInput.addEventListener('click', function() {
+    displayInput.addEventListener('click', function(e) {
+      e.stopPropagation(); // Prevenir que el click se propague
       calendarioNacimientoAbierto = !calendarioNacimientoAbierto;
       if (calendarioNacimientoAbierto) {
         // Establecer fecha inicial (hace 25 años)
@@ -315,6 +352,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
     
+    // Prevenir que clicks dentro del calendario se propaguen
+    calendario.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+    
     // Listener para cambio de mes/año
     document.getElementById('mesNacimiento').addEventListener('change', function() {
       mesActualNacimiento = parseInt(this.value);
@@ -327,11 +369,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Cerrar calendario al hacer clic fuera
+  // Cerrar calendario al hacer clic fuera (pero no cuando son eventos automáticos del carrusel)
   document.addEventListener('click', function(e) {
     const calendario = document.getElementById('customCalendar');
     const displayInput = document.getElementById('fechaNacimientoDisplay');
-    if (calendario && displayInput && !calendario.contains(e.target) && e.target !== displayInput) {
+    
+    // Verificar que el click es real (tiene coordenadas) y no un evento sintético
+    if (e.isTrusted && calendario && displayInput && 
+        !calendario.contains(e.target) && 
+        e.target !== displayInput &&
+        !e.target.closest('.carousel-item')) { // Ignorar clicks dentro del carrusel
       calendario.classList.add('hidden');
       calendarioNacimientoAbierto = false;
     }
@@ -386,8 +433,10 @@ function cambiarMesNacimiento(direccion) {
 }
 
 function seleccionarDiaNacimiento(dia) {
+  // Solo marcar el día seleccionado, NO cerrar el calendario
   fechaSeleccionadaNacimiento = new Date(anioActualNacimiento, mesActualNacimiento, dia);
   renderCalendarioNacimiento();
+  // No llamar a cerrarCalendarioNacimiento() aquí
 }
 
 function confirmarFechaNacimiento() {
@@ -427,3 +476,129 @@ window.cambiarMesNacimiento = cambiarMesNacimiento;
 window.seleccionarDiaNacimiento = seleccionarDiaNacimiento;
 window.confirmarFechaNacimiento = confirmarFechaNacimiento;
 window.cerrarCalendarioNacimiento = cerrarCalendarioNacimiento;
+
+// ============================================
+// VALIDACIÓN DE RUT EN TIEMPO REAL
+// ============================================
+
+function validarRUT(rut) {
+  // Limpiar RUT
+  rut = rut.replace(/\./g, '').replace(/-/g, '').toUpperCase();
+  
+  // Validar formato básico
+  if (!/^\d{7,8}[0-9K]$/.test(rut)) {
+    return false;
+  }
+  
+  // Separar número y dígito verificador
+  const numero = rut.slice(0, -1);
+  const dvIngresado = rut.slice(-1);
+  
+  // Calcular dígito verificador
+  let suma = 0;
+  let multiplo = 2;
+  
+  for (let i = numero.length - 1; i >= 0; i--) {
+    suma += parseInt(numero[i]) * multiplo;
+    multiplo = multiplo === 7 ? 2 : multiplo + 1;
+  }
+  
+  const resto = suma % 11;
+  const dvCalculado = 11 - resto;
+  
+  let dvEsperado;
+  if (dvCalculado === 11) {
+    dvEsperado = '0';
+  } else if (dvCalculado === 10) {
+    dvEsperado = 'K';
+  } else {
+    dvEsperado = dvCalculado.toString();
+  }
+  
+  return dvIngresado === dvEsperado;
+}
+
+// Configurar validación del RUT cuando se carga el modal
+document.addEventListener('DOMContentLoaded', function() {
+  const rutInput = document.getElementById('rutModalInput');
+  
+  if (rutInput) {
+    const rutStatus = document.getElementById('rutModalStatus');
+    const rutMessage = document.getElementById('rutModalMessage');
+    
+    rutInput.addEventListener('input', function(e) {
+      let value = e.target.value.replace(/\./g, '').replace(/-/g, '').toUpperCase();
+      
+      // Solo permitir números y K
+      value = value.replace(/[^0-9K]/g, '');
+      
+      if (value.length === 0) {
+        e.target.value = '';
+        rutStatus.classList.add('hidden');
+        rutMessage.textContent = 'Ingresa tu RUT';
+        rutMessage.className = 'text-xs text-gray-500 mt-1';
+        e.target.className = 'w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink pr-12';
+        return;
+      }
+      
+      // Formatear con puntos y guión
+      if (value.length > 1) {
+        const dv = value.slice(-1);
+        let numero = value.slice(0, -1);
+        
+        // Agregar puntos cada 3 dígitos
+        numero = numero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        
+        e.target.value = numero + '-' + dv;
+      } else {
+        e.target.value = value;
+      }
+      
+      // Validar solo si tiene formato completo, mínimo 8 caracteres sin formato
+      if (value.length >= 8) {
+        const esValido = validarRUT(value);
+        
+        if (esValido) {
+          rutStatus.classList.remove('hidden');
+          rutStatus.innerHTML = '<i class="fas fa-check-circle text-green-500 text-xl"></i>';
+          rutMessage.textContent = '✓ RUT válido';
+          rutMessage.className = 'text-xs text-green-600 font-medium mt-1';
+          e.target.className = 'w-full py-3 px-4 border-2 border-green-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 pr-12';
+        } else {
+          rutStatus.classList.remove('hidden');
+          rutStatus.innerHTML = '<i class="fas fa-times-circle text-red-500 text-xl"></i>';
+          rutMessage.textContent = '✗ RUT inválido - Verifica el dígito verificador';
+          rutMessage.className = 'text-xs text-red-600 font-medium mt-1';
+          e.target.className = 'w-full py-3 px-4 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 pr-12';
+        }
+      } else {
+        rutStatus.classList.add('hidden');
+        rutMessage.textContent = 'Ingresa al menos 7 números + dígito verificador';
+        rutMessage.className = 'text-xs text-gray-500 mt-1';
+        e.target.className = 'w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink pr-12';
+      }
+    });
+  }
+});
+
+// ============================================
+// TOGGLE PASSWORD VISIBILITY EN MODAL
+// ============================================
+
+function togglePasswordModal(fieldId) {
+  const field = document.getElementById(fieldId);
+  const button = event.currentTarget;
+  const icon = button.querySelector('i');
+  
+  if (field.type === 'password') {
+    field.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    field.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+}
+
+window.togglePasswordModal = togglePasswordModal;
