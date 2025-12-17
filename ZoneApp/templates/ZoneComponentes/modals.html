@@ -65,34 +65,51 @@
       <form method="POST" action="{% url 'registro' %}" id="registroFormModal">
           {% csrf_token %}
           
+          <!-- Nombre Completo -->
           <div class="form-group-modal mb-4">
             <label class="block mb-2 font-medium text-gray-700">
               <i class="fas fa-user mr-2 text-instagram-pink"></i>Nombre Completo
             </label>
-            <input type="text" name="first_name" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="María González">
+            <input type="text" name="first_name" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink transition-colors" required placeholder="Ej: María González">
           </div>
 
-          <div class="form-group-modal mb-4">
-            <label class="block mb-2 font-medium text-gray-700">
-              <i class="fas fa-envelope mr-2 text-instagram-pink"></i>Correo Electrónico
-            </label>
-            <input type="email" name="email" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="tu@email.com">
-          </div>
-
+          <!-- RUT con validación -->
           <div class="form-group-modal mb-4">
             <label class="block mb-2 font-medium text-gray-700">
               <i class="fas fa-id-card mr-2 text-instagram-pink"></i>RUT
             </label>
-            <input type="text" name="rut" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="12.345.678-9">
-            <p class="text-xs text-gray-500 mt-1">Formato: 12.345.678-9</p>
+            <div class="relative">
+              <input type="text" name="rut" id="rutModalInput" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink pr-12 transition-colors" required placeholder="12.345.678-9" maxlength="12">
+              <div id="rutModalStatus" class="absolute right-3 top-1/2 -translate-y-1/2 hidden">
+                <i class="fas fa-check-circle text-green-500"></i>
+              </div>
+            </div>
+            <p id="rutModalMessage" class="text-xs text-gray-500 mt-1">Ingresa tu RUT </p>
           </div>
 
+          <!-- Email -->
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-envelope mr-2 text-instagram-pink"></i>Correo Electrónico
+            </label>
+            <input type="email" name="email" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink transition-colors" required placeholder="tu@email.com">
+          </div>
+
+          <!-- Teléfono -->
+          <div class="form-group-modal mb-4">
+            <label class="block mb-2 font-medium text-gray-700">
+              <i class="fas fa-phone mr-2 text-instagram-pink"></i>Teléfono
+            </label>
+            <input type="tel" name="telefono" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink transition-colors" required placeholder="+56 9 1234 5678">
+          </div>
+
+          <!-- Fecha de Nacimiento -->
           <div class="form-group-modal mb-4">
             <label class="block mb-2 font-medium text-gray-700">
               <i class="fas fa-birthday-cake mr-2 text-instagram-pink"></i>Fecha de Nacimiento
             </label>
             <div class="relative">
-              <input type="text" id="fechaNacimientoDisplay" readonly class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink cursor-pointer bg-white" placeholder="Selecciona tu fecha de nacimiento">
+              <input type="text" id="fechaNacimientoDisplay" readonly class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink cursor-pointer bg-white transition-colors" placeholder="Selecciona tu fecha de nacimiento">
               <input type="hidden" name="fecha_nacimiento" id="fechaNacimiento">
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <i class="fas fa-calendar-alt text-instagram-pink"></i>
@@ -152,19 +169,30 @@
             </div>
           </div>
           
+          <!-- Contraseña -->
           <div class="form-group-modal mb-4">
             <label class="block mb-2 font-medium text-gray-700">
               <i class="fas fa-lock mr-2 text-instagram-pink"></i>Contraseña
             </label>
-            <input type="password" name="password" id="password1" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="••••••">
-            <p class="text-xs text-gray-500 mt-1">Mínimo 8 caracteres</p>
+            <div class="relative">
+              <input type="password" name="password" id="passwordModal1" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink pr-12 transition-colors" required placeholder="Mínimo 8 caracteres">
+              <button type="button" onclick="togglePasswordModal('passwordModal1')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-instagram-pink transition-colors">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
           </div>
 
+          <!-- Confirmar Contraseña -->
           <div class="form-group-modal mb-5">
             <label class="block mb-2 font-medium text-gray-700">
               <i class="fas fa-lock mr-2 text-instagram-pink"></i>Confirmar Contraseña
             </label>
-            <input type="password" name="password2" id="password2" class="w-full py-3 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-instagram-pink" required placeholder="••••••">
+            <div class="relative">
+              <input type="password" name="password2" id="passwordModal2" class="w-full py-3 px-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-instagram-pink pr-12 transition-colors" required placeholder="Repite tu contraseña">
+              <button type="button" onclick="togglePasswordModal('passwordModal2')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-instagram-pink transition-colors">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
           </div>
 
           <div id="registroErrors" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"></div>
