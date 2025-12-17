@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ curso.nombre }} - ZoneFem{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Back Button -->
+    <a href="{% url 'lista_cursos' %}" class="inline-flex items-center text-instagram-purple hover:text-instagram-pink mb-6 transition-colors">
+        <i class="fas fa-arrow-left mr-2"></i> Volver a cursos
+    </a>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Image Gallery -->
+            {% if curso.imagenes_curso.exists %}
+            <div class="mb-8">
+                <div class="relative rounded-2xl overflow-hidden shadow-xl h-96 bg-gradient-to-br from-instagram-purple/20 to-instagram-pink/20">
+                    {% with imagen_principal=curso.imagenes_curso.all|first %}
+                    <img src="{{ imagen_principal.imagen.url }}" 
+                         alt="{{ curso.nombre }}" 
+                         class="w-full h-full object-cover">
+                    {% endwith %}
+                </div>
+                
+                {% if curso.imagenes_curso.count > 1 %}
+                <div class="grid grid-cols-4 gap-4 mt-4">
+                    {% for imagen in curso.imagenes_curso.all %}
+                    <div class="rounded-lg overflow-hidden shadow-md h-24 cursor-pointer hover:shadow-xl transition-shadow">
+                        <img src="{{ imagen.imagen.url }}" alt="{{ curso.nombre }}" class="w-full h-full object-cover">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Course Header -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <div class="flex items-start justify-between mb-4">
+                    <h1 class="text-4xl font-bold text-gray-800">{{ curso.nombre }}</h1>
+                    <span class="px-4 py-2 bg-instagram-cyan text-gray-800 rounded-full text-sm font-medium">
+                        <i class="fas fa-laptop mr-1"></i> Online
+                    </span>
+                </div>
+
+                <p class="text-gray-600 text-lg leading-relaxed">{{ curso.descripcion|linebreaks }}</p>
+            </div>
+
+            <!-- Course Details -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-6 text-gray-800">Detalles del Curso</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex items-center p-4 bg-gradient-to-r from-instagram-purple/10 to-instagram-pink/10 rounded-xl">
+                        <i class="fas fa-clock text-3xl text-instagram-purple mr-4"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">Duración</p>
+                            <p class="text-xl font-bold text-gray-800">{{ curso.duracion_horas }} horas</p>
+                        </div>
+                    </div>
+                        <div class="flex items-center p-4 bg-gradient-to-r from-instagram-pink/10 to-instagram-purple/10 rounded-xl">
+                        <i class="fas fa-users text-3xl text-instagram-pink mr-4"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">Cupos</p>
+                            <p class="text-xl font-bold text-gray-800">
+                                {{ curso.cupos_ocupados }}/{{ curso.cupos_disponibles }}
+                                {% if not curso.tiene_cupos %}
+                                <span class="text-red-500 text-sm ml-2">(Lleno)</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-4 bg-gradient-to-r from-instagram-cyan/10 to-instagram-mint/10 rounded-xl">
+                        <i class="fas fa-calendar-alt text-3xl text-instagram-cyan mr-4"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">Fecha de Inicio</p>
+                            <p class="text-xl font-bold text-gray-800">{{ curso.fecha_inicio|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center p-4 bg-gradient-to-r from-instagram-mint/10 to-instagram-cyan/10 rounded-xl">
+                        <i class="fas fa-calendar-check text-3xl text-instagram-mint mr-4"></i>
+                        <div>
+                            <p class="text-sm text-gray-600">Fecha de Término</p>
+                            <p class="text-xl font-bold text-gray-800">{{ curso.fecha_termino|date:"d/m/Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {% if curso.link_reunion %}
+                <div class="mt-6 p-4 bg-blue-50 rounded-xl">
+                    <div class="flex items-start">
+                        <i class="fas fa-video text-2xl text-blue-600 mr-4 mt-1"></i>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Link de Reunión Online</p>
+                            <a href="{{ curso.link_reunion }}" target="_blank" class="text-lg text-blue-600 hover:underline">
+                                {{ curso.link_reunion }}
+                                <i class="fas fa-external-link-alt text-sm ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Content -->
+            {% if curso.contenido %}
+            <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Contenido del Curso</h2>
+                <div class="prose max-w-none text-gray-600">
+                    {{ curso.contenido|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Requirements -->
+            {% if curso.requisitos %}
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Requisitos</h2>
+                <div class="prose max-w-none text-gray-600">
+                    {{ curso.requisitos|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Enrollment Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 sticky top-4">
+                <div class="text-center mb-6">
+                    <p class="text-gray-600 mb-2">Precio del curso</p>
+                    <p class="text-5xl font-bold bg-gradient-to-r from-instagram-purple to-instagram-pink bg-clip-text text-transparent">
+                        ${{ curso.precio|floatformat:0 }}
+                    </p>
+                </div>
+
+                {% if user.is_authenticated %}
+                    {% if ya_inscrito %}
+                        <div class="bg-green-50 border-2 border-green-500 rounded-xl p-4 mb-6">
+                            <div class="flex items-center justify-center text-green-700">
+                                <i class="fas fa-check-circle text-2xl mr-3"></i>
+                                <p class="font-medium">Ya estás inscrito en este curso</p>
+                            </div>
+                        </div>
+                        <a href="{% url 'mis_cursos' %}" 
+                           class="block w-full py-4 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white text-center rounded-full font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                            Ver Mis Cursos
+                        </a>
+                    {% elif not curso.tiene_cupos %}
+                        <div class="bg-red-50 border-2 border-red-500 rounded-xl p-4 mb-6">
+                            <div class="flex items-center justify-center text-red-700">
+                                <i class="fas fa-exclamation-circle text-2xl mr-3"></i>
+                                <p class="font-medium">Curso lleno</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <button id="btnInscribir" 
+                                data-curso-id="{{ curso.id }}"
+                                class="w-full py-4 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-full font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-shopping-cart mr-2"></i> Agregar al Carrito
+                        </button>
+                        <p class="text-xs text-gray-500 text-center mt-2">
+                            {% comment %} <i class="fas fa-info-circle mr-1"></i> Tu cupo se reservará al agregar al carrito {% endcomment %}
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'loginusers' %}?next={{ request.path }}" 
+                       class="block w-full py-4 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white text-center rounded-full font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        Iniciar Sesión para Inscribirse
+                    </a>
+                {% endif %}
+
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4">Impartido por</h3>
+                    <div class="flex items-center mb-4">
+                        {% if curso.matrona.perfil_matrona.foto_perfil %}
+                        <img src="{{ curso.matrona.perfil_matrona.foto_perfil.url }}" 
+                             alt="{{ curso.matrona.first_name }}" 
+                             class="w-16 h-16 rounded-full object-cover mr-4">
+                        {% else %}
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-instagram-purple to-instagram-pink flex items-center justify-center mr-4">
+                            <i class="fas fa-user-md text-white text-2xl"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <p class="font-bold text-gray-800">{{ curso.matrona.first_name }} {{ curso.matrona.last_name }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btnInscribir = document.getElementById('btnInscribir');
+    if (btnInscribir) {
+        btnInscribir.addEventListener('click', function() {
+            const cursoId = this.getAttribute('data-curso-id');
+            const btn = this;
+            
+            // Deshabilitar botón
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Agregando...';
+            
+            fetch(`/cursos/${cursoId}/inscribir/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar mensaje de éxito
+                    alert(data.message);
+                    // Redirigir al carrito
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.message || 'Ocurrió un error');
+                    // Restaurar botón
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i> Agregar al Carrito';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ocurrió un error al procesar tu solicitud');
+                // Restaurar botón
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i> Agregar al Carrito';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Cursos - ZoneFem{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-cyan bg-clip-text text-transparent">
+            Mis Cursos
+        </h1>
+        <p class="text-gray-600 text-lg">Cursos en los que estás inscrito</p>
+    </div>
+
+    {% if inscripciones %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {% for inscripcion in inscripciones %}
+            {% with curso=inscripcion.curso %}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300">
+                <div class="flex flex-col md:flex-row">
+                    <!-- Course Image -->
+                    <div class="md:w-1/3 relative">
+                        <div class="h-full min-h-[200px] bg-gradient-to-br from-instagram-purple/20 to-instagram-pink/20">
+                            {% if curso.imagenes_curso.exists %}
+                                {% with imagen_principal=curso.imagenes_curso.all|first %}
+                                <img src="{{ imagen_principal.imagen.url }}" 
+                                     alt="{{ curso.nombre }}" 
+                                     class="w-full h-full object-cover">
+                                {% endwith %}
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center">
+                                    <i class="fas fa-graduation-cap text-5xl text-instagram-purple opacity-50"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        <div class="absolute top-4 left-4">
+                            {% if inscripcion.estado == 'confirmada' %}
+                            <span class="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-medium shadow-lg">
+                                <i class="fas fa-check-circle mr-1"></i> Confirmada
+                            </span>
+                            {% elif inscripcion.estado == 'pendiente' %}
+                            <span class="px-3 py-1 bg-yellow-500 text-white rounded-full text-xs font-medium shadow-lg">
+                                <i class="fas fa-clock mr-1"></i> Pendiente
+                            </span>
+                            {% else %}
+                            <span class="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-medium shadow-lg">
+                                <i class="fas fa-times-circle mr-1"></i> Cancelada
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Course Info -->
+                    <div class="md:w-2/3 p-6">
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="text-2xl font-bold text-gray-800 hover:text-instagram-purple transition-colors">
+                                <a href="{% url 'detalle_curso' curso.id %}">{{ curso.nombre }}</a>
+                            </h3>
+                            <span class="px-3 py-1 bg-instagram-cyan text-gray-800 rounded-full text-xs font-medium">
+                                <i class="fas fa-laptop"></i> Online
+                            </span>
+                        </div>
+
+                        <p class="text-gray-600 mb-4 text-sm line-clamp-2">{{ curso.descripcion|truncatewords:15 }}</p>
+
+                        <!-- Course Details -->
+                        <div class="space-y-2 mb-4">
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-user-md w-5 text-instagram-purple"></i>
+                                <span class="ml-2">{{ curso.matrona.first_name }} {{ curso.matrona.last_name }}</span>
+                            </div>
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-calendar-alt w-5 text-instagram-purple"></i>
+                                <span class="ml-2">{{ curso.fecha_inicio|date:"d/m/Y" }} - {{ curso.fecha_termino|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-clock w-5 text-instagram-purple"></i>
+                                <span class="ml-2">{{ curso.duracion_horas }} horas</span>
+                            </div>
+                            {% if curso.link_reunion %}
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-video w-5 text-instagram-cyan"></i>
+                                <a href="{{ curso.link_reunion }}" target="_blank" class="ml-2 text-instagram-cyan hover:underline">
+                                    Enlace de reunión <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                            {% if curso.ubicacion %}
+                            <div class="flex items-center text-gray-700 text-sm">
+                                <i class="fas fa-map-marker-alt w-5 text-instagram-mint"></i>
+                                <span class="ml-2">{{ curso.ubicacion }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3 pt-4 border-t border-gray-200">
+                            <a href="{% url 'detalle_curso' curso.id %}" 
+                               class="flex-1 px-4 py-2 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white text-center rounded-full font-medium hover:shadow-lg transition-all duration-300 text-sm">
+                                <i class="fas fa-eye mr-1"></i> Ver Detalles
+                            </a>
+                            {% if inscripcion.estado != 'cancelada' %}
+                            <button onclick="confirmarCancelacion({{ inscripcion.id }})" 
+                                    class="px-4 py-2 bg-red-500 text-white rounded-full font-medium hover:bg-red-600 transition-colors text-sm">
+                                <i class="fas fa-times mr-1"></i> Cancelar
+                            </button>
+                            {% endif %}
+                        </div>
+
+                        <!-- Inscription Date -->
+                        <p class="text-xs text-gray-500 mt-3">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Inscrito el {{ inscripcion.fecha_inscripcion|date:"d/m/Y H:i" }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16">
+            <div class="mb-6">
+                <i class="fas fa-graduation-cap text-8xl text-gray-300"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-700 mb-4">No tienes cursos inscritos</h3>
+            <p class="text-gray-600 mb-8">¡Explora nuestros cursos y comienza a aprender!</p>
+            <a href="{% url 'lista_cursos' %}" 
+               class="inline-block px-8 py-4 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-full font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-search mr-2"></i> Ver Cursos Disponibles
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function confirmarCancelacion(inscripcionId) {
+    if (confirm('¿Estás seguro de que deseas cancelar tu inscripción a este curso?')) {
+        // Aquí implementarías la lógica para cancelar la inscripción
+        alert('Funcionalidad de cancelación pendiente de implementar');
+    }
+}
+</script>
+{% endblock %}
