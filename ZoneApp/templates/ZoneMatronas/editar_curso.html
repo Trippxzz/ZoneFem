@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Curso - Panel Matrona{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{% url 'cursos_matrona' %}" class="inline-flex items-center text-instagram-purple hover:text-instagram-pink mb-4 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Volver a mis cursos
+        </a>
+        <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-instagram-purple via-instagram-pink to-instagram-cyan bg-clip-text text-transparent">
+            Editar Curso
+        </h1>
+        <p class="text-gray-600">Actualiza la información de tu curso</p>
+    </div>
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-info-circle text-instagram-purple mr-3"></i>
+                Información Básica
+            </h2>
+
+            <div class="space-y-6">
+                <div>
+                    <label for="id_nombre" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nombre del Curso <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="nombre" id="id_nombre" required value="{{ curso.nombre }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">
+                </div>
+
+                <div>
+                    <label for="id_descripcion" class="block text-sm font-medium text-gray-700 mb-2">
+                        Descripción <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="descripcion" id="id_descripcion" rows="4" required
+                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">{{ curso.descripcion }}</textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="id_precio" class="block text-sm font-medium text-gray-700 mb-2">
+                            Precio (CLP) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="precio" id="id_precio" required min="0" step="1000" value="{{ curso.precio|floatformat:0 }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">
+                    </div>
+
+                    <div>
+                        <label for="id_duracion_horas" class="block text-sm font-medium text-gray-700 mb-2">
+                            Duración (horas) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="duracion_horas" id="id_duracion_horas" required min="1" value="{{ curso.duracion_horas }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="id_cupos_disponibles" class="block text-sm font-medium text-gray-700 mb-2">
+                            Cupos Disponibles <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" name="cupos_disponibles" id="id_cupos_disponibles" required min="{{ curso.cupos_ocupados }}" value="{{ curso.cupos_disponibles }}"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Actualmente hay {{ curso.cupos_ocupados }} cupos ocupados
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Estado del Curso
+                        </label>
+                        <label class="flex items-center p-4 border-2 border-gray-300 rounded-xl cursor-pointer hover:border-instagram-purple transition-colors">
+                            <input type="checkbox" name="activo" id="id_activo" {% if curso.activo %}checked{% endif %}
+                                   class="w-5 h-5 text-instagram-purple focus:ring-instagram-purple rounded">
+                            <div class="ml-3">
+                                <div class="font-medium text-gray-800">Curso Activo (Visible)</div>
+                                <p class="text-sm text-gray-600">Los usuarios podrán ver e inscribirse en este curso</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-calendar-alt text-instagram-cyan mr-3"></i>
+                Fechas
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="id_fecha_inicio" class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha de Inicio <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" name="fecha_inicio" id="id_fecha_inicio" required value="{{ curso.fecha_inicio|date:'Y-m-d' }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">
+                </div>
+
+                <div>
+                    <label for="id_fecha_termino" class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha de Término <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" name="fecha_termino" id="id_fecha_termino" required value="{{ curso.fecha_termino|date:'Y-m-d' }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">
+                </div>
+            </div>
+        </div>
+
+        <!-- Online Meeting Link -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-video text-instagram-cyan mr-3"></i>
+                Link de Reunión Online
+            </h2>
+
+            <div>
+                <label for="id_link_reunion" class="block text-sm font-medium text-gray-700 mb-2">
+                    URL de la Reunión (Zoom, Meet, etc.)
+                </label>
+                <input type="url" name="link_reunion" id="id_link_reunion" value="{{ curso.link_reunion }}"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all"
+                       placeholder="https://zoom.us/j/...">
+                <p class="text-sm text-gray-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Comparte el link donde se realizarán las sesiones online
+                </p>
+            </div>
+        </div>
+
+        <!-- Content & Requirements -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-book text-instagram-purple mr-3"></i>
+                Contenido y Requisitos
+            </h2>
+
+            <div class="space-y-6">
+                <div>
+                    <label for="id_contenido" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contenido del Curso
+                    </label>
+                    <textarea name="contenido" id="id_contenido" rows="6"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">{{ curso.contenido }}</textarea>
+                </div>
+
+                <div>
+                    <label for="id_requisitos" class="block text-sm font-medium text-gray-700 mb-2">
+                        Requisitos
+                    </label>
+                    <textarea name="requisitos" id="id_requisitos" rows="4"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-instagram-purple focus:border-transparent transition-all">{{ curso.requisitos }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Images -->
+        {% if curso.imagenes_curso.exists %}
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-images text-instagram-cyan mr-3"></i>
+                Imágenes Actuales
+            </h2>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {% for imagen in curso.imagenes_curso.all %}
+                <div class="relative group">
+                    <img src="{{ imagen.imagen.url }}" alt="{{ curso.nombre }}" 
+                         class="w-full h-32 object-cover rounded-lg">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button type="button" onclick="eliminarImagen({{ imagen.id }})"
+                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- New Images -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center">
+                <i class="fas fa-plus-circle text-instagram-mint mr-3"></i>
+                Agregar Nuevas Imágenes
+            </h2>
+
+            <div>
+                <input type="file" name="imagenes" id="id_imagenes" multiple accept="image/*"
+                       class="w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl focus:border-instagram-purple transition-all cursor-pointer">
+            </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="flex gap-4">
+            <button type="submit"
+                    class="flex-1 py-4 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-full font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                <i class="fas fa-save mr-2"></i> Guardar Cambios
+            </button>
+            <a href="{% url 'cursos_matrona' %}"
+               class="px-8 py-4 bg-gray-200 text-gray-700 rounded-full font-bold text-lg hover:bg-gray-300 transition-colors">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validate dates
+    const fechaInicio = document.getElementById('id_fecha_inicio');
+    const fechaTermino = document.getElementById('id_fecha_termino');
+
+    fechaInicio.addEventListener('change', function() {
+        fechaTermino.min = this.value;
+    });
+
+    fechaTermino.addEventListener('change', function() {
+        if (fechaInicio.value && this.value < fechaInicio.value) {
+            alert('La fecha de término no puede ser anterior a la fecha de inicio');
+            this.value = fechaTermino.defaultValue;
+        }
+    });
+});
+
+function eliminarImagen(imagenId) {
+    if (confirm('¿Estás segura de que deseas eliminar esta imagen?')) {
+        // Implementar lógica de eliminación via AJAX
+        alert('Funcionalidad pendiente de implementar');
+    }
+}
+</script>
+{% endblock %}
