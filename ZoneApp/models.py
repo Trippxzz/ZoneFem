@@ -117,11 +117,132 @@ class Servicio(models.Model):
     descripcion = models.TextField(verbose_name='Descripción del Servicio')
     precio = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Precio del Servicio')
     duracion = models.IntegerField(verbose_name='Duración en minutos')
+    activo = models.BooleanField(default=True, verbose_name='Activo')
 
     def __str__(self):
         return self.nombre
+    
     def imagen_principal(self):
         return self.imagenes.filter(es_principal=True).first()
+    
+    def calificacion_promedio(self):
+        """Calcula el promedio de calificaciones"""
+        opiniones = self.opiniones.all()
+        if opiniones.exists():
+            return round(sum(op.calificacion for op in opiniones) / opiniones.count(), 1)
+        return 0
+    
+    def total_opiniones(self):
+        """Cuenta total de opiniones"""
+        return self.opiniones.count()
+
+
+class Curso(models.Model):
+    MODALIDAD_CHOICES = (
+        ('presencial', 'Presencial'),
+        ('remoto', 'Remoto/Online'),
+        ('mixto', 'Mixto (Presencial + Online)'),
+    )
+    
+    nombre = models.CharField(max_length=150, verbose_name='Nombre del Curso')
+    descripcion = models.TextField(verbose_name='Descripción del Curso')
+    precio = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Precio del Curso')
+    duracion_horas = models.IntegerField(verbose_name='Duración Total (horas)')
+    modalidad = models.CharField(max_length=15, choices=MODALIDAD_CHOICES, default='presencial', verbose_name='Modalidad')
+    cupos_disponibles = models.PositiveIntegerField(default=20, verbose_name='Cupos Disponibles')
+    
+    # Información adicional
+    requisitos = models.TextField(blank=True, verbose_name='Requisitos', help_text='Requisitos previos para el curso')
+    contenido = models.TextField(blank=True, verbose_name='Contenido del Curso', help_text='Temario o módulos del curso')
+    ubicacion = models.CharField(max_length=200, blank=True, verbose_name='Ubicación', help_text='Dirección si es presencial o mixto')
+    link_reunion = models.URLField(blank=True, verbose_name='Link de Reunión', help_text='Zoom, Meet, etc. si es remoto o mixto')
+    
+    # Fechas
+    fecha_inicio = models.DateField(verbose_name='Fecha de Inicio')
+    fecha_termino = models.DateField(verbose_name='Fecha de Término')
+    
+    # Estado
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    
+    # Matrona que imparte el curso
+    matrona = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='cursos_impartidos', limit_choices_to={'rol': 'matrona'})
+    
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Curso'
+        verbose_name_plural = 'Cursos'
+        ordering = ['-fecha_creacion']
+    
+    def __str__(self):
+        return f"{self.nombre} - {self.get_modalidad_display()}"
+    
+    def imagen_principal(self):
+        return self.imagenes_curso.filter(es_principal=True).first()
+    
+    @property
+    def cupos_ocupados(self):
+        return self.inscripciones.filter(estado='confirmada').count()
+    
+    @property
+    def cupos_restantes(self):
+        return self.cupos_disponibles - self.cupos_ocupados
+    
+    @property
+    def tiene_cupos(self):
+        return self.cupos_ocupados < self.cupos_disponibles
+    
+    @property
+    def porcentaje_ocupacion(self):
+        if self.cupos_disponibles == 0:
+            return 0
+        return (self.cupos_ocupados / self.cupos_disponibles) * 100
+
+
+class ImagenCurso(models.Model):
+    curso = models.ForeignKey(Curso, related_name='imagenes_curso', on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='cursos/', validators=[validate_image])
+    es_principal = models.BooleanField(default=False, verbose_name='¿Imagen Principal?')
+
+    def __str__(self):
+        return f"Imagen de {self.curso.nombre}"
+    
+    def save(self, *args, **kwargs):
+        if self.es_principal:
+            ImagenCurso.objects.filter(curso=self.curso, es_principal=True).update(es_principal=False)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = 'Imagen de Curso'
+        verbose_name_plural = 'Imágenes de Cursos'
+
+
+class InscripcionCurso(models.Model):
+    ESTADO_CHOICES = (
+        ('pendiente', 'Pendiente de Pago'),
+        ('confirmada', 'Confirmada (Pagada)'),
+        ('cancelada', 'Cancelada'),
+    )
+    
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='inscripciones')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='cursos_inscritos')
+    estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default='pendiente', verbose_name='Estado')
+    
+    # Información adicional
+    comentarios = models.TextField(blank=True, verbose_name='Comentarios o Consultas')
+    
+    fecha_inscripcion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Inscripción a Curso'
+        verbose_name_plural = 'Inscripciones a Cursos'
+        unique_together = ('curso', 'usuario')
+        ordering = ['-fecha_inscripcion']
+    
+    def __str__(self):
+        return f"{self.usuario.get_full_name()} - {self.curso.nombre} ({self.get_estado_display()})"
     
     
 class ImagenServicio(models.Model):
@@ -136,6 +257,26 @@ class ImagenServicio(models.Model):
         if self.es_principal:
             ImagenServicio.objects.filter(servicio=self.servicio, es_principal=True).update(es_principal=False)
         super().save(*args, **kwargs)
+
+
+class OpinionServicio(models.Model):
+    servicio = models.ForeignKey(Servicio, related_name='opiniones', on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    calificacion = models.IntegerField(
+        choices=[(1, '1 estrella'), (2, '2 estrellas'), (3, '3 estrellas'), (4, '4 estrellas'), (5, '5 estrellas')],
+        verbose_name='Calificación'
+    )
+    comentario = models.TextField(verbose_name='Comentario')
+    fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    
+    class Meta:
+        unique_together = ['servicio', 'usuario']
+        ordering = ['-fecha_creacion']
+        verbose_name = 'Opinión de Servicio'
+        verbose_name_plural = 'Opiniones de Servicios'
+    
+    def __str__(self):
+        return f"{self.usuario.email} - {self.servicio.nombre} ({self.calificacion}★)"
 
 
 class BloqueServicio(models.Model):
@@ -200,23 +341,63 @@ class Reservas(models.Model):
 class Carrito(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='carrito')
     creado_en = models.DateTimeField(auto_now_add=True)
+    cupon_aplicado = models.ForeignKey('Cupon', on_delete=models.SET_NULL, null=True, blank=True, related_name='carritos')
 
     def __str__(self):
         return f"Carrito de {self.usuario.email}"
     
     @property
-    def total(self):
+    def subtotal(self):
         return sum(item.subtotal for item in self.items.all())
+    
+    @property
+    def descuento(self):
+        if self.cupon_aplicado:
+            valido, mensaje = self.cupon_aplicado.es_valido(self.usuario, self.subtotal)
+            if valido:
+                return self.cupon_aplicado.calcular_descuento(self.subtotal)
+        return 0
+    
+    @property
+    def total(self):
+        return self.subtotal - self.descuento
     
 class CarritoItem(models.Model):
     carrito = models.ForeignKey(Carrito, on_delete=models.CASCADE, related_name='items')
-    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='carrito_items')
+    servicio = models.ForeignKey(Servicio, on_delete=models.CASCADE, related_name='carrito_items', null=True, blank=True)
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='carrito_items', null=True, blank=True)
     cantidad= models.PositiveIntegerField(default=1, editable=False)
+    
     def __str__(self):
-        return f"{self.cantidad} x {self.servicio.nombre} en el carrito de {self.carrito.id}"
+        if self.servicio:
+            return f"{self.cantidad} x {self.servicio.nombre} en el carrito de {self.carrito.id}"
+        elif self.curso:
+            return f"Curso: {self.curso.nombre} en el carrito de {self.carrito.id}"
+        return f"Item en el carrito de {self.carrito.id}"
+    
     @property
     def subtotal(self):
-        return self.servicio.precio * self.cantidad
+        if self.servicio:
+            return self.servicio.precio * self.cantidad
+        elif self.curso:
+            return self.curso.precio
+        return 0
+    
+    @property
+    def nombre(self):
+        if self.servicio:
+            return self.servicio.nombre
+        elif self.curso:
+            return self.curso.nombre
+        return "Item"
+    
+    @property
+    def precio(self):
+        if self.servicio:
+            return self.servicio.precio
+        elif self.curso:
+            return self.curso.precio
+        return 0
 
 
 class Venta(models.Model):
@@ -263,3 +444,186 @@ class FichaClinica(models.Model):
     
     def __str__(self):
         return f'Ficha de {self.paciente.get_full_name()}'
+
+
+class Cupon(models.Model):
+    TIPO_DESCUENTO = (
+        ('porcentaje', 'Porcentaje'),
+        ('fijo', 'Monto Fijo'),
+    )
+    
+    codigo = models.CharField(max_length=50, unique=True, verbose_name='Código del Cupón')
+    descripcion = models.TextField(blank=True, verbose_name='Descripción')
+    tipo_descuento = models.CharField(max_length=15, choices=TIPO_DESCUENTO, default='porcentaje', verbose_name='Tipo de Descuento')
+    valor_descuento = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Valor del Descuento')
+    
+    # Restricciones
+    monto_minimo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Monto Mínimo de Compra')
+    usos_maximos = models.PositiveIntegerField(null=True, blank=True, verbose_name='Usos Máximos', help_text='Dejar en blanco para ilimitado')
+    usos_actuales = models.PositiveIntegerField(default=0, verbose_name='Usos Actuales')
+    usos_por_usuario = models.PositiveIntegerField(default=1, verbose_name='Usos por Usuario')
+    
+    # Fechas
+    fecha_inicio = models.DateTimeField(verbose_name='Fecha de Inicio')
+    fecha_expiracion = models.DateTimeField(verbose_name='Fecha de Expiración')
+    
+    # Estado
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    
+    # Metadata
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Cupón de Descuento'
+        verbose_name_plural = 'Cupones de Descuento'
+        ordering = ['-fecha_creacion']
+    
+    def __str__(self):
+        if self.tipo_descuento == 'porcentaje':
+            return f'{self.codigo} - {self.valor_descuento}% de descuento'
+        else:
+            return f'{self.codigo} - ${self.valor_descuento} de descuento'
+    
+    def es_valido(self, usuario=None, total_carrito=0):
+        """Verifica si el cupón es válido"""
+        ahora = timezone.now()
+        
+        # Verificar si está activo
+        if not self.activo:
+            return False, 'El cupón no está activo'
+        
+        # Verificar fechas
+        if ahora < self.fecha_inicio:
+            return False, 'El cupón aún no es válido'
+        
+        if ahora > self.fecha_expiracion:
+            return False, 'El cupón ha expirado'
+        
+        # Verificar usos máximos
+        if self.usos_maximos and self.usos_actuales >= self.usos_maximos:
+            return False, 'El cupón ha alcanzado su límite de usos'
+        
+        # Verificar monto mínimo
+        if self.monto_minimo and total_carrito < self.monto_minimo:
+            return False, f'El monto mínimo de compra es ${self.monto_minimo}'
+        
+        # Verificar usos por usuario
+        if usuario and usuario.is_authenticated:
+            usos_usuario = UsoCupon.objects.filter(cupon=self, usuario=usuario).count()
+            if usos_usuario >= self.usos_por_usuario:
+                return False, 'Ya has usado este cupón el máximo de veces permitido'
+        
+        return True, 'Cupón válido'
+    
+    def calcular_descuento(self, total):
+        """Calcula el monto de descuento"""
+        if self.tipo_descuento == 'porcentaje':
+            descuento = (total * self.valor_descuento) / 100
+        else:
+            descuento = self.valor_descuento
+        
+        # El descuento no puede ser mayor al total
+        return min(descuento, total)
+
+
+class UsoCupon(models.Model):
+    cupon = models.ForeignKey(Cupon, on_delete=models.CASCADE, related_name='usos')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='cupones_usados')
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='cupon_aplicado', null=True, blank=True)
+    fecha_uso = models.DateTimeField(auto_now_add=True)
+    monto_descuento = models.DecimalField(max_digits=10, decimal_places=2, verbose_name='Monto del Descuento')
+    
+    class Meta:
+        verbose_name = 'Uso de Cupón'
+        verbose_name_plural = 'Usos de Cupones'
+        ordering = ['-fecha_uso']
+    
+    def __str__(self):
+        return f'{self.usuario.email} usó {self.cupon.codigo} el {self.fecha_uso.strftime("%d/%m/%Y")}'
+
+
+class Anuncio(models.Model):
+    texto = models.CharField(max_length=300, verbose_name='Texto del Anuncio')
+    enlace = models.URLField(blank=True, null=True, verbose_name='Enlace (opcional)')
+    texto_enlace = models.CharField(max_length=50, blank=True, default='Ver más', verbose_name='Texto del enlace')
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    fecha_inicio = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de inicio')
+    fecha_fin = models.DateTimeField(null=True, blank=True, verbose_name='Fecha de fin')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Anuncio'
+        verbose_name_plural = 'Anuncios'
+        ordering = ['-fecha_creacion']
+    
+    def __str__(self):
+        return self.texto[:50]
+    
+    def esta_vigente(self):
+        """Verifica si el anuncio está dentro del rango de fechas"""
+        from django.utils import timezone
+        now = timezone.now()
+        
+        if not self.activo:
+            return False
+        
+        if self.fecha_inicio and now < self.fecha_inicio:
+            return False
+        
+        if self.fecha_fin and now > self.fecha_fin:
+            return False
+        
+        return True
+
+
+class RuletaBeneficio(models.Model):
+    """Opciones de beneficios disponibles en la ruleta"""
+    TIPO_CHOICES = [
+        ('cupon', 'Cupón de Descuento'),
+        ('porcentaje', 'Descuento Porcentaje'),
+        ('monto', 'Descuento Monto Fijo'),
+    ]
+    
+    texto = models.CharField(max_length=100, verbose_name='Texto del Beneficio')
+    tipo_beneficio = models.CharField(max_length=20, choices=TIPO_CHOICES, verbose_name='Tipo de Beneficio')
+    cupon = models.ForeignKey(Cupon, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Cupón Asociado')
+    valor_porcentaje = models.IntegerField(null=True, blank=True, verbose_name='Valor Porcentaje (0-100)')
+    valor_monto = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Valor Monto')
+    probabilidad = models.IntegerField(default=10, verbose_name='Probabilidad (1-100)')
+    color = models.CharField(max_length=7, default='#E982F2', verbose_name='Color Hexadecimal')
+    activo = models.BooleanField(default=True, verbose_name='Activo')
+    orden = models.IntegerField(default=0, verbose_name='Orden de visualización')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = 'Beneficio de Ruleta'
+        verbose_name_plural = 'Beneficios de Ruleta'
+        ordering = ['orden', '-fecha_creacion']
+    
+    def __str__(self):
+        return f'{self.texto} ({self.get_tipo_beneficio_display()})'
+    
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.tipo_beneficio == 'cupon' and not self.cupon:
+            raise ValidationError('Debe seleccionar un cupón para tipo "Cupón de Descuento"')
+        if self.tipo_beneficio == 'porcentaje' and not self.valor_porcentaje:
+            raise ValidationError('Debe especificar el porcentaje de descuento')
+        if self.tipo_beneficio == 'monto' and not self.valor_monto:
+            raise ValidationError('Debe especificar el monto de descuento')
+
+
+class UsuarioRuleta(models.Model):
+    """Registro de participación de usuarios en la ruleta"""
+    usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, verbose_name='Usuario')
+    ha_girado = models.BooleanField(default=False, verbose_name='Ha Girado')
+    beneficio_obtenido = models.ForeignKey(RuletaBeneficio, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Beneficio Obtenido')
+    cupon_generado = models.ForeignKey(Cupon, on_delete=models.SET_NULL, null=True, blank=True, related_name='ruleta_cupones', verbose_name='Cupón Generado')
+    fecha_giro = models.DateTimeField(null=True, blank=True, verbose_name='Fecha del Giro')
+    
+    class Meta:
+        verbose_name = 'Participación en Ruleta'
+        verbose_name_plural = 'Participaciones en Ruleta'
+    
+    def __str__(self):
+        return f'{self.usuario.email} - {"Ha girado" if self.ha_girado else "No ha girado"}'

@@ -4,15 +4,61 @@ from django.forms.models import inlineformset_factory
 from datetime import date
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
+import re
+
 class UsuarioForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirmación de contraseña', widget=forms.PasswordInput)
+    
     class Meta:
         model = Usuario
         fields = ['first_name', 'email', 'rut', 'fecha_nacimiento', 'telefono']
         widgets = {
             'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
-            }
+        }
+    
+    def clean_rut(self):
+        """Valida el RUT chileno con formato y dígito verificador"""
+        rut = self.cleaned_data.get('rut', '').strip()
+        
+        # Remover puntos y guiones
+        rut_limpio = rut.replace('.', '').replace('-', '').upper()
+        
+        # Validar formato básico (7-8 dígitos + dígito verificador)
+        if not re.match(r'^\d{7,8}[0-9K]$', rut_limpio):
+            raise forms.ValidationError('RUT inválido. Formato esperado: 12345678-9 o 12.345.678-9')
+        
+        # Separar número y dígito verificador
+        numero = rut_limpio[:-1]
+        dv_ingresado = rut_limpio[-1]
+        
+        # Calcular dígito verificador
+        suma = 0
+        multiplo = 2
+        
+        for digito in reversed(numero):
+            suma += int(digito) * multiplo
+            multiplo += 1
+            if multiplo == 8:
+                multiplo = 2
+        
+        resto = suma % 11
+        dv_calculado = 11 - resto
+        
+        if dv_calculado == 11:
+            dv_calculado = '0'
+        elif dv_calculado == 10:
+            dv_calculado = 'K'
+        else:
+            dv_calculado = str(dv_calculado)
+        
+        # Comparar dígito verificador
+        if dv_ingresado != dv_calculado:
+            raise forms.ValidationError(f'RUT inválido. El dígito verificador debería ser {dv_calculado}')
+        
+        # Retornar formato sin puntos ni guiones para almacenar
+        return rut_limpio
+    
     def clean(self):
         # Esto verifica que las contraseñas coincidan
         cleaned_data = super().clean()
