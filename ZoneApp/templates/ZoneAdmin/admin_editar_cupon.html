@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar Cupón{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{% url 'admin_cupones' %}" class="text-instagram-pink hover:text-instagram-purple font-medium mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Volver a cupones
+        </a>
+        <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-instagram-gradient">
+            <i class="fas fa-edit"></i> Editar Cupón: {{ cupon.codigo }}
+        </h1>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white rounded-xl shadow-md p-8">
+        <form method="POST" action="{% url 'admin_editar_cupon' cupon.id %}">
+            {% csrf_token %}
+
+            <!-- Información Básica -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-text-dark mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-instagram-purple/10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-info-circle text-instagram-purple"></i>
+                    </div>
+                    Información Básica
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Código del Cupón <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               name="codigo" 
+                               value="{{ cupon.codigo }}"
+                               required 
+                               maxlength="50"
+                               style="text-transform: uppercase;"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Estado
+                        </label>
+                        <div class="flex items-center gap-4 h-full">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" name="activo" {% if cupon.activo %}checked{% endif %} class="sr-only peer">
+                                <div class="relative w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-instagram-pink/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+                                <span class="ml-3 text-sm font-medium text-text-dark">Activo</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="block text-sm font-medium text-text-dark mb-2">
+                        Descripción
+                    </label>
+                    <textarea name="descripcion" 
+                              rows="3" 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">{{ cupon.descripcion }}</textarea>
+                </div>
+            </div>
+
+            <!-- Configuración del Descuento -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-text-dark mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-instagram-pink/10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-tag text-instagram-pink"></i>
+                    </div>
+                    Configuración del Descuento
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Tipo de Descuento <span class="text-red-500">*</span>
+                        </label>
+                        <select name="tipo_descuento" 
+                                id="tipoDescuento"
+                                onchange="actualizarPlaceholder()"
+                                required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                            <option value="porcentaje" {% if cupon.tipo_descuento == 'porcentaje' %}selected{% endif %}>Porcentaje (%)</option>
+                            <option value="fijo" {% if cupon.tipo_descuento == 'fijo' %}selected{% endif %}>Monto Fijo ($)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Valor del Descuento <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" 
+                               name="valor_descuento" 
+                               id="valorDescuento"
+                               value="{{ cupon.valor_descuento }}"
+                               required 
+                               step="0.01"
+                               min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                        <p class="text-xs text-text-light mt-1" id="descuentoHelp">
+                            {% if cupon.tipo_descuento == 'porcentaje' %}
+                            Ingresa el porcentaje de descuento (0-100)
+                            {% else %}
+                            Ingresa el monto fijo de descuento en pesos
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Monto Mínimo de Compra
+                        </label>
+                        <input type="number" 
+                               name="monto_minimo" 
+                               value="{% if cupon.monto_minimo %}{{ cupon.monto_minimo }}{% endif %}"
+                               step="1"
+                               min="0"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restricciones de Uso -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-text-dark mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-instagram-cyan/10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-shield-alt text-instagram-cyan"></i>
+                    </div>
+                    Restricciones de Uso
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Usos Máximos
+                        </label>
+                        <input type="number" 
+                               name="usos_maximos" 
+                               value="{% if cupon.usos_maximos %}{{ cupon.usos_maximos }}{% endif %}"
+                               min="1"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                        <p class="text-xs text-text-light mt-1">
+                            Actual: {{ cupon.usos_actuales }} usos
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Usos por Usuario <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" 
+                               name="usos_por_usuario" 
+                               value="{{ cupon.usos_por_usuario }}"
+                               required
+                               min="1"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fechas de Validez -->
+            <div class="mb-8">
+                <h3 class="text-xl font-bold text-text-dark mb-4 flex items-center">
+                    <div class="w-8 h-8 bg-green-500/10 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-calendar-alt text-green-500"></i>
+                    </div>
+                    Fechas de Validez
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Fecha de Inicio <span class="text-red-500">*</span>
+                        </label>
+                        <input type="datetime-local" 
+                               name="fecha_inicio" 
+                               value="{{ cupon.fecha_inicio|date:'Y-m-d\TH:i' }}"
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-text-dark mb-2">
+                            Fecha de Expiración <span class="text-red-500">*</span>
+                        </label>
+                        <input type="datetime-local" 
+                               name="fecha_expiracion" 
+                               value="{{ cupon.fecha_expiracion|date:'Y-m-d\TH:i' }}"
+                               required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-4 pt-6 border-t">
+                <button type="submit" 
+                        class="flex-1 py-4 px-6 bg-instagram-gradient text-white font-bold rounded-xl hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <i class="fas fa-save mr-2"></i>Guardar Cambios
+                </button>
+                <a href="{% url 'admin_cupones' %}" 
+                   class="px-6 py-4 bg-gray-200 text-text-dark font-medium rounded-xl hover:bg-gray-300 transition-all text-center">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function actualizarPlaceholder() {
+    const tipoDescuento = document.getElementById('tipoDescuento').value;
+    const valorInput = document.getElementById('valorDescuento');
+    const helpText = document.getElementById('descuentoHelp');
+    
+    if (tipoDescuento === 'porcentaje') {
+        valorInput.max = '100';
+        helpText.textContent = 'Ingresa el porcentaje de descuento (0-100)';
+    } else {
+        valorInput.removeAttribute('max');
+        helpText.textContent = 'Ingresa el monto fijo de descuento en pesos';
+    }
+}
+
+// Inicializar al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    actualizarPlaceholder();
+});
+</script>
+
+{% endblock %}

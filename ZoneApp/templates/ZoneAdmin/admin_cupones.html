@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Administrar Cupones{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold mb-2 bg-clip-text text-transparent bg-instagram-gradient">
+            <i class="fas fa-ticket-alt"></i> Administración de Cupones
+        </h1>
+        <p class="text-text-light">Gestiona los cupones de descuento de tu plataforma</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-instagram-purple">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-text-light text-sm mb-1">Total Cupones</p>
+                    <p class="text-3xl font-bold text-text-dark">{{ total_cupones }}</p>
+                </div>
+                <div class="w-14 h-14 bg-instagram-purple/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-ticket-alt text-2xl text-instagram-purple"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-text-light text-sm mb-1">Activos</p>
+                    <p class="text-3xl font-bold text-text-dark">{{ cupones_activos }}</p>
+                </div>
+                <div class="w-14 h-14 bg-green-500/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-check-circle text-2xl text-green-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-text-light text-sm mb-1">Expirados</p>
+                    <p class="text-3xl font-bold text-text-dark">{{ cupones_expirados }}</p>
+                </div>
+                <div class="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-times-circle text-2xl text-red-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-instagram-cyan">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-text-light text-sm mb-1">Total Usos</p>
+                    <p class="text-3xl font-bold text-text-dark">{{ total_usos }}</p>
+                </div>
+                <div class="w-14 h-14 bg-instagram-cyan/10 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-line text-2xl text-instagram-cyan"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- Búsqueda -->
+            <div class="flex-1">
+                <form method="GET" action="{% url 'admin_cupones' %}" class="flex gap-2">
+                    <input type="hidden" name="estado" value="{{ estado_filtro }}">
+                    <input type="text" 
+                           name="busqueda" 
+                           value="{{ busqueda }}"
+                           placeholder="Buscar por código..." 
+                           class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-instagram-pink">
+                    <button type="submit" class="px-6 py-2 bg-instagram-gradient text-white rounded-lg hover:shadow-lg transition-all font-medium">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
+                </form>
+            </div>
+
+            <!-- Filtros de estado -->
+            <div class="flex gap-2">
+                <a href="?estado=todos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" 
+                   class="px-4 py-2 rounded-lg font-medium transition-all {% if estado_filtro == 'todos' %}bg-instagram-gradient text-white{% else %}bg-gray-100 text-text-dark hover:bg-gray-200{% endif %}">
+                    Todos
+                </a>
+                <a href="?estado=activos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" 
+                   class="px-4 py-2 rounded-lg font-medium transition-all {% if estado_filtro == 'activos' %}bg-green-500 text-white{% else %}bg-gray-100 text-text-dark hover:bg-gray-200{% endif %}">
+                    Activos
+                </a>
+                <a href="?estado=expirados{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" 
+                   class="px-4 py-2 rounded-lg font-medium transition-all {% if estado_filtro == 'expirados' %}bg-red-500 text-white{% else %}bg-gray-100 text-text-dark hover:bg-gray-200{% endif %}">
+                    Expirados
+                </a>
+                <a href="?estado=inactivos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}" 
+                   class="px-4 py-2 rounded-lg font-medium transition-all {% if estado_filtro == 'inactivos' %}bg-gray-500 text-white{% else %}bg-gray-100 text-text-dark hover:bg-gray-200{% endif %}">
+                    Inactivos
+                </a>
+            </div>
+
+            <!-- Botón crear -->
+            <a href="{% url 'admin_crear_cupon' %}" 
+               class="px-6 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition-all font-medium whitespace-nowrap">
+                <i class="fas fa-plus mr-2"></i>Nuevo Cupón
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabla de Cupones -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        {% if cupones %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-instagram-gradient text-white">
+                    <tr>
+                        <th class="px-6 py-4 text-left font-semibold">Código</th>
+                        <th class="px-6 py-4 text-left font-semibold">Descuento</th>
+                        <th class="px-6 py-4 text-left font-semibold">Usos</th>
+                        <th class="px-6 py-4 text-left font-semibold">Validez</th>
+                        <th class="px-6 py-4 text-left font-semibold">Estado</th>
+                        <th class="px-6 py-4 text-center font-semibold">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for cupon in cupones %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="font-bold text-instagram-pink text-lg">{{ cupon.codigo }}</p>
+                                {% if cupon.descripcion %}
+                                <p class="text-sm text-text-light">{{ cupon.descripcion|truncatewords:10 }}</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                {% if cupon.tipo_descuento == 'porcentaje' %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-bold">
+                                    <i class="fas fa-percentage mr-1"></i>
+                                    {{ cupon.valor_descuento }}%
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 font-bold">
+                                    <i class="fas fa-dollar-sign mr-1"></i>
+                                    ${{ cupon.valor_descuento|floatformat:0 }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% if cupon.monto_minimo %}
+                            <p class="text-xs text-text-light mt-1">Min: ${{ cupon.monto_minimo|floatformat:0 }}</p>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="font-medium">{{ cupon.usos_actuales }}{% if cupon.usos_maximos %} / {{ cupon.usos_maximos }}{% else %} / ∞{% endif %}</p>
+                                <p class="text-xs text-text-light">{{ cupon.usos_por_usuario }} por usuario</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm">
+                                <p class="text-text-dark"><i class="fas fa-calendar-check text-green-600 mr-1"></i> {{ cupon.fecha_inicio|date:"d/m/Y" }}</p>
+                                <p class="{% if cupon.fecha_expiracion < now %}text-red-600{% else %}text-text-light{% endif %}">
+                                    <i class="fas fa-calendar-times mr-1"></i> {{ cupon.fecha_expiracion|date:"d/m/Y" }}
+                                </p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <button onclick="toggleCupon({{ cupon.id }})" 
+                                    id="toggle-btn-{{ cupon.id }}"
+                                    class="inline-flex items-center px-3 py-1 rounded-full font-bold text-sm transition-all
+                                    {% if cupon.activo %}bg-green-100 text-green-800 hover:bg-green-200{% else %}bg-red-100 text-red-800 hover:bg-red-200{% endif %}">
+                                <i class="fas {% if cupon.activo %}fa-check-circle{% else %}fa-times-circle{% endif %} mr-1"></i>
+                                <span id="toggle-text-{{ cupon.id }}">{% if cupon.activo %}Activo{% else %}Inactivo{% endif %}</span>
+                            </button>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'admin_editar_cupon' cupon.id %}" 
+                                   class="p-2 bg-instagram-cyan/10 text-instagram-cyan rounded-lg hover:bg-instagram-cyan hover:text-white transition-all"
+                                   title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{% url 'admin_eliminar_cupon' cupon.id %}" 
+                                      onsubmit="return confirm('¿Estás seguro de eliminar el cupón {{ cupon.codigo }}?')">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all"
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-16">
+            <i class="fas fa-ticket-alt text-9xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-text-dark mb-2">No hay cupones</h3>
+            <p class="text-text-light mb-6">Crea tu primer cupón de descuento</p>
+            <a href="{% url 'admin_crear_cupon' %}" 
+               class="inline-block px-6 py-3 bg-instagram-gradient text-white rounded-lg hover:shadow-lg transition-all font-medium">
+                <i class="fas fa-plus mr-2"></i>Crear Cupón
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleCupon(cuponId) {
+    const btn = document.getElementById(`toggle-btn-${cuponId}`);
+    const text = document.getElementById(`toggle-text-${cuponId}`);
+    const icon = btn.querySelector('i');
+    
+    btn.disabled = true;
+    
+    fetch(`/gestion/cupones/toggle/${cuponId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.activo) {
+                btn.className = 'inline-flex items-center px-3 py-1 rounded-full font-bold text-sm transition-all bg-green-100 text-green-800 hover:bg-green-200';
+                icon.className = 'fas fa-check-circle mr-1';
+                text.textContent = 'Activo';
+            } else {
+                btn.className = 'inline-flex items-center px-3 py-1 rounded-full font-bold text-sm transition-all bg-red-100 text-red-800 hover:bg-red-200';
+                icon.className = 'fas fa-times-circle mr-1';
+                text.textContent = 'Inactivo';
+            }
+        }
+        btn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.disabled = false;
+    });
+}
+</script>
+
+{% endblock %}

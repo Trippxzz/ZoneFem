@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestionar Usuarios - ZONEFEM{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">
+                    <i class="fas fa-users text-instagram-purple mr-3"></i>
+                    Gestionar Usuarios
+                </h1>
+                <p class="text-gray-600 mt-2">Administra usuarios y asigna roles de matrona</p>
+            </div>
+            <a href="{% url 'panel_matrona' %}" class="text-gray-600 hover:text-instagram-purple transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Volver al Panel
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <form method="GET" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+                <input type="text" 
+                       name="busqueda" 
+                       value="{{ busqueda }}"
+                       placeholder="Nombre, email o RUT..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-instagram-purple focus:border-transparent">
+            </div>
+            
+            <div class="min-w-[150px]">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Filtrar por Rol</label>
+                <select name="rol" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-instagram-purple focus:border-transparent">
+                    <option value="">Todos</option>
+                    <option value="usuario" {% if rol_filtro == 'usuario' %}selected{% endif %}>Usuario</option>
+                    <option value="matrona" {% if rol_filtro == 'matrona' %}selected{% endif %}>Matrona</option>
+                </select>
+            </div>
+            
+            <div class="flex items-end gap-2">
+                <button type="submit" 
+                        class="px-6 py-2 bg-gradient-to-r from-instagram-purple to-instagram-pink text-white rounded-lg font-medium hover:shadow-lg transition-all">
+                    <i class="fas fa-search mr-2"></i>Buscar
+                </button>
+                <a href="{% url 'admin_gestionar_usuarios' %}" 
+                   class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all">
+                    <i class="fas fa-times mr-2"></i>Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gradient-to-r from-instagram-purple to-instagram-pink text-white">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Usuario</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">RUT</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Teléfono</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold">Rol Actual</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for usuario in usuarios %}
+                    <tr class="hover:bg-gray-50 transition-colors" id="usuario-{{ usuario.id }}">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-instagram-purple to-instagram-pink flex items-center justify-center text-white font-bold">
+                                    {{ usuario.first_name.0 }}{{ usuario.last_name.0 }}
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-medium text-gray-900">{{ usuario.get_full_name }}</p>
+                                    <p class="text-sm text-gray-500">
+                                        Registrado: {{ usuario.date_joined|date:"d/m/Y" }}
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">{{ usuario.email }}</td>
+                        <td class="px-6 py-4 text-gray-700">{{ usuario.rut }}</td>
+                        <td class="px-6 py-4 text-gray-700">{{ usuario.telefono|default:"—" }}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                {% if usuario.rol == 'matrona' %}bg-purple-100 text-purple-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                                {{ usuario.get_rol_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            {% if not usuario.is_superuser %}
+                            <div class="flex items-center justify-center gap-2">
+                                {% if usuario.rol == 'usuario' %}
+                                <button onclick="cambiarRol({{ usuario.id }}, 'matrona', '{{ usuario.get_full_name }}')"
+                                        class="px-4 py-2 bg-purple-500 text-white rounded-lg text-sm font-medium hover:bg-purple-600 transition-colors">
+                                    <i class="fas fa-user-nurse mr-1"></i>Hacer Matrona
+                                </button>
+                                {% else %}
+                                <button onclick="cambiarRol({{ usuario.id }}, 'usuario', '{{ usuario.get_full_name }}')"
+                                        class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-user mr-1"></i>Hacer Usuario
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <span class="text-gray-400 text-sm">
+                                <i class="fas fa-shield-alt mr-1"></i>Superusuario
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl mb-3 block text-gray-300"></i>
+                            No se encontraron usuarios
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="mt-6 bg-white rounded-2xl shadow-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center p-4 bg-gray-50 rounded-xl">
+                <p class="text-3xl font-bold text-gray-800">{{ usuarios|length }}</p>
+                <p class="text-gray-600 mt-1">Total Usuarios Registrados</p>
+            </div>
+            <div class="text-center p-4 bg-purple-50 rounded-xl">
+                <p class="text-3xl font-bold text-purple-600">{{ total_matronas }}</p>
+                <p class="text-gray-600 mt-1">Matronas</p>
+            </div>
+            <div class="text-center p-4 bg-blue-50 rounded-xl">
+                <p class="text-3xl font-bold text-blue-600">{{ total_usuarios }}</p>
+                <p class="text-gray-600 mt-1">Usuarios</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function cambiarRol(usuarioId, nuevoRol, nombreUsuario) {
+    const mensaje = nuevoRol === 'matrona' 
+        ? `¿Convertir a ${nombreUsuario} en MATRONA? Se creará su perfil de matrona automáticamente.`
+        : `¿Convertir a ${nombreUsuario} en USUARIO normal?`;
+    
+    if (!confirm(mensaje)) return;
+    
+    fetch(`/gestion/usuarios/${usuarioId}/cambiar_rol/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `rol=${nuevoRol}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al cambiar el rol');
+    });
+}
+</script>
+{% endblock %}

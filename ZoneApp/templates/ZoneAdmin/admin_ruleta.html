@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestión de Ruleta{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-purple mb-2">
+                <i class="fas fa-dice mr-2"></i>
+                Gestión de Ruleta de Beneficios
+            </h1>
+            <p class="text-purple/80">Configura las opciones de la ruleta para tus usuarios</p>
+        </div>
+        <a href="{% url 'admin_crear_beneficio_ruleta' %}" 
+           class="px-6 py-3 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-all shadow-lg flex items-center gap-2">
+            <i class="fas fa-plus-circle"></i>
+            Nuevo Beneficio
+        </a>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+                <div class="bg-{% if message.tags == 'success' %}green{% elif message.tags == 'error' %}red{% else %}blue{% endif %}-500 text-white px-6 py-4 rounded-lg shadow-lg mb-3">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} mr-2"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Contenido Principal -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+        
+        {% if beneficios %}
+            <!-- Tabla de Beneficios -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-sm font-semibold w-8">#</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-gift mr-2"></i>Beneficio
+                            </th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold">
+                                <i class="fas fa-tag mr-2"></i>Tipo
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold">
+                                <i class="fas fa-percentage mr-2"></i>Probabilidad
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold">
+                                <i class="fas fa-palette mr-2"></i>Color
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold">
+                                <i class="fas fa-sort mr-2"></i>Orden
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold">
+                                <i class="fas fa-toggle-on mr-2"></i>Estado
+                            </th>
+                            <th class="px-6 py-4 text-center text-sm font-semibold">
+                                <i class="fas fa-cogs mr-2"></i>Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for beneficio in beneficios %}
+                        <tr class="hover:bg-purple-50 transition-colors">
+                            <td class="px-6 py-4 text-center text-gray-500 font-mono">{{ forloop.counter }}</td>
+                            <td class="px-6 py-4">
+                                <p class="font-medium text-gray-900">{{ beneficio.texto }}</p>
+                                {% if beneficio.tipo_beneficio == 'cupon' and beneficio.cupon %}
+                                <p class="text-xs text-gray-500 mt-1">Cupón: {{ beneficio.cupon.codigo }}</p>
+                                {% elif beneficio.tipo_beneficio == 'porcentaje' %}
+                                <p class="text-xs text-gray-500 mt-1">{{ beneficio.valor_porcentaje }}% descuento</p>
+                                {% elif beneficio.tipo_beneficio == 'monto' %}
+                                <p class="text-xs text-gray-500 mt-1">${{ beneficio.valor_monto }} descuento</p>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                                    {{ beneficio.get_tipo_beneficio_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="font-bold text-lg text-purple-600">{{ beneficio.probabilidad }}%</span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <div class="w-8 h-8 rounded-full shadow-inner" style="background-color: {{ beneficio.color }}"></div>
+                                    <code class="text-xs text-gray-500">{{ beneficio.color }}</code>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center justify-center w-10 h-10 bg-gray-100 text-gray-700 rounded-full font-bold">
+                                    {{ beneficio.orden }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <button onclick="toggleBeneficio({{ beneficio.id }})" 
+                                        class="px-4 py-2 rounded-full text-xs font-medium transition-all
+                                               {% if beneficio.activo %}bg-green-100 text-green-700 hover:bg-green-200{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}"
+                                        id="status-{{ beneficio.id }}">
+                                    <i class="fas fa-{% if beneficio.activo %}check-circle{% else %}times-circle{% endif %} mr-1"></i>
+                                    <span id="status-text-{{ beneficio.id }}">{% if beneficio.activo %}Activo{% else %}Inactivo{% endif %}</span>
+                                </button>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{% url 'admin_editar_beneficio_ruleta' beneficio.id %}" 
+                                       class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all text-sm">
+                                        <i class="fas fa-edit mr-1"></i>
+                                        Editar
+                                    </a>
+                                    <form method="POST" action="{% url 'admin_eliminar_beneficio_ruleta' beneficio.id %}" 
+                                          onsubmit="return confirm('¿Estás seguro de eliminar este beneficio?');"
+                                          class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" 
+                                                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-sm">
+                                            <i class="fas fa-trash mr-1"></i>
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <!-- Estado Vacío -->
+            <div class="text-center py-16 px-4">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-purple-100 rounded-full mb-6">
+                    <i class="fas fa-dice text-4xl text-purple-600"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3">No hay beneficios configurados</h3>
+                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                    Comienza creando el primer beneficio para tu ruleta. Los usuarios podrán girar una vez y obtener premios.
+                </p>
+                <a href="{% url 'admin_crear_beneficio_ruleta' %}" 
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all shadow-lg">
+                    <i class="fas fa-plus-circle"></i>
+                    Crear Primer Beneficio
+                </a>
+            </div>
+        {% endif %}
+        
+    </div>
+
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleBeneficio(beneficioId) {
+    fetch(`/gestion/ruleta/toggle/${beneficioId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const statusBtn = document.getElementById(`status-${beneficioId}`);
+            const statusText = document.getElementById(`status-text-${beneficioId}`);
+            const icon = statusBtn.querySelector('i');
+            
+            if (data.activo) {
+                statusBtn.className = 'px-4 py-2 rounded-full text-xs font-medium transition-all bg-green-100 text-green-700 hover:bg-green-200';
+                icon.className = 'fas fa-check-circle mr-1';
+                statusText.textContent = 'Activo';
+            } else {
+                statusBtn.className = 'px-4 py-2 rounded-full text-xs font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200';
+                icon.className = 'fas fa-times-circle mr-1';
+                statusText.textContent = 'Inactivo';
+            }
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+
+{% endblock %}

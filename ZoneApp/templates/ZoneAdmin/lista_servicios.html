@@ -112,12 +112,34 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <div class="flex items-center justify-center gap-2">
+                                <div class="flex items-center justify-center gap-2 flex-wrap">
+                                    <!-- Badge de Estado -->
+                                    {% if not servicio.activo %}
+                                    <span class="px-3 py-1 bg-gray-500 text-white rounded-full text-xs font-medium">
+                                        <i class="fas fa-eye-slash mr-1"></i> Oculto
+                                    </span>
+                                    {% else %}
+                                    <span class="px-3 py-1 bg-green-500 text-white rounded-full text-xs font-medium">
+                                        <i class="fas fa-eye mr-1"></i> Visible
+                                    </span>
+                                    {% endif %}
+                                    
+                                    <!-- Botones -->
                                     <a href="{% url 'editarservicio' servicio.id %}" 
                                        class="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all text-sm">
                                         <i class="fas fa-edit mr-1"></i>
-                                        Editar/Imágenes
+                                        Editar
                                     </a>
+                                    <button onclick="toggleServicio({{ servicio.id }}, '{{ servicio.nombre }}', {{ servicio.activo|lower }})" 
+                                            class="px-4 py-2 {% if servicio.activo %}bg-yellow-500 text-white hover:bg-yellow-600{% else %}bg-green-500 text-white hover:bg-green-600{% endif %} rounded-lg transition-all text-sm">
+                                        <i class="fas fa-{% if servicio.activo %}eye-slash{% else %}eye{% endif %} mr-1"></i> 
+                                        {% if servicio.activo %}Ocultar{% else %}Mostrar{% endif %}
+                                    </button>
+                                    {% comment %} <button onclick="confirmarEliminarServicio({{ servicio.id }}, '{{ servicio.nombre }}')" 
+                                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all text-sm">
+                                        <i class="fas fa-trash mr-1"></i>
+                                        Eliminar
+                                    </button> {% endcomment %}
                                 </div>
                             </td>
                         </tr>
@@ -139,4 +161,89 @@
         
     </div>
 </div>
+
+<script>
+// Función para obtener el token CSRF de las cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleServicio(servicioId, servicioNombre, estadoActual) {
+    const accion = estadoActual ? 'ocultar' : 'mostrar';
+    if (confirm(`¿Estás segura de que deseas ${accion} el servicio "${servicioNombre}"?`)) {
+        const csrftoken = getCookie('csrftoken');
+        const formData = new FormData();
+        
+        fetch(`/servicios/${servicioId}/toggle/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message || 'Error desconocido');
+            }
+        })
+        .catch(error => {
+            console.error('Error completo:', error);
+            alert('Ocurrió un error al cambiar el estado del servicio: ' + error.message);
+        });
+    }
+}
+
+function confirmarEliminarServicio(servicioId, servicioNombre) {
+    if (confirm(`¿Estás segura de que deseas ELIMINAR PERMANENTEMENTE el servicio "${servicioNombre}"?\n\n⚠️ ADVERTENCIA: Esta acción no se puede deshacer.\nSi el servicio tiene reservas activas, no podrá ser eliminado.\n\nSi solo deseas ocultarlo temporalmente, usa la opción "Ocultar".`)) {
+        const csrftoken = getCookie('csrftoken');
+        const formData = new FormData();
+        
+        fetch(`/eliminar_servicio/${servicioId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message || 'Error desconocido');
+            }
+        })
+        .catch(error => {
+            console.error('Error completo:', error);
+            alert('Ocurrió un error al eliminar el servicio: ' + error.message);
+        });
+    }
+}
+</script>
 {% endblock %}
